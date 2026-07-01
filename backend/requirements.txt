@@ -13,3 +13,4 @@ httpx==0.28.1
 yookassa==3.4.0
 redis==5.2.1
 python-dotenv==1.0.1
+email-validator==2.2.0

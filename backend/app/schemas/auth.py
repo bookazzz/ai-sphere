@@ -1,17 +1,30 @@
 """Auth schemas."""
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, field_validator
 
 
 class RegisterRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
     name: str | None = None
 
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        v = v.strip().lower()
+        if "@" not in v or "." not in v.split("@")[-1]:
+            raise ValueError("Некорректный email")
+        return v
+
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, v: str) -> str:
+        return v.strip().lower()
 
 
 class TokenResponse(BaseModel):
