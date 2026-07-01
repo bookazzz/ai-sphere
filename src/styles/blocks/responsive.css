@@ -1,0 +1,93 @@
+@media (max-width: 768px) {
+  .chat { height: 100vh; padding: 16px; padding-left: 16px; justify-content: flex-start; padding-top: 12px; }
+  .chat__title { font-size: 28px; }
+  .chat__subtitle { font-size: 14px; }
+  .chat__mobile-bar { display: flex; }
+  .chat__model-select { max-width: 130px; font-size: 11px; padding: 5px 10px; }
+  .chat__model-select-label { max-width: 70px; }
+  .sidebar { width: var(--sidebar-width); transform: translateX(-100%); transition: transform var(--transition-slow); }
+  .sidebar--mobile-open { transform: translateX(0); }
+  .quick-actions { gap: 6px; }
+  .quick-actions__btn { font-size: 12px; padding: 6px 12px; }
+
+  /* Documents */
+  .documents { padding: 60px 16px; }
+  .documents__title { font-size: 24px; }
+  .documents__grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Features */
+  .features { padding: 60px 16px; }
+  .features__inner { padding: 0; }
+  .features__label { font-size: 12px; margin-bottom: 8px; }
+  .features__title { font-size: 28px; max-width: 100%; }
+  .features__desc { font-size: 15px; max-width: 100%; margin-bottom: 32px; }
+  .features__grid { grid-template-columns: 1fr; gap: 16px; }
+  .features__card { padding: 20px; }
+  .features__card-title { font-size: 15px; }
+  .features__card-desc { font-size: 13px; }
+
+  /* How it works */
+  .how-it-works { padding: 60px 16px; }
+  .how-it-works__title { font-size: 28px; }
+  .how-it-works__subtitle { font-size: 14px; max-width: 100%; margin-bottom: 40px; }
+  .how-it-works__steps { grid-template-columns: 1fr; gap: 24px; }
+  .how-it-works__step { padding: 24px 16px; }
+  .how-it-works__step-number { width: 40px; height: 40px; font-size: 16px; }
+  .how-it-works__step-title { font-size: 15px; }
+  .how-it-works__step-desc { font-size: 13px; }
+
+  /* Why us */
+  .why-us { padding: 60px 16px; }
+  .why-us__title { font-size: 28px; }
+  .why-us__subtitle { font-size: 14px; }
+  .why-us__grid { grid-template-columns: 1fr; gap: 12px; }
+  .why-us__card { padding: 18px; }
+  .why-us__card-title { font-size: 14px; }
+
+  /* Models grid */
+  .models-grid { padding: 60px 16px; }
+  .models-grid__title { font-size: 24px; }
+  .models-grid__subtitle { font-size: 14px; }
+
+  /* File support */
+  .file-support { padding: 60px 16px; }
+  .file-support__content { grid-template-columns: 1fr; gap: 32px; }
+  .file-support__visual { order: -1; }
+  .file-support__title { font-size: 28px; }
+  .file-support__desc { font-size: 14px; }
+
+  /* FAQ */
+  .faq { padding: 60px 16px; }
+  .faq__title { font-size: 24px; }
+  .faq__question { padding: 14px 16px; font-size: 14px; }
+  .faq__answer-text { font-size: 13px; }
+
+
+  /* CTA */
+  .cta { padding: 60px 16px; }
+  .cta__title { font-size: 28px; }
+  .cta__subtitle { font-size: 15px; }
+  .cta__btn { padding: 12px 28px; font-size: 15px; }
+
+  /* Footer */
+  .footer { padding: 40px 16px 30px; }
+  .footer__inner { grid-template-columns: 1fr; gap: 32px; }
+
+  /* Auth modal */
+  .auth-modal__content { margin: 16px; padding: 24px; }
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .documents__grid { grid-template-columns: repeat(3, 1fr); }
+  .features__grid { grid-template-columns: repeat(2, 1fr); }
+  .how-it-works__steps { grid-template-columns: repeat(3, 1fr); }
+  .why-us__grid { grid-template-columns: repeat(2, 1fr); }
+  .file-support__content { gap: 40px; }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  .how-it-works__steps { grid-template-columns: repeat(5, 1fr); }
+  .why-us__grid { grid-template-columns: repeat(2, 1fr); }
+}

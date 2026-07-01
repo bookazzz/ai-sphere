@@ -1,0 +1,91 @@
+.chat {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 100vh; padding: 80px 24px 24px;
+  max-width: 860px; margin: 0 auto; width: 100%; position: relative;
+}
+
+.chat__mobile-bar { display: none; align-items: center; width: 100%; padding: 0 0 16px 0; }
+.chat__mobile-toggle { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 16px; color: var(--color-text-primary); cursor: pointer; transition: all var(--transition-fast); }
+.chat__mobile-toggle:hover { background: var(--color-bg-secondary); }
+.chat__mobile-logo { font-weight: 600; font-size: 15px; color: var(--color-accent); }
+
+.chat__welcome { text-align: center; max-width: 680px; width: 100%; margin-bottom: 32px; }
+.chat__title { font-size: 40px; font-weight: 700; line-height: 1.2; margin-bottom: 12px; background: var(--color-accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.chat__subtitle { font-size: 16px; color: var(--color-text-secondary); line-height: 1.5; }
+
+/* Input area */
+.chat__input-area { max-width: 760px; width: 100%; }
+
+/* Wrapper = relative container for absolute icons */
+.chat__input-wrapper { position: relative; }
+
+/* Big textarea with bottom padding for icons */
+.chat__input {
+  width: 100%; display: block;
+  padding: 20px 24px 56px 24px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); font-size: 17px; line-height: 1.6;
+  color: var(--color-text-primary); outline: none; resize: vertical;
+  min-height: 140px; max-height: 300px;
+  box-shadow: var(--shadow-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  font-family: var(--font-family);
+}
+.chat__input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.1), var(--shadow-md);
+}
+.chat__input::placeholder { color: var(--color-text-tertiary); }
+
+/* Icon row overlaid at bottom of textarea */
+.chat__input-actions {
+  position: absolute; bottom: 8px; left: 12px; right: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  pointer-events: none;
+}
+.chat__input-actions > * { pointer-events: all; }
+
+.chat__input-left,
+.chat__input-right {
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* Small icon button */
+.chat__input-icon {
+  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-md); font-size: 18px;
+  color: var(--color-text-tertiary); cursor: pointer;
+  transition: all var(--transition-fast); background: transparent;
+  flex-shrink: 0;
+}
+.chat__input-icon:hover { background: var(--color-bg-secondary); color: var(--color-text-primary); }
+
+.chat__input-icon--submit {
+  background: var(--color-accent-gradient); color: white;
+  border-radius: var(--radius-md); font-size: 20px; font-weight: 700;
+}
+.chat__input-icon--submit:hover { opacity: 0.9; color: white; }
+
+.chat__mic-icon { display: block; color: inherit; }
+
+/* Model button inside textarea */
+.chat__input-model {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: var(--radius-full);
+  font-size: 12px; color: var(--color-text-secondary); cursor: pointer;
+  background: var(--color-bg-secondary); border: none;
+  transition: all var(--transition-fast); white-space: nowrap;
+}
+.chat__input-model:hover { background: var(--color-border); color: var(--color-text-primary); }
+.chat__model-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-accent-gradient); flex-shrink: 0; }
+.chat__model-arrow { font-size: 10px; margin-left: 2px; }
+
+/* Cost hint below input */
+.chat__cost-hint { font-size: 12px; color: var(--color-text-tertiary); margin-top: 8px; text-align: right; }
+
+/* Placeholder cards */
+.chat__placeholder { width: 100%; max-width: 760px; margin-top: 40px; text-align: center; }
+.chat__placeholder-title { font-size: 14px; color: var(--color-text-tertiary); margin-bottom: 16px; }
+.chat__placeholder-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+.chat__placeholder-card { padding: 12px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 13px; color: var(--color-text-secondary); cursor: pointer; transition: all var(--transition-fast); text-align: center; }
+.chat__placeholder-card:hover { border-color: var(--color-accent); background: var(--color-accent-light); color: var(--color-accent); }

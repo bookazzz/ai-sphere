@@ -1,0 +1,17 @@
+@import './blocks/variables.css';
+@import './blocks/base.css';
+@import './blocks/sidebar.css';
+@import './blocks/chat.css';
+@import './blocks/quick-actions.css';
+@import './blocks/documents.css';
+@import './blocks/features.css';
+@import './blocks/how-it-works.css';
+@import './blocks/why-us.css';
+@import './blocks/models-grid.css';
+@import './blocks/file-support.css';
+@import './blocks/faq.css';
+@import './blocks/cta.css';
+@import './blocks/footer.css';
+@import './blocks/auth-modal.css';
+@import './blocks/animations.css';
+@import './blocks/responsive.css';

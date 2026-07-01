@@ -1,0 +1,6 @@
+.models-grid { padding: 100px 20px; max-width: 1200px; margin: 0 auto; }
+.models-grid__title { font-size: 32px; font-weight: 700; text-align: center; margin-bottom: 12px; }
+.models-grid__subtitle { font-size: 16px; color: var(--color-text-secondary); text-align: center; margin-bottom: 48px; max-width: 600px; margin-left: auto; margin-right: auto; }
+.models-grid__list { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.models-grid__item { padding: 12px 20px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-full); font-size: 14px; color: var(--color-text-secondary); cursor: pointer; transition: all var(--transition-fast); display: flex; align-items: center; gap: 8px; }
+.models-grid__item:hover { border-color: var(--color-accent); background: var(--color-accent-light); color: var(--color-accent); transform: translateY(-1px); }
