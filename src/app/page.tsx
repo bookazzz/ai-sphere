@@ -15,7 +15,7 @@ import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
 
 export default function Home() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [isLoggedIn] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -27,9 +27,16 @@ export default function Home() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  // Desktop: open sidebar by default
+  useEffect(() => {
+    if (!isMobile) setSidebarOpen(true);
+  }, [isMobile]);
+
   const toggleSidebar = useCallback(() => setSidebarOpen(prev => !prev), []);
   const toggleAuth = useCallback(() => setAuthOpen(prev => !prev), []);
 
+  // Mobile: content full-width, sidebar as overlay
+  // Desktop: content has padding-left based on sidebar state
   const contentClass = isMobile
     ? 'content content--fullwidth'
     : `content ${sidebarOpen ? '' : 'content--sidebar-collapsed'}`;
@@ -52,24 +59,35 @@ export default function Home() {
     // TODO: update model
   }, []);
 
+  const handleLogout = useCallback(() => {
+    // TODO: logout
+  }, []);
+
   return (
     <>
       <Sidebar
         isOpen={sidebarOpen}
-        isLoggedIn={isLoggedIn}
         isMobile={isMobile}
+        isLoggedIn={isLoggedIn}
         onToggle={toggleSidebar}
         onNewChat={handleNewChat}
         onOpenAuth={toggleAuth}
         onOpenPricing={handleOpenPricing}
+        onLogout={handleLogout}
       />
 
-      <div className={`sidebar-overlay ${(isMobile && sidebarOpen) ? 'sidebar-overlay--visible' : ''}`} onClick={toggleSidebar} />
+      {/* Overlay for mobile sidebar */}
+      {isMobile && (
+        <div
+          className={`sidebar-overlay ${sidebarOpen ? 'sidebar-overlay--visible' : ''}`}
+          onClick={toggleSidebar}
+        />
+      )}
 
       <div className={contentClass}>
         <ChatSection
-          sidebarOpen={sidebarOpen}
           isMobile={isMobile}
+          sidebarOpen={sidebarOpen}
           onSendMessage={handleSendMessage}
           onOpenAuth={toggleAuth}
           onToggleSidebar={toggleSidebar}

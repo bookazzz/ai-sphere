@@ -2,22 +2,40 @@ import QuickActions from './QuickActions';
 import ChatPlaceholder from './ChatPlaceholder';
 
 interface ChatSectionProps {
-  sidebarOpen: boolean;
   isMobile: boolean;
+  sidebarOpen: boolean;
   onSendMessage: (text: string) => void;
   onOpenAuth: () => void;
   onToggleSidebar: () => void;
   onUpdateModel: (modelId: string) => void;
 }
 
-export default function ChatSection({ sidebarOpen, isMobile, onSendMessage, onOpenAuth, onToggleSidebar, onUpdateModel }: ChatSectionProps) {
+export default function ChatSection({ isMobile, sidebarOpen, onSendMessage, onOpenAuth, onToggleSidebar, onUpdateModel }: ChatSectionProps) {
   return (
     <main className="chat">
+      {/* Mobile header */}
       {isMobile && (
-        <div className="chat__mobile-bar">
-          <button className="chat__mobile-toggle" onClick={onToggleSidebar} aria-label="Меню">
-            <span>☰</span>
-            <span className="chat__mobile-logo">AI-Sphere</span>
+        <div className="chat__mobile-header">
+          <button
+            className="chat__mobile-menu-btn"
+            onClick={onToggleSidebar}
+            aria-label={sidebarOpen ? 'Закрыть меню' : 'Открыть меню'}
+          >
+            {/* Sidebar icon: square with vertical divider */}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <line x1="9" y1="3" x2="9" y2="21" />
+            </svg>
+          </button>
+
+          <span className="chat__mobile-logo">AI-Sphere</span>
+
+          <button className="chat__mobile-menu-btn" aria-label="Меню">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="5" r="2" />
+              <circle cx="12" cy="12" r="2" />
+              <circle cx="12" cy="19" r="2" />
+            </svg>
           </button>
         </div>
       )}

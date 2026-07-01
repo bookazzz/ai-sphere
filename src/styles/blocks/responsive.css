@@ -1,14 +1,20 @@
 @media (max-width: 768px) {
-  .chat { height: 100vh; padding: 16px; padding-left: 16px; justify-content: flex-start; padding-top: 12px; }
+  .chat { height: 100vh; padding: 0; padding-top: 0; justify-content: flex-start; }
   .chat__title { font-size: 28px; }
   .chat__subtitle { font-size: 14px; }
-  .chat__mobile-bar { display: flex; }
+  .chat__mobile-header { display: flex; }
+  .chat__mobile-menu-btn { display: flex; }
   .chat__model-select { max-width: 130px; font-size: 11px; padding: 5px 10px; }
   .chat__model-select-label { max-width: 70px; }
-  .sidebar { width: var(--sidebar-width); transform: translateX(-100%); transition: transform var(--transition-slow); }
-  .sidebar--mobile-open { transform: translateX(0); }
+  .sidebar { width: var(--sidebar-width); }
+  .sidebar--collapsed { width: 56px; }
   .quick-actions { gap: 6px; }
   .quick-actions__btn { font-size: 12px; padding: 6px 12px; }
+
+  /* Chat sections padding on mobile */
+  .chat__welcome { padding: 24px 16px 12px; }
+  .chat__input-area { padding: 0 16px; }
+  .chat__placeholder { padding: 0 16px; }
 
   /* Documents */
   .documents { padding: 60px 16px; }
