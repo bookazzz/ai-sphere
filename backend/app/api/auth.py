@@ -1,10 +1,11 @@
 """Auth API: register, login, OAuth (Yandex, VK), profile."""
 
+import logging
 from urllib.parse import urlencode
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,6 +13,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.core.security import create_access_token, hash_password, verify_password
+from app.core.limiter import limiter
 from app.models.user import User
 from app.schemas.auth import (
     LoginRequest,
@@ -23,12 +25,37 @@ from app.schemas.auth import (
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
+logger = logging.getLogger("ai-sphere.auth")
+
+OAUTH_SUCCESS_HTML = """<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Вход выполнен</title></head>
+<body>
+<script>
+(function(){
+  var token = "TOKEN_PLACEHOLDER";
+  var provider = "PROVIDER_PLACEHOLDER";
+  if (token) {
+    localStorage.setItem('auth_token', token);
+    localStorage.setItem('auth_provider', provider);
+  }
+  window.location.replace('/');
+})();
+</script>
+</body>
+</html>"""
+
 
 # ──────────────────── Email/Password ────────────────────
 
 
 @router.post("/register", response_model=TokenResponse)
-async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("3/minute")
+async def register(
+    request: Request,
+    req: RegisterRequest,
+    db: AsyncSession = Depends(get_db),
+):
     """Register new user with email and password."""
     result = await db.execute(select(User).where(User.email == req.email))
     if result.scalar_one_or_none():
@@ -55,7 +82,12 @@ async def register(req: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("5/minute")
+async def login(
+    request: Request,
+    req: LoginRequest,
+    db: AsyncSession = Depends(get_db),
+):
     """Login with email and password."""
     result = await db.execute(select(User).where(User.email == req.email))
     user = result.scalar_one_or_none()
@@ -98,8 +130,9 @@ async def oauth_yandex_callback(
     db: AsyncSession = Depends(get_db),
 ):
     """Handle Yandex OAuth callback — exchange code for token, get user info, return JWT."""
-    # Exchange code for access token
+    logger.info("Yandex callback: code received")
     async with httpx.AsyncClient() as client:
+        # Exchange code for access token
         token_resp = await client.post(
             "https://oauth.yandex.ru/token",
             data={
@@ -109,6 +142,7 @@ async def oauth_yandex_callback(
                 "client_secret": settings.yandex_client_secret,
             },
         )
+        logger.info("Yandex token exchange status=%d", token_resp.status_code)
         if token_resp.status_code != 200:
             raise HTTPException(status_code=400, detail="Ошибка авторизации Яндекс")
 
@@ -120,6 +154,7 @@ async def oauth_yandex_callback(
             "https://login.yandex.ru/info",
             headers={"Authorization": f"OAuth {access_token}"},
         )
+        logger.info("Yandex user info status=%d", user_resp.status_code)
         if user_resp.status_code != 200:
             raise HTTPException(status_code=400, detail="Не удалось получить данные пользователя Яндекс")
 
@@ -127,6 +162,7 @@ async def oauth_yandex_callback(
         yandex_id = str(yandex_user["id"])
         email = yandex_user.get("default_email", f"yandex_{yandex_id}@placeholder.local")
         name = yandex_user.get("display_name") or yandex_user.get("real_name")
+        logger.info("Yandex auth success: yandex_id=%s email=%s", yandex_id, email)
 
     # Find or create user
     result = await db.execute(select(User).where(User.yandex_id == yandex_id))
@@ -158,9 +194,9 @@ async def oauth_yandex_callback(
     await db.refresh(user)
 
     token = create_access_token(user.id, user.email)
-    # Redirect to frontend with token
-    return RedirectResponse(
-        url=f"{settings.frontend_url}?token={token}&provider=yandex"
+    return HTMLResponse(
+        content=OAUTH_SUCCESS_HTML.replace("TOKEN_PLACEHOLDER", token).replace("PROVIDER_PLACEHOLDER", "yandex"),
+        status_code=200,
     )
 
 
@@ -190,21 +226,23 @@ async def oauth_vk_callback(
     """Handle VK OAuth callback — exchange code for token, get user info, return JWT."""
     async with httpx.AsyncClient() as client:
         # Exchange code for access token
-        token_resp = await client.get(
+        token_resp = await client.post(
             "https://oauth.vk.com/access_token",
-            params={
+            data={
                 "client_id": settings.vk_client_id,
                 "client_secret": settings.vk_client_secret,
                 "redirect_uri": settings.vk_redirect_uri,
                 "code": code,
             },
         )
+        logger.info("VK token exchange status=%d", token_resp.status_code)
         if token_resp.status_code != 200:
             raise HTTPException(status_code=400, detail="Ошибка авторизации ВК")
 
         token_data = token_resp.json()
 
         if "error" in token_data:
+            logger.error("VK error: %s", token_data)
             raise HTTPException(
                 status_code=400,
                 detail=f"Ошибка ВК: {token_data.get('error_description', token_data['error'])}",
@@ -213,6 +251,7 @@ async def oauth_vk_callback(
         access_token = token_data["access_token"]
         vk_user_id = str(token_data["user_id"])
         email = token_data.get("email", f"vk_{vk_user_id}@placeholder.local")
+        logger.info("VK auth success: user_id=%s email=%s", vk_user_id, email)
 
     # Find or create user
     result = await db.execute(select(User).where(User.vk_id == vk_user_id))
@@ -239,6 +278,7 @@ async def oauth_vk_callback(
     await db.refresh(user)
 
     token = create_access_token(user.id, user.email)
-    return RedirectResponse(
-        url=f"{settings.frontend_url}?token={token}&provider=vk"
+    return HTMLResponse(
+        content=OAUTH_SUCCESS_HTML.replace("TOKEN_PLACEHOLDER", token).replace("PROVIDER_PLACEHOLDER", "vk"),
+        status_code=200,
     )

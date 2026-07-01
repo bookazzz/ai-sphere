@@ -2,6 +2,7 @@ interface SidebarProps {
   isOpen: boolean;
   isMobile: boolean;
   isLoggedIn: boolean;
+  userName?: string;
   onToggle: () => void;
   onNewChat: () => void;
   onOpenAuth: () => void;
@@ -9,7 +10,7 @@ interface SidebarProps {
   onLogout: () => void;
 }
 
-export default function Sidebar({ isOpen, isMobile, isLoggedIn, onToggle, onNewChat, onOpenAuth, onOpenPricing, onLogout }: SidebarProps) {
+export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, onToggle, onNewChat, onOpenAuth, onOpenPricing, onLogout }: SidebarProps) {
   // Mobile: always render full sidebar as overlay
   // Desktop: open (300px) or collapsed (56px icon bar)
   const sidebarClass = isMobile
@@ -80,7 +81,7 @@ export default function Sidebar({ isOpen, isMobile, isLoggedIn, onToggle, onNewC
                     <path d="M2 15c0-3.3 2.7-6 6-6s6 2.7 6 6" />
                   </svg>
                 </div>
-                <span className="sidebar__user-name" onClick={onLogout} title="Выйти из аккаунта">Пользователь</span>
+                <span className="sidebar__user-name" onClick={onLogout} title="Выйти из аккаунта">{userName || 'Пользователь'}</span>
                 <div className="sidebar__user-actions">
                   <button className="sidebar__user-action" aria-label="Настройки">
                     <svg width="5" height="5" viewBox="0 0 5 5" fill="currentColor">

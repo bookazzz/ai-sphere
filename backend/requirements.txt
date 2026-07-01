@@ -7,3 +7,4 @@ pydantic[email]==2.11.4
 pydantic-settings==2.8.1
 passlib[bcrypt]==1.7.4
 httpx==0.28.1
+slowapi==0.1.9

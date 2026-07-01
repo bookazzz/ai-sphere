@@ -13,11 +13,13 @@ import FAQSection from '@/components/FAQSection';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
+import { setToken, clearToken, isAuthenticated, getMe } from '@/lib/api';
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
-  const [isLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -27,6 +29,32 @@ export default function Home() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  // Handle OAuth callback: extract token from URL
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      setToken(token);
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+      // Load user
+      getMe().then((u) => {
+        setUser(u);
+        setIsLoggedIn(true);
+      }).catch(() => {
+        clearToken();
+      });
+    } else if (isAuthenticated()) {
+      getMe().then((u) => {
+        setUser(u);
+        setIsLoggedIn(true);
+      }).catch(() => {
+        clearToken();
+      });
+    }
+  }, []);
+
   // Desktop: open sidebar by default
   useEffect(() => {
     if (!isMobile) setSidebarOpen(true);
@@ -34,6 +62,17 @@ export default function Home() {
 
   const toggleSidebar = useCallback(() => setSidebarOpen(prev => !prev), []);
   const toggleAuth = useCallback(() => setAuthOpen(prev => !prev), []);
+
+  const handleLogin = useCallback((userData: any) => {
+    setUser(userData);
+    setIsLoggedIn(true);
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    clearToken();
+    setUser(null);
+    setIsLoggedIn(false);
+  }, []);
 
   // Mobile: content full-width, sidebar as overlay
   // Desktop: content has padding-left based on sidebar state
@@ -59,16 +98,13 @@ export default function Home() {
     // TODO: update model
   }, []);
 
-  const handleLogout = useCallback(() => {
-    // TODO: logout
-  }, []);
-
   return (
     <>
       <Sidebar
         isOpen={sidebarOpen}
         isMobile={isMobile}
         isLoggedIn={isLoggedIn}
+        userName={user?.name || user?.email}
         onToggle={toggleSidebar}
         onNewChat={handleNewChat}
         onOpenAuth={toggleAuth}
@@ -105,7 +141,11 @@ export default function Home() {
         <Footer />
       </div>
 
-      <AuthModal isOpen={authOpen} onClose={toggleAuth} />
+      <AuthModal
+        isOpen={authOpen}
+        onClose={toggleAuth}
+        onLogin={handleLogin}
+      />
     </>
   );
 }

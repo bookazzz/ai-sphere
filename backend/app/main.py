@@ -1,12 +1,16 @@
 """AI-Sphere FastAPI backend."""
 
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
 
 from app.core.config import settings
 from app.core.database import engine
+from app.core.limiter import limiter
 from app.models.base import Base
 from app.api import auth, billing, chat, admin
 
@@ -24,6 +28,13 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+# Rate limiting
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s %(message)s")
 
 # CORS
 origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
