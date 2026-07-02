@@ -3,6 +3,7 @@ interface SidebarProps {
   isMobile: boolean;
   isLoggedIn: boolean;
   userName?: string;
+  userCredits?: number;
   onToggle: () => void;
   onNewChat: () => void;
   onOpenAuth: () => void;
@@ -10,7 +11,7 @@ interface SidebarProps {
   onLogout: () => void;
 }
 
-export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, onToggle, onNewChat, onOpenAuth, onOpenPricing, onLogout }: SidebarProps) {
+export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCredits, onToggle, onNewChat, onOpenAuth, onOpenPricing, onLogout }: SidebarProps) {
   // Mobile: always render full sidebar as overlay
   // Desktop: open (300px) or collapsed (56px icon bar)
   const sidebarClass = isMobile
@@ -81,7 +82,19 @@ export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, onTogg
                     <path d="M2 15c0-3.3 2.7-6 6-6s6 2.7 6 6" />
                   </svg>
                 </div>
-                <span className="sidebar__user-name" onClick={onLogout} title="Выйти из аккаунта">{userName || 'Пользователь'}</span>
+                <div className="sidebar__user-info">
+                  <span className="sidebar__user-name" onClick={onLogout} title="Выйти из аккаунта">{userName || 'Пользователь'}</span>
+                  {userCredits !== undefined && (
+                    <span className="sidebar__user-credits">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="6" cy="6" r="4.5" />
+                        <path d="M6 3.5v5" />
+                        <path d="M3.5 6h5" />
+                      </svg>
+                      {userCredits.toLocaleString('ru-RU')} кредитов
+                    </span>
+                  )}
+                </div>
                 <div className="sidebar__user-actions">
                   <button className="sidebar__user-action" aria-label="Настройки">
                     <svg width="5" height="5" viewBox="0 0 5 5" fill="currentColor">

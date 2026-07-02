@@ -116,6 +116,7 @@ export default function Home() {
         isMobile={isMobile}
         isLoggedIn={isLoggedIn}
         userName={user?.name || user?.email}
+        userCredits={user?.credits}
         onToggle={toggleSidebar}
         onNewChat={handleNewChat}
         onOpenAuth={toggleAuth}
