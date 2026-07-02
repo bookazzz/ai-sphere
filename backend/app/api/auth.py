@@ -1,5 +1,6 @@
 """Auth API: register, login, OAuth (Yandex, VK), profile."""
 
+import datetime
 import logging
 from urllib.parse import urlencode
 
@@ -27,6 +28,19 @@ from app.schemas.auth import (
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 logger = logging.getLogger("ai-sphere.auth")
+
+
+async def apply_daily_credits(user: User, db: AsyncSession) -> None:
+    """Бесплатным пользователям — 10 кредитов каждый день (не копятся)."""
+    if user.total_spent_rub > 0:
+        return  # платящие — не трогаем
+
+    today = datetime.date.today()
+    if user.last_daily_reset != today:
+        user.credits = 10
+        user.last_daily_reset = today
+        db.add(user)
+        await db.commit()
 
 OAUTH_SUCCESS_HTML = """<!DOCTYPE html>
 <html>
@@ -69,7 +83,7 @@ async def register(
         email=req.email,
         hashed_password=hash_password(req.password),
         name=req.name,
-        credits=50,  # welcome bonus
+        credits=10,  # welcome + daily reset
     )
     db.add(user)
     await db.commit()
@@ -97,6 +111,8 @@ async def login(
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Аккаунт заблокирован")
 
+    await apply_daily_credits(user, db)
+
     token = create_access_token(user.id, user.email)
     return TokenResponse(
         access_token=token,
@@ -105,8 +121,12 @@ async def login(
 
 
 @router.get("/me", response_model=UserInfo)
-async def get_me(user: User = Depends(get_current_user)):
+async def get_me(
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
     """Get current user profile."""
+    await apply_daily_credits(user, db)
     return UserInfo.model_validate(user)
 
 
@@ -188,7 +208,7 @@ async def oauth_yandex_callback(
             hashed_password=hash_password(f"oauth_yandex_{yandex_id}"),
             name=name,
             yandex_id=yandex_id,
-            credits=50,  # welcome bonus
+            credits=10,  # welcome + daily reset
         )
 
     db.add(user)
@@ -268,7 +288,7 @@ async def oauth_vk_token(
             hashed_password=hash_password(f"oauth_vk_{vk_user_id}"),
             name=name,
             vk_id=vk_user_id,
-            credits=50,
+            credits=10,
         )
         db.add(user)
 

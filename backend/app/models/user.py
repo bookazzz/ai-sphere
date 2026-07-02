@@ -1,6 +1,8 @@
 """User model."""
 
-from sqlalchemy import Boolean, String
+import datetime
+
+from sqlalchemy import Boolean, String, Date
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, TimestampMixin
@@ -17,6 +19,7 @@ class User(Base, TimestampMixin):
     total_spent_rub: Mapped[int] = mapped_column(default=0)  # копейки
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
+    last_daily_reset: Mapped[datetime.date | None] = mapped_column(Date, default=None)
 
     # OAuth
     yandex_id: Mapped[str | None] = mapped_column(String(100), unique=True, default=None)

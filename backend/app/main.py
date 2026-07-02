@@ -17,9 +17,19 @@ from app.api import auth, billing, chat, admin
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Create tables on startup."""
+    """Create tables on startup + migrate existing DB."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # Migration: add last_daily_reset column if missing
+        from sqlalchemy import inspect
+        def _migrate(sync_conn):  # noqa: PLR1714
+            inspector = inspect(sync_conn)
+            columns = [c["name"] for c in inspector.get_columns("users")]
+            if "last_daily_reset" not in columns:
+                sync_conn.exec_driver_sql(
+                    "ALTER TABLE users ADD COLUMN last_daily_reset DATE DEFAULT NULL"
+                )
+        await conn.run_sync(_migrate)
     yield
 
 
