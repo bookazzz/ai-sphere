@@ -22,6 +22,7 @@ export default function Home() {
   const [vkAuthOpen, setVkAuthOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -36,24 +37,36 @@ export default function Home() {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
+    const storedToken = isAuthenticated();
+    console.log('[Auth] URL token:', token ? 'found' : 'none', '| localStorage token:', storedToken ? 'found' : 'none');
+    
     if (token) {
+      console.log('[Auth] Setting token from URL');
       setToken(token);
       // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
       // Load user
       getMe().then((u) => {
+        console.log('[Auth] getMe OK:', u);
         setUser(u);
         setIsLoggedIn(true);
-      }).catch(() => {
+      }).catch((err) => {
+        console.log('[Auth] getMe FAIL:', err);
         clearToken();
-      });
-    } else if (isAuthenticated()) {
+      }).finally(() => setAuthLoading(false));
+    } else if (storedToken) {
+      console.log('[Auth] Found token in localStorage, fetching user...');
       getMe().then((u) => {
+        console.log('[Auth] getMe OK:', u.email || u.name);
         setUser(u);
         setIsLoggedIn(true);
-      }).catch(() => {
+      }).catch((err) => {
+        console.log('[Auth] getMe FAIL:', err.message, '— clearing token');
         clearToken();
-      });
+      }).finally(() => setAuthLoading(false));
+    } else {
+      console.log('[Auth] No token found, showing login');
+      setAuthLoading(false);
     }
   }, []);
 
@@ -91,10 +104,12 @@ export default function Home() {
     ? 'content content--fullwidth'
     : `content ${sidebarOpen ? '' : 'content--sidebar-collapsed'}`;
 
-  const handleSendMessage = useCallback((text: string) => {
+  const handleSendMessage = useCallback((text: string, attachedFiles?: any[]) => {
     if (!isLoggedIn) {
       setAuthOpen(true);
+      return;
     }
+    console.log('[Chat] Send:', text, 'Files:', attachedFiles?.length || 0);
   }, [isLoggedIn]);
 
   const handleNewChat = useCallback(() => {
@@ -136,6 +151,7 @@ export default function Home() {
         <ChatSection
           isMobile={isMobile}
           sidebarOpen={sidebarOpen}
+          isLoggedIn={isLoggedIn}
           onSendMessage={handleSendMessage}
           onOpenAuth={toggleAuth}
           onToggleSidebar={toggleSidebar}

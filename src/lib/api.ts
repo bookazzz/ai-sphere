@@ -66,3 +66,30 @@ export async function registerUser(email: string, password: string, name?: strin
 export async function getMe() {
   return apiCall<any>('/auth/me');
 }
+
+// ──────────────── Files ────────────────
+
+export async function uploadFile(file: File): Promise<{
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+}> {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await fetch(`${API_BASE}/chat/upload`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || `HTTP ${res.status}`);
+  }
+
+  return res.json();
+}

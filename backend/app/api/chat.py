@@ -1,7 +1,10 @@
-"""Chat API: model listing, chat completion proxy via OpenRouter."""
+"""Chat API: model listing, chat completion proxy via OpenRouter, file upload."""
+
+import uuid
+from pathlib import Path
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +16,51 @@ from app.models.transaction import Transaction
 from app.schemas.chat import ChatRequest, ChatResponse, ModelInfo
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
+
+# ──────────────── File upload ────────────────
+
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)
+MAX_FILE_SIZE = 20 * 1024 * 1024  # 20 MB
+ALLOWED_TYPES = {
+    "image/png", "image/jpeg", "image/webp", "image/gif",
+    "application/pdf",
+    "text/plain", "text/csv",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/zip", "application/x-rar-compressed",
+}
+
+
+@router.post("/upload")
+async def upload_file(
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+):
+    """Upload a file (max 20 MB). Returns file metadata."""
+    content = await file.read()
+
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="Файл слишком большой. Максимум 20 МБ")
+
+    # Basic extension-based type detection
+    ext = Path(file.filename or "file").suffix.lower()
+    file_id = str(uuid.uuid4())
+    saved_name = f"{file_id}{ext}"
+    save_path = UPLOAD_DIR / saved_name
+
+    with open(save_path, "wb") as f:
+        f.write(content)
+
+    return {
+        "id": file_id,
+        "name": file.filename or "unnamed",
+        "size": len(content),
+        "type": file.content_type or "application/octet-stream",
+        "url": f"/uploads/{saved_name}",
+    }
 
 MODELS = [
     ModelInfo(id="deepseek/deepseek-chat",           name="DeepSeek V3",       provider="DeepSeek",    price_per_1k_input=0,  price_per_1k_output=0,  context_window=65536),
