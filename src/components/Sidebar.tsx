@@ -1,3 +1,5 @@
+import { useState, useRef, useEffect } from 'react';
+
 interface SidebarProps {
   isOpen: boolean;
   isMobile: boolean;
@@ -12,6 +14,22 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCredits, onToggle, onNewChat, onOpenAuth, onOpenPricing, onLogout }: SidebarProps) {
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    if (userMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [userMenuOpen]);
+
   // Mobile: always render full sidebar as overlay
   // Desktop: open (300px) or collapsed (56px icon bar)
   const sidebarClass = isMobile
@@ -75,7 +93,7 @@ export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCr
                 Войти
               </button>
             ) : (
-              <div className="sidebar__user-row">
+              <div className="sidebar__user-row" ref={userMenuRef} onClick={() => setUserMenuOpen(prev => !prev)}>
                 <div className="sidebar__user-avatar">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                     <circle cx="8" cy="5" r="3" />
@@ -83,7 +101,7 @@ export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCr
                   </svg>
                 </div>
                 <div className="sidebar__user-info">
-                  <span className="sidebar__user-name" onClick={onLogout} title="Выйти из аккаунта">{userName || 'Пользователь'}</span>
+                  <span className="sidebar__user-name">{userName || 'Пользователь'}</span>
                   {userCredits !== undefined && (
                     <span className="sidebar__user-credits">
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
@@ -95,20 +113,32 @@ export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCr
                     </span>
                   )}
                 </div>
-                <div className="sidebar__user-actions">
-                  <button className="sidebar__user-action" aria-label="Настройки">
-                    <svg width="5" height="5" viewBox="0 0 5 5" fill="currentColor">
-                      <circle cx="2.5" cy="2.5" r="2.5" />
-                    </svg>
-                  </button>
-                  <button className="sidebar__user-action" aria-label="Меню">
-                    <svg width="16" height="4" viewBox="0 0 16 4" fill="currentColor">
-                      <circle cx="2" cy="2" r="2" />
-                      <circle cx="8" cy="2" r="2" />
-                      <circle cx="14" cy="2" r="2" />
-                    </svg>
-                  </button>
-                </div>
+                {userMenuOpen && (
+                  <div className="sidebar__user-menu">
+                    <button className="sidebar__user-menu-item" onClick={(e) => { e.stopPropagation(); onOpenPricing(); setUserMenuOpen(false); }}>
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="7,1 9,5 13,5 10,8 11,13 7,10 3,13 4,8 1,5 5,5" />
+                      </svg>
+                      Купить кредиты
+                    </button>
+                    <button className="sidebar__user-menu-item" onClick={(e) => { e.stopPropagation(); setUserMenuOpen(false); }}>
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="7" cy="7" r="2.5" />
+                        <path d="M12 7c0-.3 0-.7-.1-1l1.4-1.1-.9-1.7-1.6.5c-.4-.3-.8-.6-1.3-.8L9.5 1.1H7.9L7.2 2.6c-.5-.1-1-.1-1.5 0L5 1.1H3.4l-.6 1.7c-.5.2-.9.5-1.3.8l-1.6-.5-.9 1.7L1.1 6c-.1.3-.1.7-.1 1s0 .7.1 1l-1.4 1.1.9 1.7 1.6-.5c.4.3.8.6 1.3.8l.6 1.9h1.6l.7-1.5c.5.1 1 .1 1.5 0l.7 1.5h1.6l.6-1.9c.5-.2.9-.5 1.3-.8l1.6.5.9-1.7-1.4-1.1c.1-.3.1-.7.1-1z" />
+                      </svg>
+                      Настройки
+                    </button>
+                    <div className="sidebar__user-menu-divider" />
+                    <button className="sidebar__user-menu-item sidebar__user-menu-item--danger" onClick={(e) => { e.stopPropagation(); onLogout(); setUserMenuOpen(false); }}>
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 13H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h3" />
+                        <polyline points="9,10 13,7 9,4" />
+                        <line x1="13" y1="7" x2="5" y2="7" />
+                      </svg>
+                      Выйти из аккаунта
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
