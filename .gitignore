@@ -1,5 +1,30 @@
 # dependencies
-/node_modules
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Dependencies
+node_modules/
+
+# Build output
+out/
+.next/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
 /.pnp
 .pnp.js
 

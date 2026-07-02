@@ -13,11 +13,13 @@ import FAQSection from '@/components/FAQSection';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
+import VkAuthOverlay from '@/components/VkAuthOverlay';
 import { setToken, clearToken, isAuthenticated, getMe } from '@/lib/api';
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+  const [vkAuthOpen, setVkAuthOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -66,6 +68,15 @@ export default function Home() {
   const handleLogin = useCallback((userData: any) => {
     setUser(userData);
     setIsLoggedIn(true);
+  }, []);
+
+  const handleOpenVkAuth = useCallback(() => {
+    setAuthOpen(false);
+    setVkAuthOpen(true);
+  }, []);
+
+  const handleCloseVkAuth = useCallback(() => {
+    setVkAuthOpen(false);
   }, []);
 
   const handleLogout = useCallback(() => {
@@ -145,7 +156,15 @@ export default function Home() {
         isOpen={authOpen}
         onClose={toggleAuth}
         onLogin={handleLogin}
+        onOpenVkAuth={handleOpenVkAuth}
       />
+
+      {vkAuthOpen && (
+        <VkAuthOverlay
+          onLogin={handleLogin}
+          onClose={handleCloseVkAuth}
+        />
+      )}
     </>
   );
 }

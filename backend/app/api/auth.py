@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -119,6 +120,7 @@ async def oauth_yandex():
         "response_type": "code",
         "client_id": settings.yandex_client_id,
         "redirect_uri": settings.yandex_redirect_uri,
+        "force_confirm": 1,
     }
     url = f"https://oauth.yandex.ru/authorize?{urlencode(params)}"
     return RedirectResponse(url=url)
@@ -200,85 +202,81 @@ async def oauth_yandex_callback(
     )
 
 
-# ──────────────────── VK OAuth ────────────────────
+# ──────────────────── VK OAuth (VK ID SDK) ────────────────────
 
 
-@router.get("/oauth/vk")
-async def oauth_vk():
-    """Redirect user to VK OAuth consent screen."""
-    params = {
-        "client_id": settings.vk_client_id,
-        "redirect_uri": settings.vk_redirect_uri,
-        "display": "page",
-        "scope": "email",
-        "response_type": "code",
-        "v": "5.131",
-    }
-    url = f"https://oauth.vk.com/authorize?{urlencode(params)}"
-    return RedirectResponse(url=url)
+class VKTokenRequest(BaseModel):
+    access_token: str
 
 
-@router.get("/oauth/vk/callback")
-async def oauth_vk_callback(
-    code: str = Query(...),
+@router.post("/oauth/vk/token")
+async def oauth_vk_token(
+    req: VKTokenRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    """Handle VK OAuth callback — exchange code for token, get user info, return JWT."""
+    """Exchange VK ID access token for user data and create/login user.
+
+    Called after client-side VK ID SDK exchangeCode().
+    """
     async with httpx.AsyncClient() as client:
-        # Exchange code for access token
-        token_resp = await client.post(
-            "https://oauth.vk.com/access_token",
-            data={
-                "client_id": settings.vk_client_id,
-                "client_secret": settings.vk_client_secret,
-                "redirect_uri": settings.vk_redirect_uri,
-                "code": code,
+        # Get user info from VK API
+        user_resp = await client.get(
+            "https://api.vk.com/method/users.get",
+            params={
+                "access_token": req.access_token,
+                "fields": "first_name,last_name,photo_200,screen_name",
+                "v": "5.131",
             },
         )
-        logger.info("VK token exchange status=%d", token_resp.status_code)
-        if token_resp.status_code != 200:
-            raise HTTPException(status_code=400, detail="Ошибка авторизации ВК")
+        logger.info("VK users.get status=%d", user_resp.status_code)
 
-        token_data = token_resp.json()
+        if user_resp.status_code != 200:
+            raise HTTPException(status_code=400, detail="Ошибка проверки токена ВК")
 
-        if "error" in token_data:
-            logger.error("VK error: %s", token_data)
+        vk_data = user_resp.json()
+
+        if "error" in vk_data:
+            logger.error("VK API error: %s", vk_data)
             raise HTTPException(
                 status_code=400,
-                detail=f"Ошибка ВК: {token_data.get('error_description', token_data['error'])}",
+                detail=f"Ошибка ВК: {vk_data.get('error', {}).get('error_msg', 'Неизвестная ошибка')}",
             )
 
-        access_token = token_data["access_token"]
-        vk_user_id = str(token_data["user_id"])
-        email = token_data.get("email", f"vk_{vk_user_id}@placeholder.local")
-        logger.info("VK auth success: user_id=%s email=%s", vk_user_id, email)
+        users = vk_data.get("response", [])
+        if not users:
+            raise HTTPException(status_code=400, detail="Пользователь ВК не найден")
+
+        vk_user = users[0]
+        vk_user_id = str(vk_user["id"])
+        first_name = vk_user.get("first_name", "")
+        last_name = vk_user.get("last_name", "")
+        name = f"{first_name} {last_name}".strip() or None
+        logger.info("VK ID auth success: user_id=%s name=%s", vk_user_id, name)
 
     # Find or create user
     result = await db.execute(select(User).where(User.vk_id == vk_user_id))
     user = result.scalar_one_or_none()
 
-    if not user:
-        result = await db.execute(select(User).where(User.email == email))
-        user = result.scalar_one_or_none()
-
     if user:
         if not user.vk_id:
             user.vk_id = vk_user_id
+        if name and not user.name:
+            user.name = name
     else:
         user = User(
-            email=email,
+            email=f"vk_{vk_user_id}@placeholder.local",
             hashed_password=hash_password(f"oauth_vk_{vk_user_id}"),
-            name=None,
+            name=name,
             vk_id=vk_user_id,
             credits=50,
         )
+        db.add(user)
 
-    db.add(user)
     await db.commit()
     await db.refresh(user)
 
     token = create_access_token(user.id, user.email)
-    return HTMLResponse(
-        content=OAUTH_SUCCESS_HTML.replace("TOKEN_PLACEHOLDER", token).replace("PROVIDER_PLACEHOLDER", "vk"),
-        status_code=200,
+    return TokenResponse(
+        access_token=token,
+        user=UserInfo.model_validate(user),
     )
