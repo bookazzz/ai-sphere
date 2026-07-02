@@ -15,12 +15,13 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCredits, onToggle, onNewChat, onOpenAuth, onOpenPricing, onLogout }: SidebarProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
 
   // Close menu on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node) && rowRef.current && !rowRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false);
       }
     }
@@ -93,7 +94,7 @@ export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCr
                 Войти
               </button>
             ) : (
-              <div className="sidebar__user-row" ref={userMenuRef} onClick={() => setUserMenuOpen(prev => !prev)}>
+              <div className="sidebar__user-row" ref={rowRef} onClick={() => setUserMenuOpen(prev => !prev)}>
                 <div className="sidebar__user-avatar">
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                     <circle cx="8" cy="5" r="3" />
@@ -114,7 +115,7 @@ export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCr
                   )}
                 </div>
                 {userMenuOpen && (
-                  <div className="sidebar__user-menu">
+                  <div className="sidebar__user-menu" ref={menuRef}>
                     <button className="sidebar__user-menu-item" onClick={(e) => { e.stopPropagation(); onOpenPricing(); setUserMenuOpen(false); }}>
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
                         <polygon points="7,1 9,5 13,5 10,8 11,13 7,10 3,13 4,8 1,5 5,5" />

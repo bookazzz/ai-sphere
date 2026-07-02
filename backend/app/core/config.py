@@ -40,9 +40,9 @@ class Settings(BaseSettings):
     yookassa_shop_id: str = ""
     yookassa_secret_key: str = ""
 
-    # LiteLLM
-    litellm_api_key: str = ""
-    litellm_api_base: str = ""
+    # OpenRouter (используется в chat.py)
+    openrouter_api_key: str = ""
+    openrouter_base_url: str = "https://openrouter.ai/api/v1"
 
     model_config = {
         "env_file": ".env",
