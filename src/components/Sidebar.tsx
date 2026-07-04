@@ -55,7 +55,7 @@ export default function Sidebar({
   const showFull = isMobile || isOpen;
 
   const filteredSessions = searchQuery
-    ? sessions.filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    ? sessions.filter(s => (s.title || '').toLowerCase().includes(searchQuery.toLowerCase()))
     : sessions;
 
   const formatDate = (ts: number) => {

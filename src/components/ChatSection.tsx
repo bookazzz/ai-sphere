@@ -50,7 +50,10 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
   const modelSelectRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [headerModalOpen, setHeaderModalOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const handleAttachClick = () => {
     if (!isLoggedIn) {
       onOpenAuth();
@@ -109,6 +112,13 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
     <main className={`chat ${chatActive || messages.length > 0 ? 'chat--active' : ''}`}>
       {/* Mobile header */}
@@ -148,7 +158,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
       )}
 
       {(chatActive || messages.length > 0) && (
-        <div className="chat__messages">
+        <div className="chat__messages" ref={messagesContainerRef}>
           {messages.map((msg, i) => (
             <div key={i} className={`chat__message chat__message--${msg.role}`}>
               <div className="chat__message-content">{msg.content}</div>
@@ -159,6 +169,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
               <div className="chat__message-content chat__message-content--typing">...</div>
             </div>
           )}
+          <div ref={messagesEndRef} />
         </div>
       )}
 
@@ -304,7 +315,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
 
             <button
               className="header-modal__btn"
-              onClick={() => { onShareChat?.(); setHeaderModalOpen(false); }}
+              onClick={() => { setHeaderModalOpen(false); setShareModalOpen(true); }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="18" cy="5" r="3" />
@@ -329,6 +340,90 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
             </button>
 
             <button className="header-modal__close" onClick={() => setHeaderModalOpen(false)}>
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Share modal */}
+      {shareModalOpen && (
+        <div className="modal-overlay" onClick={() => setShareModalOpen(false)}>
+          <div className="share-modal" onClick={e => e.stopPropagation()}>
+            <div className="share-modal__title">Поделиться чатом</div>
+
+            <div className="share-modal__grid">
+
+              {/* Telegram */}
+              <button
+                className="share-modal__btn"
+                onClick={() => {
+                  const url = window.location.href;
+                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${m.content}`).join('\n');
+                  window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+                  setShareModalOpen(false);
+                }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#0088cc">
+                  <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.37.18 1.1 1.3L17.1 18.1c-.2.96-.74 1.2-1.5.75l-4.13-3.04-1.99 1.93c-.18.18-.33.33-.68.33z"/>
+                </svg>
+                Telegram
+              </button>
+
+              {/* WhatsApp */}
+              <button
+                className="share-modal__btn"
+                onClick={() => {
+                  const url = window.location.href;
+                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${m.content}`).join('\n');
+                  window.open(`https://wa.me/?text=${encodeURIComponent(text + '\n' + url)}`, '_blank');
+                  setShareModalOpen(false);
+                }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#25D366">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.48-8.413z"/>
+                </svg>
+                WhatsApp
+              </button>
+
+              {/* VK */}
+              <button
+                className="share-modal__btn"
+                onClick={() => {
+                  const url = window.location.href;
+                  const title = 'AI-Sphere Chat';
+                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${m.content}`).join('\n');
+                  window.open(`https://vk.com/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&description=${encodeURIComponent(text)}`, '_blank');
+                  setShareModalOpen(false);
+                }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#0077FF">
+                  <path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14c5.6 0 6.93-1.33 6.93-6.93V8.93C22 3.33 20.67 2 15.07 2zm3.57 12.54h-1.27c-.63 0-.83-.5-1.47-1.27-.56-.6-1.05-.79-1.2-.79-.2 0-.27.1-.27.56v1c0 .38-.1.56-.87.56-1.15 0-2.42-.7-3.32-2.01-1.4-1.97-1.78-3.48-1.78-3.79 0-.17.1-.3.3-.3h1.27c.28 0 .38.13.48.43.42 1.22 1.14 2.43 1.43 2.43.1 0 .17-.06.17-.48v-1.3c0-.64-.36-.7-.36-.94 0-.13.13-.24.25-.24h1.6c.25 0 .34.13.34.43v1.7c0 .26.1.35.2.35.12 0 .22-.06.35-.25.5-.58.9-1.51.9-1.51.06-.15.12-.28.34-.28h1.27c.28 0 .36.14.28.36-.36 1.13-1.46 2.3-1.46 2.3-.12.14-.15.22 0 .4.1.13.78.78 1 1.2.22.32.31.55.31.88 0 .15-.04.28-.18.38-.1.07-.3.1-.4.12z"/>
+                </svg>
+                VK
+              </button>
+
+              {/* Copy link */}
+              <button
+                className="share-modal__btn share-modal__btn--copy"
+                onClick={() => {
+                  const url = window.location.href;
+                  navigator.clipboard.writeText(url).then(() => {
+                    alert('Ссылка скопирована в буфер обмена');
+                  }).catch(() => {});
+                  setShareModalOpen(false);
+                }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                Копировать ссылку
+              </button>
+
+            </div>
+
+            <button className="share-modal__close" onClick={() => setShareModalOpen(false)}>
               Отмена
             </button>
           </div>

@@ -17,7 +17,7 @@ export default function Footer() {
           <div className="footer__column-title">Компания</div>
           <div className="footer__links">
             <a className="footer__link" href="/about">О компании</a>
-            <a className="footer__link" href="/pricing">Тарифы</a>
+            <a className="footer__link" href="/prices">Тарифы</a>
             <a className="footer__link" href="/contacts">Контакты</a>
             <a className="footer__link" href="/security">Безопасность</a>
             <a className="footer__link" href="/faq">FAQ</a>

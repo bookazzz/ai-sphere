@@ -1,0 +1,349 @@
+/* ============================================================
+   Pricing Page (pricing.css)
+   Секции: hero, таблица моделей, карточки тарифов, FAQ, CTA
+   ============================================================ */
+
+/* ---------- Hero ---------- */
+.pricing-hero {
+  padding: 80px var(--page-padding, 24px) 48px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  text-align: center;
+}
+
+.pricing-hero__container {
+  max-width: var(--content-width, 1000px);
+  margin: 0 auto;
+}
+
+.pricing-hero__title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 16px;
+  line-height: 1.2;
+}
+
+.pricing-hero__subtitle {
+  font-size: 1.125rem;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ---------- Model Pricing Table ---------- */
+.pricing-table {
+  padding: 48px var(--page-padding, 24px);
+}
+
+.pricing-table__container {
+  max-width: var(--content-width, 1000px);
+  margin: 0 auto;
+}
+
+.pricing-table__wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  background: #fff;
+}
+
+.pricing-table__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.pricing-table__th {
+  text-align: left;
+  font-weight: 500;
+  color: #8b8b8b;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pricing-table__th--price {
+  text-align: right;
+  white-space: nowrap;
+  width: 160px;
+}
+
+.pricing-table__category {
+  padding: 8px 16px;
+  background: #fafafa;
+  border-bottom: 1px solid #eee;
+  color: #9aa0a6;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pricing-table__model {
+  padding: 8px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #202124;
+  font-weight: 400;
+}
+
+.pricing-table__price {
+  padding: 8px 16px;
+  text-align: right;
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: 500;
+  color: #202124;
+  white-space: nowrap;
+}
+
+.pricing-table__unit {
+  color: #8b8b8b;
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+/* Zebra striping for model rows */
+.pricing-table__table tbody tr:not(:first-child):nth-child(even) {
+  background: #fafafa;
+}
+
+/* ---------- Plans / Тарифы ---------- */
+.plans {
+  padding: 48px var(--page-padding, 24px);
+  background: #f8f9fa;
+}
+
+.plans__container {
+  max-width: var(--content-width, 1000px);
+  margin: 0 auto;
+}
+
+.plans__title {
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 32px;
+  color: #202124;
+}
+
+.plans__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.plans__card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.plans__card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: #667eea;
+}
+
+.plans__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.plans__price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #202124;
+}
+
+.plans__bonus {
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.plans__card-body {
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.plans__credits {
+  font-size: 0.9375rem;
+  color: #5f6368;
+  margin: 0 0 4px;
+}
+
+.plans__bonus-text {
+  font-size: 0.8125rem;
+  color: #2e7d32;
+  margin: 0;
+}
+
+.plans__btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.plans__btn:hover {
+  opacity: 0.9;
+}
+
+/* ---------- FAQ ---------- */
+.pricing-faq {
+  padding: 48px var(--page-padding, 24px);
+}
+
+.pricing-faq__container {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.pricing-faq__title {
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 32px;
+  color: #202124;
+}
+
+.pricing-faq__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pricing-faq__item {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.pricing-faq__item--open {
+  border-color: #667eea;
+}
+
+.pricing-faq__question {
+  width: 100%;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #202124;
+  cursor: pointer;
+  text-align: left;
+}
+
+.pricing-faq__question:hover {
+  background: #f8f9fa;
+}
+
+.pricing-faq__icon {
+  font-size: 1.25rem;
+  color: #667eea;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.pricing-faq__answer {
+  padding: 0 20px 16px;
+  color: #5f6368;
+  line-height: 1.6;
+  font-size: 0.9375rem;
+}
+
+.pricing-faq__answer p {
+  margin: 0;
+}
+
+/* ---------- CTA ---------- */
+.pricing-cta {
+  padding: 64px var(--page-padding, 24px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  text-align: center;
+}
+
+.pricing-cta__container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.pricing-cta__title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+}
+
+.pricing-cta__text {
+  font-size: 1.125rem;
+  opacity: 0.9;
+  margin: 0 0 24px;
+}
+
+.pricing-cta__btn {
+  display: inline-block;
+  padding: 14px 36px;
+  background: #fff;
+  color: #667eea;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s;
+}
+
+.pricing-cta__btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .pricing-hero {
+    padding: 60px 16px 32px;
+  }
+  .pricing-hero__title {
+    font-size: 1.75rem;
+  }
+
+  .plans__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pricing-table__model {
+    font-size: 0.875rem;
+  }
+  .pricing-table__price {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .plans__grid {
+    grid-template-columns: 1fr;
+  }
+}
