@@ -224,7 +224,7 @@ export default function PricesPage() {
         <div className="header__container">
           <Link href="/" className="header__logo">AI Sphere</Link>
           <nav className="header__menu">
-            <Link href="/" className="header__link">Главная</Link>
+            <Link href="/" className="header__link">Чат</Link>
             <Link href="/prices" className="header__link header__link--active">Цены</Link>
             <Link href="/faq" className="header__link">FAQ</Link>
             <Link href="/security" className="header__link">Безопасность</Link>

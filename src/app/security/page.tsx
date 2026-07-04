@@ -64,15 +64,12 @@ export default function SecurityPage() {
   return (
     <>
       {/* Header */}
-      <header className="pricing-header">
-        <div className="pricing-header__inner">
-          <Link href="/" className="pricing-header__logo">
-            <span className="pricing-header__logo-icon">AI</span>
-            <span className="pricing-header__logo-text">AI-Sphere</span>
-          </Link>
-          <nav className="pricing-header__nav">
-            <Link href="/" className="pricing-header__link">Чат</Link>
-            <Link href="/prices" className="pricing-header__link">Цены</Link>
+      <header className="header">
+        <div className="header__container">
+          <Link href="/" className="header__logo">AI Sphere</Link>
+          <nav className="header__menu">
+            <Link href="/" className="header__link">Чат</Link>
+            <Link href="/prices" className="header__link">Цены</Link>
             <Link href="/security" className="header__link header__link--active">Безопасность</Link>
             <Link href="/faq" className="header__link">FAQ</Link>
           </nav>
