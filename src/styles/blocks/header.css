@@ -1,0 +1,96 @@
+/* ============================================================
+   Header (header.css)
+   Единая шапка для внутренних страниц (prices, security, faq)
+   ============================================================ */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  border-bottom: 1px solid #e8eaed;
+  padding: 0 var(--page-padding, 24px);
+}
+
+.header__container {
+  max-width: var(--content-width, 1000px);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+
+.header__logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #202124;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.header__logo:hover {
+  opacity: 0.8;
+}
+
+.header__menu {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header__link {
+  padding: 8px 14px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #5f6368;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.header__link:hover {
+  background: #f1f3f4;
+  color: #202124;
+}
+
+.header__link--active {
+  color: #667eea;
+  background: #f0f0ff;
+}
+
+.header__link--active:hover {
+  background: #e8e8ff;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .header {
+    padding: 0 16px;
+  }
+
+  .header__container {
+    height: 48px;
+  }
+
+  .header__logo {
+    font-size: 1.125rem;
+  }
+
+  .header__link {
+    padding: 6px 10px;
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header__menu {
+    gap: 2px;
+  }
+
+  .header__link {
+    padding: 6px 8px;
+    font-size: 0.75rem;
+  }
+}

@@ -5,6 +5,7 @@
 
 /* Sections */
 @import './blocks/chat.css';
+@import './blocks/header.css';
 @import './blocks/sidebar.css';
 @import './blocks/quick-actions.css';
 @import './blocks/documents.css';
