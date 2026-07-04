@@ -63,7 +63,7 @@ async def upload_file(
     }
 
 MODELS = [
-    ModelInfo(id="deepseek/deepseek-chat",           name="DeepSeek V3",       provider="DeepSeek",    price_per_1k_input=0,  price_per_1k_output=0,  context_window=65536),
+    ModelInfo(id="deepseek/deepseek-chat",           name="DeepSeek V4 Flash",  provider="DeepSeek",    price_per_1k_input=2,  price_per_1k_output=6,  context_window=65536),
     ModelInfo(id="deepseek/deepseek-r1",             name="DeepSeek R1",       provider="DeepSeek",    price_per_1k_input=2,  price_per_1k_output=8,  context_window=65536),
     ModelInfo(id="anthropic/claude-sonnet-4",        name="Claude Sonnet 4",   provider="Anthropic",   price_per_1k_input=10, price_per_1k_output=40, context_window=200000),
     ModelInfo(id="anthropic/claude-3.5-haiku",       name="Claude 3.5 Haiku",  provider="Anthropic",   price_per_1k_input=3,  price_per_1k_output=12, context_window=200000),
@@ -97,9 +97,10 @@ async def chat_completion(
     if user and user.credits <= 0 and model_info.price_per_1k_input > 0:
         raise HTTPException(status_code=402, detail="Недостаточно кредитов. Пополните баланс.")
 
-    # Estimate cost
+    # Estimate cost (assume output ≈ 2× input, capped at 500 tokens)
     estimated_input_tokens = sum(len(m.content) // 4 for m in req.messages)
-    estimated_cost = (estimated_input_tokens * model_info.price_per_1k_input / 1000) + (req.max_tokens * model_info.price_per_1k_output / 1000)
+    estimated_output_tokens = min(estimated_input_tokens * 2, 500)
+    estimated_cost = (estimated_input_tokens * model_info.price_per_1k_input / 1000) + (estimated_output_tokens * model_info.price_per_1k_output / 1000)
 
     if user and user.credits < estimated_cost and model_info.price_per_1k_input > 0:
         raise HTTPException(status_code=402, detail="Недостаточно кредитов для этого запроса")
@@ -139,10 +140,11 @@ async def chat_completion(
     if user and model_info.price_per_1k_input > 0:
         input_tokens = usage.get("prompt_tokens", 0)
         output_tokens = usage.get("completion_tokens", 0)
-        credits_spent = int(
+        credits_spent = max(1, int(
             input_tokens * model_info.price_per_1k_input / 1000
             + output_tokens * model_info.price_per_1k_output / 1000
-        )
+        ))
+        # Always deduct at least 1 credit if any tokens were used
         if credits_spent > 0:
             user.credits = max(0, user.credits - credits_spent)
             tx = Transaction(

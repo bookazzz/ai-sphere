@@ -67,6 +67,31 @@ export async function getMe() {
   return apiCall<any>('/auth/me');
 }
 
+// ──────────────── Chat ────────────────
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface ChatResponse {
+  id: string;
+  model: string;
+  content: string;
+  credits_spent: number;
+  finish_reason: string;
+}
+
+export async function sendMessage(
+  model: string,
+  messages: ChatMessage[],
+): Promise<ChatResponse> {
+  return apiCall<ChatResponse>('/chat/completions', {
+    method: 'POST',
+    body: JSON.stringify({ model, messages }),
+  });
+}
+
 // ──────────────── Files ────────────────
 
 export async function uploadFile(file: File): Promise<{

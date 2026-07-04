@@ -1,20 +1,37 @@
 import { useState, useRef, useEffect } from 'react';
 
+interface ChatSession {
+  id: string;
+  title: string;
+  messages: { role: string; content: string }[];
+  createdAt: number;
+  updatedAt: number;
+}
+
 interface SidebarProps {
   isOpen: boolean;
   isMobile: boolean;
   isLoggedIn: boolean;
   userName?: string;
   userCredits?: number;
+  sessions: ChatSession[];
+  currentSessionId?: string | null;
   onToggle: () => void;
   onNewChat: () => void;
+  onSelectSession: (id: string) => void;
   onOpenAuth: () => void;
   onOpenPricing: () => void;
   onLogout: () => void;
 }
 
-export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCredits, onToggle, onNewChat, onOpenAuth, onOpenPricing, onLogout }: SidebarProps) {
+export default function Sidebar({
+  isOpen, isMobile, isLoggedIn, userName, userCredits,
+  sessions, currentSessionId,
+  onToggle, onNewChat, onSelectSession,
+  onOpenAuth, onOpenPricing, onLogout
+}: SidebarProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
 
@@ -31,15 +48,24 @@ export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCr
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [userMenuOpen]);
 
-  // Mobile: always render full sidebar as overlay
-  // Desktop: open (300px) or collapsed (56px icon bar)
   const sidebarClass = isMobile
     ? `sidebar sidebar--mobile ${isOpen ? 'sidebar--mobile-open' : ''}`
     : `sidebar ${isOpen ? '' : 'sidebar--collapsed'}`;
 
-  // On mobile, always show full sidebar content (not collapsed icon bar)
-  // On desktop, show collapsed when !isOpen
   const showFull = isMobile || isOpen;
+
+  const filteredSessions = searchQuery
+    ? sessions.filter(s => s.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    : sessions;
+
+  const formatDate = (ts: number) => {
+    const d = new Date(ts);
+    const now = new Date();
+    const diff = now.getTime() - d.getTime();
+    if (diff < 86400000) return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    if (diff < 604800000) return ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][d.getDay()];
+    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+  };
 
   return (
     <aside className={sidebarClass}>
@@ -50,10 +76,10 @@ export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCr
             <button className="sidebar__toggle" onClick={onToggle} aria-label="Закрыть меню">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <rect x="1" y="3" width="14" height="10" rx="1" />
-                <line x1="4" y1="8" x2="12" y2="8" />
+                <line x1="5" y1="3" x2="5" y2="13" />
               </svg>
-              <span>Закрыть</span>
             </button>
+            <span className="sidebar__logo">AI-Sphere</span>
           </div>
 
           <button className="sidebar__new-chat-btn" onClick={onNewChat}>
@@ -65,16 +91,41 @@ export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCr
             Новый чат
           </button>
 
-          <div className="sidebar__search">
-            <svg className="sidebar__search-icon-svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <circle cx="7" cy="7" r="5" />
-              <line x1="11" y1="11" x2="15" y2="15" />
-            </svg>
-            <input className="sidebar__search-input" type="text" placeholder="Поиск чатов..." />
-          </div>
+          {sessions.length > 0 && (
+            <div className="sidebar__search">
+              <svg className="sidebar__search-icon-svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <circle cx="7" cy="7" r="5" />
+                <line x1="11" y1="11" x2="15" y2="15" />
+              </svg>
+              <input
+                className="sidebar__search-input"
+                type="text"
+                placeholder="Поиск чатов..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+            </div>
+          )}
 
           <div className="sidebar__chats">
-            <div className="sidebar__empty">История чатов пуста</div>
+            {filteredSessions.length === 0 ? (
+              <div className="sidebar__empty">
+                {searchQuery ? 'Ничего не найдено' : 'История чатов пуста'}
+              </div>
+            ) : (
+              <div className="sidebar__chat-list">
+                {filteredSessions.map(session => (
+                  <button
+                    key={session.id}
+                    className={`sidebar__chat-item ${session.id === currentSessionId ? 'sidebar__chat-item--active' : ''}`}
+                    onClick={() => onSelectSession(session.id)}
+                  >
+                    <span className="sidebar__chat-item-title">{session.title}</span>
+                    <span className="sidebar__chat-item-date">{formatDate(session.updatedAt)}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="sidebar__footer">
@@ -118,25 +169,19 @@ export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCr
                   <div className="sidebar__user-menu" ref={menuRef}>
                     <button className="sidebar__user-menu-item" onClick={(e) => { e.stopPropagation(); onOpenPricing(); setUserMenuOpen(false); }}>
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-                        <polygon points="7,1 9,5 13,5 10,8 11,13 7,10 3,13 4,8 1,5 5,5" />
+                        <circle cx="7" cy="7" r="6" />
+                        <path d="M7 4v3" />
+                        <path d="M7 10v.01" />
                       </svg>
-                      Купить кредиты
+                      Тарифы
                     </button>
-                    <button className="sidebar__user-menu-item" onClick={(e) => { e.stopPropagation(); setUserMenuOpen(false); }}>
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="7" cy="7" r="2.5" />
-                        <path d="M12 7c0-.3 0-.7-.1-1l1.4-1.1-.9-1.7-1.6.5c-.4-.3-.8-.6-1.3-.8L9.5 1.1H7.9L7.2 2.6c-.5-.1-1-.1-1.5 0L5 1.1H3.4l-.6 1.7c-.5.2-.9.5-1.3.8l-1.6-.5-.9 1.7L1.1 6c-.1.3-.1.7-.1 1s0 .7.1 1l-1.4 1.1.9 1.7 1.6-.5c.4.3.8.6 1.3.8l.6 1.9h1.6l.7-1.5c.5.1 1 .1 1.5 0l.7 1.5h1.6l.6-1.9c.5-.2.9-.5 1.3-.8l1.6.5.9-1.7-1.4-1.1c.1-.3.1-.7.1-1z" />
-                      </svg>
-                      Настройки
-                    </button>
-                    <div className="sidebar__user-menu-divider" />
-                    <button className="sidebar__user-menu-item sidebar__user-menu-item--danger" onClick={(e) => { e.stopPropagation(); onLogout(); setUserMenuOpen(false); }}>
+                    <button className="sidebar__user-menu-item" onClick={(e) => { e.stopPropagation(); onLogout(); setUserMenuOpen(false); }}>
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M5 13H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h3" />
-                        <polyline points="9,10 13,7 9,4" />
-                        <line x1="13" y1="7" x2="5" y2="7" />
+                        <path d="M9 10l4-4-4-4" />
+                        <path d="M13 6H5" />
                       </svg>
-                      Выйти из аккаунта
+                      Выйти
                     </button>
                   </div>
                 )}
@@ -145,56 +190,31 @@ export default function Sidebar({ isOpen, isMobile, isLoggedIn, userName, userCr
           </div>
         </>
       ) : (
-        <>
-          {/* Collapsed icon bar — desktop only */}
-          <button className="sidebar__toggle" onClick={onToggle} aria-label="Развернуть меню">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <line x1="4" y1="6" x2="16" y2="6" />
-              <line x1="4" y1="10" x2="16" y2="10" />
-              <line x1="4" y1="14" x2="16" y2="14" />
+        /* Collapsed sidebar: icon bar */
+        <div className="sidebar__collapsed">
+          <button className="sidebar__collapsed-icon" onClick={onToggle} aria-label="Открыть меню" title="Меню">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <line x1="9" y1="3" x2="9" y2="21" />
             </svg>
           </button>
-
-          <div className="sidebar__collapsed-icons">
-            <button className="sidebar__collapsed-icon" onClick={onNewChat} aria-label="Новый чат" title="Новый чат">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="10" y1="4" x2="10" y2="16" />
-                <line x1="4" y1="10" x2="16" y2="10" />
+          <button className="sidebar__collapsed-icon" onClick={onNewChat} aria-label="Новый чат" title="Новый чат">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <line x1="12" y1="8" x2="12" y2="16" />
+              <line x1="8" y1="12" x2="16" y2="12" />
+            </svg>
+          </button>
+          {!isLoggedIn && (
+            <button className="sidebar__collapsed-icon sidebar__collapsed-icon--bottom" onClick={onOpenAuth} aria-label="Войти" title="Войти">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                <polyline points="10 17 15 12 10 7" />
+                <line x1="15" y1="12" x2="3" y2="12" />
               </svg>
             </button>
-
-            <button className="sidebar__collapsed-icon" aria-label="История чатов" title="История чатов">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="10" cy="10" r="8" />
-                <polyline points="10,6 10,10 13,12" />
-              </svg>
-            </button>
-
-            <button className="sidebar__collapsed-icon" aria-label="Поиск" title="Поиск">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <circle cx="8.5" cy="8.5" r="5.5" />
-                <line x1="12.5" y1="12.5" x2="17" y2="17" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="sidebar__collapsed-bottom">
-            <button className="sidebar__collapsed-icon sidebar__collapsed-icon--accent" aria-label="Тарифы" title="Тарифы и баланс" onClick={onOpenPricing}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="10,2 13,8 19,8 14,12 16,19 10,15 4,19 6,12 1,8 7,8" fill="currentColor" fillOpacity="0.15" />
-              </svg>
-            </button>
-
-            <button className="sidebar__collapsed-icon" aria-label="Профиль" title="Профиль" onClick={onOpenAuth}>
-              <div className="sidebar__collapsed-avatar">
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                  <circle cx="8" cy="5" r="3" />
-                  <path d="M2 15c0-3.3 2.7-6 6-6s6 2.7 6 6" />
-                </svg>
-              </div>
-            </button>
-          </div>
-        </>
+          )}
+        </div>
       )}
     </aside>
   );

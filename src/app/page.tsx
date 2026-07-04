@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Sidebar from '@/components/Sidebar';
 import ChatSection from '@/components/ChatSection';
 import DocumentsSection from '@/components/DocumentsSection';
@@ -14,7 +14,40 @@ import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
 import VkAuthOverlay from '@/components/VkAuthOverlay';
-import { setToken, clearToken, isAuthenticated, getMe } from '@/lib/api';
+import { setToken, clearToken, isAuthenticated, getMe, type ChatMessage } from '@/lib/api';
+
+interface ChatSession {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: number;
+  updatedAt: number;
+}
+
+function loadSessions(): ChatSession[] {
+  try {
+    const raw = localStorage.getItem('ai_sphere_sessions');
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function saveSessions(s: ChatSession[]) {
+  localStorage.setItem('ai_sphere_sessions', JSON.stringify(s));
+}
+
+function generateId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+}
+
+function loadCurrentSessionId(): string | null {
+  try {
+    return localStorage.getItem('ai_sphere_current_session');
+  } catch { return null; }
+}
+
+function saveCurrentSessionId(id: string) {
+  localStorage.setItem('ai_sphere_current_session', id);
+}
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -23,7 +56,23 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [chatActive, setChatActive] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [isMobile, setIsMobile] = useState(false);
+
+  const messagesRef = useRef<ChatMessage[]>([]);
+  messagesRef.current = messages;
+
+  const sessionsRef = useRef<ChatSession[]>([]);
+  sessionsRef.current = sessions;
+
+  const currentSessionIdRef = useRef<string | null>(null);
+
+  const [selectedModelId, setSelectedModelId] = useState('deepseek/deepseek-chat');
+  const selectedModelIdRef = useRef(selectedModelId);
+  selectedModelIdRef.current = selectedModelId;
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768);
@@ -32,7 +81,24 @@ export default function Home() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // Handle OAuth callback: extract token from URL
+  // Load sessions from localStorage on mount
+  useEffect(() => {
+    const stored = loadSessions();
+    setSessions(stored);
+    sessionsRef.current = stored;
+
+    const sessionId = loadCurrentSessionId();
+    if (sessionId) {
+      const session = stored.find(s => s.id === sessionId);
+      if (session && session.messages.length > 0) {
+        setMessages(session.messages);
+        setChatActive(true);
+        currentSessionIdRef.current = sessionId;
+      }
+    }
+  }, []);
+
+  // Handle OAuth callback
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
@@ -43,9 +109,7 @@ export default function Home() {
     if (token) {
       console.log('[Auth] Setting token from URL');
       setToken(token);
-      // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
-      // Load user
       getMe().then((u) => {
         console.log('[Auth] getMe OK:', u);
         setUser(u);
@@ -98,31 +162,106 @@ export default function Home() {
     setIsLoggedIn(false);
   }, []);
 
-  // Mobile: content full-width, sidebar as overlay
-  // Desktop: content has padding-left based on sidebar state
-  const contentClass = isMobile
-    ? 'content content--fullwidth'
-    : `content ${sidebarOpen ? '' : 'content--sidebar-collapsed'}`;
-
-  const handleSendMessage = useCallback((text: string, attachedFiles?: any[]) => {
+  const handleSendMessage = useCallback(async (text: string, attachedFiles?: any[]) => {
     if (!isLoggedIn) {
       setAuthOpen(true);
       return;
     }
-    console.log('[Chat] Send:', text, 'Files:', attachedFiles?.length || 0);
+
+    const currentMessages = messagesRef.current;
+    const userMsg: ChatMessage = { role: 'user', content: text };
+    const updated = [...currentMessages, userMsg];
+    setMessages(updated);
+    setChatActive(true);
+    setSending(true);
+
+    try {
+      const { sendMessage } = await import('@/lib/api');
+      const resp = await sendMessage(selectedModelIdRef.current, updated);
+      const assistantMsg: ChatMessage = { role: 'assistant', content: resp.content };
+      setMessages(prev => [...prev, assistantMsg]);
+    } catch (err: any) {
+      console.error('[Chat] Error:', err);
+      setMessages(prev => [...prev, { role: 'assistant', content: `❌ Ошибка: ${err.message}` }]);
+    } finally {
+      setSending(false);
+    }
   }, [isLoggedIn]);
 
   const handleNewChat = useCallback(() => {
-    // TODO: create new chat
+    currentSessionIdRef.current = null;
+    saveCurrentSessionId('');
+    setMessages([]);
+    setChatActive(true);
   }, []);
+
+  const handleSelectSession = useCallback((sessionId: string) => {
+    const session = sessionsRef.current.find(s => s.id === sessionId);
+    if (session) {
+      currentSessionIdRef.current = sessionId;
+      saveCurrentSessionId(sessionId);
+      setMessages(session.messages);
+      setChatActive(true);
+      if (isMobile) setSidebarOpen(false);
+    }
+  }, [isMobile]);
+
+  // Auto-save session after messages change
+  useEffect(() => {
+    if (messages.length === 0) return;
+
+    const id = currentSessionIdRef.current;
+    const now = Date.now();
+    const title = messages[0]?.content?.slice(0, 60) || 'Новый чат';
+
+    setSessions(prev => {
+      let updated: ChatSession[];
+      if (id && prev.some(s => s.id === id)) {
+        updated = prev.map(s =>
+          s.id === id ? { ...s, messages, title, updatedAt: now } : s
+        );
+      } else {
+        const newSession: ChatSession = {
+          id: generateId(),
+          title,
+          messages,
+          createdAt: now,
+          updatedAt: now,
+        };
+        currentSessionIdRef.current = newSession.id;
+        saveCurrentSessionId(newSession.id);
+        updated = [...prev, newSession];
+      }
+      saveSessions(updated);
+      return updated;
+    });
+  }, [messages]);
 
   const handleOpenPricing = useCallback(() => {
     // TODO: open pricing
   }, []);
 
   const handleUpdateModel = useCallback((modelId: string) => {
-    // TODO: update model
+    setSelectedModelId(modelId);
+    selectedModelIdRef.current = modelId;
   }, []);
+
+  const handleDeleteChat = useCallback(() => {
+    currentSessionIdRef.current = null;
+    saveCurrentSessionId('');
+    setMessages([]);
+    setChatActive(false);
+  }, []);
+
+  const handleShareChat = useCallback(() => {
+    const text = messagesRef.current.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${m.content}`).join('\n\n');
+    navigator.clipboard.writeText(text).catch(() => {});
+  }, []);
+
+  // Mobile: content full-width, sidebar as overlay
+  const contentClass = isMobile
+    ? 'content content--fullwidth'
+    : `content ${sidebarOpen ? '' : 'content--sidebar-collapsed'}`;
 
   return (
     <>
@@ -132,8 +271,11 @@ export default function Home() {
         isLoggedIn={isLoggedIn}
         userName={user?.name || user?.email}
         userCredits={user?.credits}
+        sessions={sessions}
+        currentSessionId={currentSessionIdRef.current}
         onToggle={toggleSidebar}
         onNewChat={handleNewChat}
+        onSelectSession={handleSelectSession}
         onOpenAuth={toggleAuth}
         onOpenPricing={handleOpenPricing}
         onLogout={handleLogout}
@@ -156,17 +298,26 @@ export default function Home() {
           onOpenAuth={toggleAuth}
           onToggleSidebar={toggleSidebar}
           onUpdateModel={handleUpdateModel}
+          messages={messages}
+          sending={sending}
+          chatActive={chatActive}
+          onDeleteChat={handleDeleteChat}
+          onShareChat={handleShareChat}
         />
 
-        <DocumentsSection onSelect={handleSendMessage} />
-        <FeaturesSection />
-        <HowItWorksSection />
-        <WhyUsSection />
-        <ModelsGridSection />
-        <FileSupportSection />
-        <FAQSection />
-        <CTASection onOpenAuth={toggleAuth} />
-        <Footer />
+        {!chatActive && (
+          <>
+            <DocumentsSection onSelect={handleSendMessage} />
+            <FeaturesSection />
+            <HowItWorksSection />
+            <WhyUsSection />
+            <ModelsGridSection />
+            <FileSupportSection />
+            <FAQSection />
+            <CTASection onOpenAuth={toggleAuth} />
+            <Footer />
+          </>
+        )}
       </div>
 
       <AuthModal

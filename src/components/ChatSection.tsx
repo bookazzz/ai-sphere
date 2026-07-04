@@ -11,6 +11,11 @@ interface ChatSectionProps {
   onOpenAuth: () => void;
   onToggleSidebar: () => void;
   onUpdateModel: (modelId: string) => void;
+  messages: { role: string; content: string }[];
+  sending?: boolean;
+  chatActive?: boolean;
+  onDeleteChat?: () => void;
+  onShareChat?: () => void;
 }
 
 const MODELS = [
@@ -35,14 +40,17 @@ interface FileItem {
   error?: string;
 }
 
-export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendMessage, onOpenAuth, onToggleSidebar, onUpdateModel }: ChatSectionProps) {
+export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendMessage, onOpenAuth, onToggleSidebar, onUpdateModel, messages = [], sending = false, chatActive = false, onDeleteChat, onShareChat }: ChatSectionProps) {
   const [modelSelectOpen, setModelSelectOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useState(MODELS[0]);
   const [message, setMessage] = useState('');
   const [files, setFiles] = useState<FileItem[]>([]);
+  const [isRecording, setIsRecording] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const recognitionRef = useRef<any>(null);
+  const modelSelectRef = useRef<HTMLDivElement>(null);
+  const [headerModalOpen, setHeaderModalOpen] = useState(false);
   const handleAttachClick = () => {
     if (!isLoggedIn) {
       onOpenAuth();
@@ -89,8 +97,20 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} КБ`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`;
   };
+
+  // Close model select on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (modelSelectRef.current && !modelSelectRef.current.contains(e.target as Node)) {
+        setModelSelectOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <main className="chat">
+    <main className={`chat ${chatActive || messages.length > 0 ? 'chat--active' : ''}`}>
       {/* Mobile header */}
       {isMobile && (
         <div className="chat__mobile-header">
@@ -108,7 +128,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
 
           <span className="chat__mobile-logo">AI-Sphere</span>
 
-          <button className="chat__mobile-menu-btn" aria-label="Меню">
+          <button className="chat__mobile-menu-btn" aria-label="Меню" onClick={() => setHeaderModalOpen(true)}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
               <circle cx="12" cy="5" r="2" />
               <circle cx="12" cy="12" r="2" />
@@ -118,12 +138,29 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
         </div>
       )}
 
-      <div className="chat__welcome">
-        <h1 className="chat__title">Чем могу помочь?</h1>
+      {!chatActive && messages.length === 0 && (
+        <div className="chat__welcome">
+          <h1 className="chat__title">Чем могу помочь?</h1>
         <p className="chat__subtitle">
           Работаю с документами, создаю изображения. Без VPN и с оплатой в рублях.
         </p>
       </div>
+      )}
+
+      {(chatActive || messages.length > 0) && (
+        <div className="chat__messages">
+          {messages.map((msg, i) => (
+            <div key={i} className={`chat__message chat__message--${msg.role}`}>
+              <div className="chat__message-content">{msg.content}</div>
+            </div>
+          ))}
+          {sending && (
+            <div className="chat__message chat__message--assistant">
+              <div className="chat__message-content chat__message-content--typing">...</div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Chat Input — icons inside textarea */}
       <div className="chat__input-area">
@@ -187,6 +224,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                 </svg>
               </button>
 
+              <div ref={modelSelectRef}>
               <button
                 className="chat__input-model"
                 onClick={() => setModelSelectOpen(prev => !prev)}
@@ -213,6 +251,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                   ))}
                 </div>
               )}
+            </div>
             </div>
 
             <div className="chat__input-right">
@@ -250,8 +289,51 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
         </div>
       </div>
 
-      <QuickActions onSelect={onSendMessage} />
-      <ChatPlaceholder onSelect={onSendMessage} />
+      {!chatActive && messages.length === 0 && (
+        <>
+          <QuickActions onSelect={onSendMessage} />
+          <ChatPlaceholder onSelect={onSendMessage} />
+        </>
+      )}
+
+      {/* Header modal — three dots menu */}
+      {headerModalOpen && (
+        <div className="modal-overlay" onClick={() => setHeaderModalOpen(false)}>
+          <div className="header-modal" onClick={e => e.stopPropagation()}>
+            <div className="header-modal__title">Действия с чатом</div>
+
+            <button
+              className="header-modal__btn"
+              onClick={() => { onShareChat?.(); setHeaderModalOpen(false); }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+              </svg>
+              Поделиться чатом
+            </button>
+
+            <button
+              className="header-modal__btn header-modal__btn--danger"
+              disabled={!chatActive || messages.length === 0}
+              onClick={() => { onDeleteChat?.(); setHeaderModalOpen(false); }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              </svg>
+              Удалить чат
+            </button>
+
+            <button className="header-modal__close" onClick={() => setHeaderModalOpen(false)}>
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
