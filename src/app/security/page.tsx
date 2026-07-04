@@ -73,7 +73,8 @@ export default function SecurityPage() {
           <nav className="pricing-header__nav">
             <Link href="/" className="pricing-header__link">Чат</Link>
             <Link href="/prices" className="pricing-header__link">Цены</Link>
-            <Link href="/security" className="pricing-header__link pricing-header__link--active">Безопасность</Link>
+            <Link href="/security" className="header__link header__link--active">Безопасность</Link>
+            <Link href="/faq" className="header__link">FAQ</Link>
           </nav>
         </div>
       </header>

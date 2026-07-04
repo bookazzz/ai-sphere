@@ -226,6 +226,7 @@ export default function PricesPage() {
           <nav className="header__menu">
             <Link href="/" className="header__link">Главная</Link>
             <Link href="/prices" className="header__link header__link--active">Цены</Link>
+            <Link href="/faq" className="header__link">FAQ</Link>
             <Link href="/security" className="header__link">Безопасность</Link>
           </nav>
         </div>
