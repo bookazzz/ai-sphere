@@ -251,7 +251,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
 
       {/* Chat Input */}
       <div className="chat__input-area">
-        <div className={`chat__input-wrapper${files.length > 0 ? ' has-files' : ''}`}>
+        <div className="chat__input-wrapper">
           <input
             ref={fileInputRef}
             type="file"
@@ -261,6 +261,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
             aria-hidden="true"
           />
 
+          <div className={`chat__input-box${files.length > 0 ? ' has-files' : ''}`}>
           {files.length > 0 && (
             <div className="chat__file-list">
               {files.map(file => (
@@ -396,6 +397,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
               </button>
             </div>
           </div>
+        </div>
         </div>
 
         <div className="chat__cost-hint">
