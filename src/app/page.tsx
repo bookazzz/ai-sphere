@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { DEFAULT_MODEL_ID } from '@/lib/models-data';
 import Sidebar from '@/components/Sidebar';
 import ChatSection from '@/components/ChatSection';
 import DocumentsSection from '@/components/DocumentsSection';
@@ -13,8 +14,9 @@ import FAQSection from '@/components/FAQSection';
 import CTASection from '@/components/CTASection';
 import Footer from '@/components/Footer';
 import AuthModal from '@/components/AuthModal';
+import PricingModal from '@/components/PricingModal';
 import VkAuthOverlay from '@/components/VkAuthOverlay';
-import { setToken, clearToken, isAuthenticated, getMe, type ChatMessage } from '@/lib/api';
+import { setToken, clearToken, isAuthenticated, getMe, type ChatMessage, type ContentPart } from '@/lib/api';
 
 interface ChatSession {
   id: string;
@@ -53,8 +55,11 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [vkAuthOpen, setVkAuthOpen] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const userRef = useRef(user);
+  userRef.current = user;
   const [authLoading, setAuthLoading] = useState(true);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [chatActive, setChatActive] = useState(false);
@@ -70,7 +75,7 @@ export default function Home() {
 
   const currentSessionIdRef = useRef<string | null>(null);
 
-  const [selectedModelId, setSelectedModelId] = useState('deepseek/deepseek-chat');
+  const [selectedModelId, setSelectedModelId] = useState(DEFAULT_MODEL_ID);
   const selectedModelIdRef = useRef(selectedModelId);
   selectedModelIdRef.current = selectedModelId;
 
@@ -81,8 +86,11 @@ export default function Home() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // Load sessions from localStorage on mount
+  // Load sessions from localStorage only if user is authenticated
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const hasToken = !!localStorage.getItem('auth_token');
+    if (!hasToken) return;
     const stored = loadSessions();
     setSessions(stored);
     sessionsRef.current = stored;
@@ -114,6 +122,10 @@ export default function Home() {
         console.log('[Auth] getMe OK:', u);
         setUser(u);
         setIsLoggedIn(true);
+        // Load sessions after OAuth login
+        const stored = loadSessions();
+        setSessions(stored);
+        sessionsRef.current = stored;
       }).catch((err) => {
         console.log('[Auth] getMe FAIL:', err);
         clearToken();
@@ -124,6 +136,10 @@ export default function Home() {
         console.log('[Auth] getMe OK:', u.email || u.name);
         setUser(u);
         setIsLoggedIn(true);
+        // Load sessions after token validation
+        const stored = loadSessions();
+        setSessions(stored);
+        sessionsRef.current = stored;
       }).catch((err) => {
         console.log('[Auth] getMe FAIL:', err.message, '— clearing token');
         clearToken();
@@ -140,11 +156,18 @@ export default function Home() {
   }, [isMobile]);
 
   const toggleSidebar = useCallback(() => setSidebarOpen(prev => !prev), []);
-  const toggleAuth = useCallback(() => setAuthOpen(prev => !prev), []);
+  const toggleAuth = useCallback(() => {
+    setSidebarOpen(false);
+    setAuthOpen(prev => !prev);
+  }, [setSidebarOpen, setAuthOpen]);
 
   const handleLogin = useCallback((userData: any) => {
     setUser(userData);
     setIsLoggedIn(true);
+    // Load user's sessions from localStorage after login
+    const stored = loadSessions();
+    setSessions(stored);
+    sessionsRef.current = stored;
   }, []);
 
   const handleOpenVkAuth = useCallback(() => {
@@ -160,7 +183,21 @@ export default function Home() {
     clearToken();
     setUser(null);
     setIsLoggedIn(false);
+    setMessages([]);
+    setChatActive(false);
+    setSessions([]);
+    sessionsRef.current = [];
+    currentSessionIdRef.current = null;
+    saveCurrentSessionId('');
   }, []);
+
+  const handleNewChat = useCallback(() => {
+    currentSessionIdRef.current = null;
+    saveCurrentSessionId('');
+    setMessages([]);
+    setChatActive(false);
+    if (isMobile) setSidebarOpen(false);
+  }, [isMobile]);
 
   const handleSendMessage = useCallback(async (text: string, attachedFiles?: any[]) => {
     if (!isLoggedIn) {
@@ -169,7 +206,25 @@ export default function Home() {
     }
 
     const currentMessages = messagesRef.current;
-    const userMsg: ChatMessage = { role: 'user', content: text };
+
+    // Build user message: content array if files attached, string otherwise
+    let userContent: string | ContentPart[];
+    if (attachedFiles && attachedFiles.length > 0) {
+      const imageParts: ContentPart[] = attachedFiles
+        .filter((f: any) => f.dataUrl && f.dataUrl.startsWith('data:image/'))
+        .map((f: any) => ({
+          type: 'image_url',
+          image_url: { url: f.dataUrl },
+        }));
+      userContent = [
+        { type: 'text', text: text || '' },
+        ...imageParts,
+      ];
+    } else {
+      userContent = text;
+    }
+
+    const userMsg: ChatMessage = { role: 'user', content: userContent };
     const updated = [...currentMessages, userMsg];
     setMessages(updated);
     setChatActive(true);
@@ -180,6 +235,10 @@ export default function Home() {
       const resp = await sendMessage(selectedModelIdRef.current, updated);
       const assistantMsg: ChatMessage = { role: 'assistant', content: resp.content };
       setMessages(prev => [...prev, assistantMsg]);
+      // Update displayed credit balance after deduction
+      if (resp.credits_spent > 0 && userRef.current) {
+        setUser({ ...userRef.current, credits: Math.max(0, userRef.current.credits - resp.credits_spent) });
+      }
     } catch (err: any) {
       console.error('[Chat] Error:', err);
       setMessages(prev => [...prev, { role: 'assistant', content: `❌ Ошибка: ${err.message}` }]);
@@ -188,14 +247,11 @@ export default function Home() {
     }
   }, [isLoggedIn]);
 
-  const handleNewChat = useCallback(() => {
-    currentSessionIdRef.current = null;
-    saveCurrentSessionId('');
-    setMessages([]);
-    setChatActive(true);
-  }, []);
-
   const handleSelectSession = useCallback((sessionId: string) => {
+    if (!isLoggedIn) {
+      toggleAuth();
+      return;
+    }
     const session = sessionsRef.current.find(s => s.id === sessionId);
     if (session) {
       currentSessionIdRef.current = sessionId;
@@ -204,7 +260,7 @@ export default function Home() {
       setChatActive(true);
       if (isMobile) setSidebarOpen(false);
     }
-  }, [isMobile]);
+  }, [isMobile, isLoggedIn, toggleAuth]);
 
   // Auto-save session after messages change
   useEffect(() => {
@@ -212,7 +268,12 @@ export default function Home() {
 
     const id = currentSessionIdRef.current;
     const now = Date.now();
-    const title = messages[0]?.content?.slice(0, 60) || 'Новый чат';
+    const firstContent = messages[0]?.content;
+    const title = typeof firstContent === 'string'
+      ? firstContent.slice(0, 60)
+      : (Array.isArray(firstContent)
+        ? (firstContent.find(p => p.type === 'text')?.text || 'Новый чат').slice(0, 60)
+        : 'Новый чат');
 
     setSessions(prev => {
       let updated: ChatSession[];
@@ -238,7 +299,7 @@ export default function Home() {
   }, [messages]);
 
   const handleOpenPricing = useCallback(() => {
-    // TODO: open pricing
+    setShowPricing(true);
   }, []);
 
   const handleUpdateModel = useCallback((modelId: string) => {
@@ -258,6 +319,30 @@ export default function Home() {
     navigator.clipboard.writeText(text).catch(() => {});
   }, []);
 
+  const handleDeleteSession = useCallback((sessionId: string) => {
+    setSessions(prev => {
+      const updated = prev.filter(s => s.id !== sessionId);
+      saveSessions(updated);
+      return updated;
+    });
+    if (currentSessionIdRef.current === sessionId) {
+      currentSessionIdRef.current = null;
+      saveCurrentSessionId('');
+      setMessages([]);
+      setChatActive(false);
+    }
+  }, []);
+
+  const handleRenameSession = useCallback((sessionId: string, title: string) => {
+    setSessions(prev => {
+      const updated = prev.map(s =>
+        s.id === sessionId ? { ...s, title, updatedAt: Date.now() } : s
+      );
+      saveSessions(updated);
+      return updated;
+    });
+  }, []);
+
   // Mobile: content full-width, sidebar as overlay
   const contentClass = isMobile
     ? 'content content--fullwidth'
@@ -265,6 +350,29 @@ export default function Home() {
 
   return (
     <>
+      {/* JSON-LD: главная страница — WebApplication */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebApplication',
+            name: 'AI-Sphere',
+            url: 'https://ai-sphere.ru',
+            description: 'ИИ-чат с доступом к ChatGPT, Claude, Gemini, DeepSeek и другим моделям. Без VPN, с оплатой в рублях.',
+            applicationCategory: 'AIApplication',
+            operatingSystem: 'All',
+            browserRequirements: 'JavaScript',
+            offers: {
+              '@type': 'Offer',
+              price: '99',
+              priceCurrency: 'RUB',
+              priceValidUntil: '2027-12-31',
+              availability: 'https://schema.org/InStock',
+            },
+          }),
+        }}
+      />
       <Sidebar
         isOpen={sidebarOpen}
         isMobile={isMobile}
@@ -279,6 +387,8 @@ export default function Home() {
         onOpenAuth={toggleAuth}
         onOpenPricing={handleOpenPricing}
         onLogout={handleLogout}
+        onDeleteSession={handleDeleteSession}
+        onRenameSession={handleRenameSession}
       />
 
       {/* Overlay for mobile sidebar */}
@@ -305,7 +415,7 @@ export default function Home() {
           onShareChat={handleShareChat}
         />
 
-        {!chatActive && (
+        {!isLoggedIn && (
           <>
             <DocumentsSection onSelect={handleSendMessage} />
             <FeaturesSection />
@@ -315,10 +425,21 @@ export default function Home() {
             <FileSupportSection />
             <FAQSection />
             <CTASection onOpenAuth={toggleAuth} />
-            <Footer />
           </>
         )}
+        {!isLoggedIn && <Footer />}
       </div>
+
+      <PricingModal
+        isOpen={showPricing}
+        onClose={() => setShowPricing(false)}
+        isLoggedIn={isLoggedIn}
+        onTopUp={() => { setShowPricing(false); setAuthOpen(true); }}
+        onSuccess={() => {
+          // Refresh user data after payment
+          getMe().then(u => setUser(u)).catch(() => {});
+        }}
+      />
 
       <AuthModal
         isOpen={authOpen}

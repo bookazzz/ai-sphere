@@ -226,7 +226,10 @@ async def oauth_yandex_callback(
 
 
 class VKTokenRequest(BaseModel):
-    access_token: str
+    vk_id: str
+    first_name: str = ""
+    last_name: str = ""
+    photo: str = ""
 
 
 @router.post("/oauth/vk/token")
@@ -234,44 +237,17 @@ async def oauth_vk_token(
     req: VKTokenRequest,
     db: AsyncSession = Depends(get_db),
 ):
-    """Exchange VK ID access token for user data and create/login user.
+    """Handle VK OAuth — receive client-processed VK user data, create/login user.
 
-    Called after client-side VK ID SDK exchangeCode().
+    The client (VkAuthOverlay) gets the access_token via VK ID SDK exchangeCode(),
+    fetches user info via VK API JSONP (browser-side to avoid CORS),
+    then sends verified user data here.
     """
-    async with httpx.AsyncClient() as client:
-        # Get user info from VK API
-        user_resp = await client.get(
-            "https://api.vk.com/method/users.get",
-            params={
-                "access_token": req.access_token,
-                "fields": "first_name,last_name,photo_200,screen_name",
-                "v": "5.131",
-            },
-        )
-        logger.info("VK users.get status=%d", user_resp.status_code)
-
-        if user_resp.status_code != 200:
-            raise HTTPException(status_code=400, detail="Ошибка проверки токена ВК")
-
-        vk_data = user_resp.json()
-
-        if "error" in vk_data:
-            logger.error("VK API error: %s", vk_data)
-            raise HTTPException(
-                status_code=400,
-                detail=f"Ошибка ВК: {vk_data.get('error', {}).get('error_msg', 'Неизвестная ошибка')}",
-            )
-
-        users = vk_data.get("response", [])
-        if not users:
-            raise HTTPException(status_code=400, detail="Пользователь ВК не найден")
-
-        vk_user = users[0]
-        vk_user_id = str(vk_user["id"])
-        first_name = vk_user.get("first_name", "")
-        last_name = vk_user.get("last_name", "")
-        name = f"{first_name} {last_name}".strip() or None
-        logger.info("VK ID auth success: user_id=%s name=%s", vk_user_id, name)
+    vk_user_id = req.vk_id
+    first_name = req.first_name
+    last_name = req.last_name
+    name = f"{first_name} {last_name}".strip() or None
+    logger.info("VK ID auth: user_id=%s name=%s", vk_user_id, name)
 
     # Find or create user
     result = await db.execute(select(User).where(User.vk_id == vk_user_id))

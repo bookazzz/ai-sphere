@@ -8,5 +8,6 @@
 .features__card { padding: 28px; background: var(--color-bg); border-radius: var(--radius-lg); transition: all var(--transition-base); border: 1px solid transparent; }
 .features__card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--color-border); background: var(--color-surface); }
 .features__card-icon { font-size: 32px; margin-bottom: 16px; display: block; }
-.features__card-title { font-size: 17px; font-weight: 600; margin-bottom: 8px; color: var(--color-text-primary); }
-.features__card-desc { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; }
+.features__card-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--color-text-primary); word-break: break-word; }
+.features__card-desc { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; word-break: break-word; }
+.features__card-icon {

@@ -1,27 +1,37 @@
-@import './blocks/variables.css';
-@import './blocks/fonts.css';
-@import './blocks/base.css';
-@import './blocks/animations.css';
+/* ===== Базовые ===== */
+@import 'blocks/variables.css';
+@import 'blocks/base.css';
+@import 'blocks/fonts.css';
+@import 'blocks/responsive.css';
 
-/* Sections */
-@import './blocks/chat.css';
-@import './blocks/header.css';
-@import './blocks/sidebar.css';
-@import './blocks/quick-actions.css';
-@import './blocks/documents.css';
-@import './blocks/features.css';
-@import './blocks/how-it-works.css';
-@import './blocks/why-us.css';
-@import './blocks/models-grid.css';
-@import './blocks/file-support.css';
-@import './blocks/faq.css';
-@import './blocks/cta.css';
-@import './blocks/footer.css';
-@import './blocks/auth-modal.css';
-@import './blocks/vk-auth-overlay.css';
-@import './blocks/responsive.css';
+/* ===== Компоненты ===== */
+@import 'blocks/header.css';
+@import 'blocks/footer.css';
+@import 'blocks/chat.css';
+@import 'blocks/sidebar.css';
+@import 'blocks/auth-modal.css';
+@import 'blocks/pricing-modal.css';
+@import 'blocks/file-support.css';
+@import 'blocks/documents.css';
+@import 'blocks/quick-actions.css';
+@import 'blocks/cta.css';
+@import 'blocks/features.css';
+@import 'blocks/how-it-works.css';
+@import 'blocks/why-us.css';
+@import 'blocks/vk-auth-overlay.css';
 
-/* Pages */
-@import './blocks/pricing.css';
-@import './blocks/security.css';
-@import './blocks/faq.css';
+/* ===== Страницы ===== */
+@import 'blocks/pricing.css';
+@import 'blocks/models.css';
+@import 'blocks/models-grid.css';
+@import 'blocks/faq.css';
+@import 'blocks/security.css';
+@import 'blocks/about.css';
+@import 'blocks/contacts.css';
+@import 'blocks/legal.css';
+
+/* ===== SEO-страницы ===== */
+@import 'blocks/seo.css';
+
+/* ===== Темы и утилиты ===== */
+@import 'blocks/animations.css';

@@ -2,6 +2,56 @@ import { useState, useRef, useEffect } from 'react';
 import QuickActions from './QuickActions';
 import ChatPlaceholder from './ChatPlaceholder';
 import { uploadFile } from '@/lib/api';
+import { categories, allModels, DEFAULT_MODEL_ID, getCategoryByModelId, isVisionCapable, filterVisionModels } from '@/lib/models-data';
+
+// Read a File as a base64 data URL
+function readFileAsDataURL(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+// Extract plain text from a message content (string or content array)
+function getMessageText(content: string | { type: string; [key: string]: any }[]): string {
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) {
+    const textPart = content.find(p => p.type === 'text');
+    return textPart?.text || '[изображение]';
+  }
+  return '';
+}
+
+// Renders message content: text + images for content arrays
+function RenderContent({ content }: { content: string | { type: string; [key: string]: any }[] }) {
+  if (typeof content === 'string') {
+    return <div className="chat__message-content">{content}</div>;
+  }
+  if (Array.isArray(content)) {
+    return (
+      <div className="chat__message-content">
+        {content.map((part, i) => {
+          if (part.type === 'text') return <span key={i}>{part.text}</span>;
+          if (part.type === 'image_url' && part.image_url?.url) {
+            return (
+              <img
+                key={i}
+                src={part.image_url.url}
+                alt="attached image"
+                className="chat__message-image"
+                style={{ maxWidth: '100%', maxHeight: 300, borderRadius: 8, marginTop: 4, objectFit: 'contain' }}
+              />
+            );
+          }
+          return null;
+        })}
+      </div>
+    );
+  }
+  return <div className="chat__message-content">{String(content)}</div>;
+}
 
 interface ChatSectionProps {
   isMobile: boolean;
@@ -11,38 +61,29 @@ interface ChatSectionProps {
   onOpenAuth: () => void;
   onToggleSidebar: () => void;
   onUpdateModel: (modelId: string) => void;
-  messages: { role: string; content: string }[];
+  messages: { role: string; content: string | { type: string; [key: string]: any }[] }[];
   sending?: boolean;
   chatActive?: boolean;
   onDeleteChat?: () => void;
   onShareChat?: () => void;
 }
 
-const MODELS = [
-  { id: 'deepseek/deepseek-chat', name: 'DeepSeek V4 Flash' },
-  { id: 'deepseek/deepseek-r1', name: 'DeepSeek R1' },
-  { id: 'anthropic/claude-sonnet-4', name: 'Claude Sonnet 4' },
-  { id: 'anthropic/claude-3.5-haiku', name: 'Claude 3.5 Haiku' },
-  { id: 'openai/gpt-4o', name: 'GPT-4o' },
-  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
-  { id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
-  { id: 'google/gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
-  { id: 'meta-llama/llama-4-maverick', name: 'Llama 4 Maverick' },
-  { id: 'qwen/qwen3-235b-a22b', name: 'Qwen 3 235B' },
-];
-
 interface FileItem {
   id: string;
   name: string;
   size: number;
   url: string;
+  dataUrl?: string;
   uploading?: boolean;
   error?: string;
 }
 
 export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendMessage, onOpenAuth, onToggleSidebar, onUpdateModel, messages = [], sending = false, chatActive = false, onDeleteChat, onShareChat }: ChatSectionProps) {
   const [modelSelectOpen, setModelSelectOpen] = useState(false);
-  const [selectedModel, setSelectedModel] = useState(MODELS[0]);
+  const [modelSearch, setModelSearch] = useState('');
+  const [selectedModel, setSelectedModel] = useState(
+    allModels.find(m => m.id === DEFAULT_MODEL_ID) || allModels[0]
+  );
   const [message, setMessage] = useState('');
   const [files, setFiles] = useState<FileItem[]>([]);
   const [isRecording, setIsRecording] = useState(false);
@@ -50,10 +91,14 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
   const modelSelectRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [headerModalOpen, setHeaderModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [userStarted, setUserStarted] = useState(false);
+  const [visionAlert, setVisionAlert] = useState<{ modelName: string; visionModels: typeof allModels } | null>(null);
+
   const handleAttachClick = () => {
     if (!isLoggedIn) {
       onOpenAuth();
@@ -66,6 +111,19 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
     const selected = e.target.files;
     if (!selected || selected.length === 0) return;
 
+    // Check for image files when model doesn't support vision
+    const isImageFile = (f: File) => f.type.startsWith('image/');
+    const hasImages = Array.from(selected).some(isImageFile);
+    if (hasImages && !isVisionCapable(selectedModel.id)) {
+      const visionModels = filterVisionModels();
+      setVisionAlert({
+        modelName: selectedModel.name,
+        visionModels: visionModels.slice(0, 5),
+      });
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
     setUploading(true);
     const newFiles: FileItem[] = [];
 
@@ -75,10 +133,10 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
       newFiles.push({ id: tempId, name: file.name, size: file.size, url: '', uploading: true });
 
       try {
+        const dataUrl = await readFileAsDataURL(file);
         const result = await uploadFile(file);
-        // Update the last pushed item with real data
         const idx = newFiles.length - 1;
-        newFiles[idx] = { ...result, uploading: false };
+        newFiles[idx] = { ...result, uploading: false, dataUrl };
       } catch (err: any) {
         const idx = newFiles.length - 1;
         newFiles[idx] = { ...newFiles[idx], uploading: false, error: err.message };
@@ -87,7 +145,6 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
 
     setFiles(prev => [...prev, ...newFiles]);
     setUploading(false);
-    // Reset input so re-selecting same file triggers onChange
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -112,6 +169,13 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Focus search when dropdown opens
+  useEffect(() => {
+    if (modelSelectOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [modelSelectOpen]);
+
   // Scroll to bottom on new messages
   useEffect(() => {
     if (messagesContainerRef.current) {
@@ -119,49 +183,61 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
     }
   }, [messages]);
 
+  // Filter categories by search query
+  const filteredCategories = modelSearch.trim()
+    ? categories
+        .map(cat => ({
+          ...cat,
+          models: cat.models.filter(m =>
+            m.name.toLowerCase().includes(modelSearch.toLowerCase())
+          ),
+        }))
+        .filter(cat => cat.models.length > 0)
+    : categories;
+
+  const handleSelectModel = (model: typeof allModels[0]) => {
+    setSelectedModel(model);
+    onUpdateModel(model.id);
+    setModelSelectOpen(false);
+    setModelSearch('');
+  };
+
   return (
-    <main className={`chat ${chatActive || messages.length > 0 ? 'chat--active' : ''}`}>
-      {/* Mobile header */}
-      {isMobile && (
-        <div className="chat__mobile-header">
-          <button
-            className="chat__mobile-menu-btn"
-            onClick={onToggleSidebar}
-            aria-label={sidebarOpen ? 'Закрыть меню' : 'Открыть меню'}
-          >
-            {/* Sidebar icon: square with vertical divider */}
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="3" />
-              <line x1="9" y1="3" x2="9" y2="21" />
-            </svg>
-          </button>
+    <main className={`chat ${chatActive || isLoggedIn ? 'chat--active' : ''}`}>
+      {/* Mobile header — always rendered, visibility via CSS */}
+      <div className="chat__mobile-header">
+        <button
+          className="chat__mobile-menu-btn"
+          onClick={onToggleSidebar}
+          aria-label={sidebarOpen ? 'Закрыть меню' : 'Открыть меню'}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3" />
+            <line x1="9" y1="3" x2="9" y2="21" />
+          </svg>
+        </button>
+        <span className="chat__mobile-logo">AI-Sphere</span>
+        <button className="chat__mobile-menu-btn" aria-label="Меню" onClick={() => setHeaderModalOpen(true)}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="5" r="2" />
+            <circle cx="12" cy="12" r="2" />
+            <circle cx="12" cy="19" r="2" />
+          </svg>
+        </button>
+      </div>
 
-          <span className="chat__mobile-logo">AI-Sphere</span>
-
-          <button className="chat__mobile-menu-btn" aria-label="Меню" onClick={() => setHeaderModalOpen(true)}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="5" r="2" />
-              <circle cx="12" cy="12" r="2" />
-              <circle cx="12" cy="19" r="2" />
-            </svg>
-          </button>
-        </div>
-      )}
-
-      {!chatActive && messages.length === 0 && (
+      {!chatActive && messages.length === 0 ? (
         <div className="chat__welcome">
           <h1 className="chat__title">Чем могу помочь?</h1>
-        <p className="chat__subtitle">
-          Работаю с документами, создаю изображения. Без VPN и с оплатой в рублях.
-        </p>
-      </div>
-      )}
-
-      {(chatActive || messages.length > 0) && (
+          <p className="chat__subtitle">
+            Работаю с документами, создаю изображения. Без VPN и с оплатой в рублях.
+          </p>
+        </div>
+      ) : (
         <div className="chat__messages" ref={messagesContainerRef}>
           {messages.map((msg, i) => (
             <div key={i} className={`chat__message chat__message--${msg.role}`}>
-              <div className="chat__message-content">{msg.content}</div>
+              <RenderContent content={msg.content} />
             </div>
           ))}
           {sending && (
@@ -173,10 +249,9 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
         </div>
       )}
 
-      {/* Chat Input — icons inside textarea */}
+      {/* Chat Input */}
       <div className="chat__input-area">
-        <div className="chat__input-wrapper">
-          {/* Hidden file input */}
+        <div className={`chat__input-wrapper${files.length > 0 ? ' has-files' : ''}`}>
           <input
             ref={fileInputRef}
             type="file"
@@ -186,7 +261,6 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
             aria-hidden="true"
           />
 
-          {/* Attached files list */}
           {files.length > 0 && (
             <div className="chat__file-list">
               {files.map(file => (
@@ -194,14 +268,15 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                   key={file.id}
                   className={`chat__file-chip ${file.uploading ? 'chat__file-chip--uploading' : ''} ${file.error ? 'chat__file-chip--error' : ''}`}
                 >
-                  <svg className="chat__file-chip-icon" width="14" height="16" viewBox="0 0 14 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 1H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4l-4-4z" />
-                    <polyline points="9,1 9,4 12,4" />
-                  </svg>
+                  {file.dataUrl?.startsWith('data:image/') ? (
+                    <img className="chat__file-chip-thumb" src={file.dataUrl} alt="" />
+                  ) : (
+                    <svg className="chat__file-chip-icon" width="16" height="16" viewBox="0 0 14 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 1H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4l-4-4z" />
+                      <polyline points="9,1 9,4 12,4" />
+                    </svg>
+                  )}
                   <span className="chat__file-chip-name">{file.name}</span>
-                  <span className="chat__file-chip-size">
-                    {file.uploading ? '…' : file.error ? 'Ошибка' : formatSize(file.size)}
-                  </span>
                   <button
                     className="chat__file-chip-remove"
                     onClick={() => removeFile(file.id)}
@@ -220,6 +295,15 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
             rows={3}
             value={message}
             onChange={e => setMessage(e.target.value)}
+            onFocus={() => setUserStarted(true)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey && (message.trim() || files.length > 0)) {
+                e.preventDefault();
+                onSendMessage(message, files);
+                setMessage('');
+                setFiles([]);
+              }
+            }}
           />
 
           <div className="chat__input-actions">
@@ -246,20 +330,39 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                 <span className="chat__model-arrow">▼</span>
               </button>
               {modelSelectOpen && (
-                <div className="chat__model-select">
-                  {MODELS.map(m => (
-                    <button
-                      key={m.id}
-                      className={`chat__model-option ${m.id === selectedModel.id ? 'chat__model-option--active' : ''}`}
-                      onClick={() => {
-                        setSelectedModel(m);
-                        onUpdateModel(m.id);
-                        setModelSelectOpen(false);
-                      }}
-                    >
-                      {m.name}
-                    </button>
-                  ))}
+                <div className="chat__model-select chat__model-select--grouped">
+                  {/* Search */}
+                  <div className="chat__model-search">
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      className="chat__model-search-input"
+                      placeholder="Поиск моделей..."
+                      value={modelSearch}
+                      onChange={e => setModelSearch(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Grouped list */}
+                  <div className="chat__model-groups">
+                    {filteredCategories.map(cat => (
+                      <div key={cat.name} className="chat__model-group">
+                        <div className="chat__model-group-title">{cat.name}</div>
+                        {cat.models.map(m => (
+                          <button
+                            key={m.id}
+                            className={`chat__model-option ${m.id === selectedModel.id ? 'chat__model-option--active' : ''}`}
+                            onClick={() => handleSelectModel(m)}
+                          >
+                            <span className="chat__model-option-name">{m.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                    {filteredCategories.length === 0 && (
+                      <div className="chat__model-empty">Ничего не найдено</div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -300,14 +403,14 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
         </div>
       </div>
 
-      {!chatActive && messages.length === 0 && (
+      {!userStarted && !chatActive && messages.length === 0 && !isLoggedIn && (
         <>
           <QuickActions onSelect={onSendMessage} />
           <ChatPlaceholder onSelect={onSendMessage} />
         </>
       )}
 
-      {/* Header modal — three dots menu */}
+      {/* Header modal */}
       {headerModalOpen && (
         <div className="modal-overlay" onClick={() => setHeaderModalOpen(false)}>
           <div className="header-modal" onClick={e => e.stopPropagation()}>
@@ -353,13 +456,11 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
             <div className="share-modal__title">Поделиться чатом</div>
 
             <div className="share-modal__grid">
-
-              {/* Telegram */}
               <button
                 className="share-modal__btn"
                 onClick={() => {
                   const url = window.location.href;
-                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${m.content}`).join('\n');
+                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
                   window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
                   setShareModalOpen(false);
                 }}
@@ -370,12 +471,11 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                 Telegram
               </button>
 
-              {/* WhatsApp */}
               <button
                 className="share-modal__btn"
                 onClick={() => {
                   const url = window.location.href;
-                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${m.content}`).join('\n');
+                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
                   window.open(`https://wa.me/?text=${encodeURIComponent(text + '\n' + url)}`, '_blank');
                   setShareModalOpen(false);
                 }}
@@ -386,13 +486,12 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                 WhatsApp
               </button>
 
-              {/* VK */}
               <button
                 className="share-modal__btn"
                 onClick={() => {
                   const url = window.location.href;
                   const title = 'AI-Sphere Chat';
-                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${m.content}`).join('\n');
+                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
                   window.open(`https://vk.com/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&description=${encodeURIComponent(text)}`, '_blank');
                   setShareModalOpen(false);
                 }}
@@ -403,7 +502,6 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                 VK
               </button>
 
-              {/* Copy link */}
               <button
                 className="share-modal__btn share-modal__btn--copy"
                 onClick={() => {
@@ -420,11 +518,43 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                 </svg>
                 Копировать ссылку
               </button>
-
             </div>
 
             <button className="share-modal__close" onClick={() => setShareModalOpen(false)}>
               Отмена
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Vision alert — model doesn't support images */}
+      {visionAlert && (
+        <div className="modal-overlay" onClick={() => setVisionAlert(null)}>
+          <div className="vision-alert" onClick={e => e.stopPropagation()}>
+            <div className="vision-alert__icon">🖼️</div>
+            <div className="vision-alert__title">Для изображений нужна другая модель</div>
+            <div className="vision-alert__text">
+              <strong>{visionAlert.modelName}</strong> не поддерживает изображения.
+              Текстовые файлы, PDF и документы прикрепляются без ограничений.
+              Выберите одну из моделей с поддержкой vision:
+            </div>
+            <div className="vision-alert__models">
+              {visionAlert.visionModels.map(m => (
+                <button
+                  key={m.id}
+                  className="vision-alert__model-btn"
+                  onClick={() => {
+                    handleSelectModel(m);
+                    setVisionAlert(null);
+                    setTimeout(() => fileInputRef.current?.click(), 100);
+                  }}
+                >
+                  {m.name}
+                </button>
+              ))}
+            </div>
+            <button className="vision-alert__continue" onClick={() => setVisionAlert(null)}>
+              Продолжить без изображения
             </button>
           </div>
         </div>

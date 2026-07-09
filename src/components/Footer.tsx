@@ -9,8 +9,7 @@ export default function Footer() {
           </div>
           <div className="footer__slogan">Один чат для всех задач</div>
           <div className="footer__details">
-            ИНН: 402572055731<br />
-            Email: errorkO@mail.ru
+            Поддержка: <a href="mailto:goorujke@yandex.ru">goorujke@yandex.ru</a>
           </div>
         </div>
         <div>
@@ -21,18 +20,19 @@ export default function Footer() {
             <a className="footer__link" href="/contacts">Контакты</a>
             <a className="footer__link" href="/security">Безопасность</a>
             <a className="footer__link" href="/faq">FAQ</a>
+            <a className="footer__link" href="/privacy">Политика конфиденциальности</a>
+            <a className="footer__link" href="/offer">Пользовательское соглашение</a>
           </div>
         </div>
         <div>
           <div className="footer__column-title">Модели</div>
           <div className="footer__links">
-            <a className="footer__link" href="/chat?model=chatgpt">ChatGPT для программистов</a>
-            <a className="footer__link" href="/chat?model=xiaomi">Xiaomi MiMo-V2-Flash</a>
-            <a className="footer__link" href="/chat?model=deepseek">DeepSeek бесплатно</a>
-            <a className="footer__link" href="/chat?model=gemini">Gemini-3-Flash-preview</a>
-            <a className="footer__link" href="/chat?model=perplexity">AI для поиска в интернете</a>
-            <a className="footer__link" href="/models">Бесплатные нейросети</a>
-            <a className="footer__link" href="/chat?model=claude">Claude Sonnet 4.5</a>
+            <a className="footer__link" href="/chat-gpt-online">ChatGPT онлайн</a>
+            <a className="footer__link" href="/gpt-4-chat">GPT-4</a>
+            <a className="footer__link" href="/deepseek-chat">DeepSeek</a>
+            <a className="footer__link" href="/dalle-nejroset">DALL-E</a>
+            <a className="footer__link" href="/stable-diffusion">Stable Diffusion</a>
+            <a className="footer__link" href="/midjourney-nejroset">Midjourney</a>
           </div>
         </div>
       </div>

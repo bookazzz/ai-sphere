@@ -1,6 +1,5 @@
-'use client';
-
 import Link from 'next/link';
+import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
 const sections = [
@@ -64,17 +63,7 @@ export default function SecurityPage() {
   return (
     <>
       {/* Header */}
-      <header className="header">
-        <div className="header__container">
-          <Link href="/" className="header__logo">AI Sphere</Link>
-          <nav className="header__menu">
-            <Link href="/" className="header__link">Чат</Link>
-            <Link href="/prices" className="header__link">Цены</Link>
-            <Link href="/security" className="header__link header__link--active">Безопасность</Link>
-            <Link href="/faq" className="header__link">FAQ</Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero */}
       <section className="security-hero">

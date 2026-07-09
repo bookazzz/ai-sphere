@@ -1,25 +1,23 @@
 {
   "name": "ai-sphere",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "next dev",
-    "build": "next build",
-    "start": "npx serve@latest out"
+    "presitemap": "node scripts/generate-sitemap.cjs",
+    "build": "npm run presitemap && node scripts/validate-seo.cjs && next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "next": "^16.2.9",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "next": "^15",
+    "react": "^19",
+    "react-dom": "^19"
   },
   "devDependencies": {
-    "@types/node": "^26.0.1",
-    "@types/react": "^19.2.17",
-    "typescript": "^6.0.3"
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5"
   }
 }

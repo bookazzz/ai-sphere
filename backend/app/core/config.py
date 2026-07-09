@@ -39,14 +39,24 @@ class Settings(BaseSettings):
     # YooKassa
     yookassa_shop_id: str = ""
     yookassa_secret_key: str = ""
+    yookassa_return_url: str = "https://ai-sphere.ru/billing"
+    yookassa_test: bool = True
 
-    # OpenRouter (используется в chat.py)
+    # OpenRouter
     openrouter_api_key: str = ""
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
+    openrouter_proxy: str | None = None
+
+    # YooKassa (Platega)
+    platega_merchant_id: str = ""
+    platega_secret_key: str = ""
+    platega_return_url: str = ""
+    platega_fail_url: str = ""
 
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",
+        "extra": "ignore",
     }
 
 

@@ -4,9 +4,9 @@
 .footer__logo { font-size: 22px; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; }
 .footer__logo-icon { width: 32px; height: 32px; background: var(--color-accent-gradient); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; font-weight: 700; }
 .footer__slogan { font-size: 14px; color: rgba(255,255,255,0.5); }
-.footer__details { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.8; }
+.footer__details { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.8; word-break: break-word; overflow-wrap: break-word; hyphens: auto; }
 .footer__column-title { font-size: 14px; font-weight: 600; color: white; margin-bottom: 20px; }
 .footer__links { display: flex; flex-direction: column; gap: 10px; }
-.footer__link { font-size: 13px; color: rgba(255,255,255,0.5); transition: color var(--transition-fast); }
+.footer__link { font-size: 13px; color: rgba(255,255,255,0.5); transition: color var(--transition-fast); word-break: break-word; overflow-wrap: break-word; hyphens: auto; }
 .footer__link:hover { color: white; }
 .footer__bottom { max-width: 1200px; margin: 40px auto 0; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 13px; color: rgba(255,255,255,0.3); text-align: center; }

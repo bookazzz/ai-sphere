@@ -22,9 +22,30 @@ export default function VkAuthOverlay({ onLogin, onClose }: Props) {
     }
 
     try {
+      // VK API via JSONP (browser-side, bypasses CORS)
+      const vkData = await new Promise<any>((resolve, reject) => {
+        const cb = 'vkCb' + Date.now();
+        (window as any)[cb] = (d: any) => { delete (window as any)[cb]; document.body.removeChild(s); resolve(d); };
+        const s = document.createElement('script');
+        s.src = `https://api.vk.com/method/users.get?access_token=${encodeURIComponent(accessToken)}&fields=first_name,last_name,photo_200&v=5.131&callback=${cb}`;
+        s.onerror = () => { delete (window as any)[cb]; document.body.removeChild(s); reject(new Error('VK API request failed')); };
+        document.body.appendChild(s);
+      });
+
+      if (vkData.error || !vkData.response || !vkData.response[0]) {
+        setError('Ошибка получения данных VK: ' + (vkData.error?.error_msg || 'неизвестная ошибка'));
+        return;
+      }
+
+      const vkUser = vkData.response[0];
       const res = await apiCall<{ access_token: string; user: any }>('/auth/oauth/vk/token', {
         method: 'POST',
-        body: JSON.stringify({ access_token: accessToken }),
+        body: JSON.stringify({
+          vk_id: String(vkUser.id),
+          first_name: vkUser.first_name || '',
+          last_name: vkUser.last_name || '',
+          photo: vkUser.photo_200 || '',
+        }),
       });
       setToken(res.access_token);
       onLogin(res.user);

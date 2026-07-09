@@ -69,9 +69,16 @@ export async function getMe() {
 
 // ──────────────── Chat ────────────────
 
+export interface ContentPart {
+  type: 'text' | 'image_url' | 'file';
+  text?: string;
+  image_url?: { url: string };
+  file?: { url: string; name?: string };
+}
+
 export interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
+  role: string;
+  content: string | ContentPart[];
 }
 
 export interface ChatResponse {

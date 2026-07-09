@@ -7,4 +7,4 @@
 .file-support__format { padding: 6px 14px; background: var(--color-accent-light); color: var(--color-accent); border-radius: var(--radius-full); font-size: 13px; font-weight: 500; }
 .file-support__notice { font-size: 13px; color: var(--color-text-tertiary); margin-top: 16px; line-height: 1.5; }
 .file-support__visual { display: flex; justify-content: center; align-items: center; }
-.file-support__icon-box { width: 200px; height: 200px; background: var(--color-bg); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; font-size: 64px; box-shadow: var(--shadow-lg); }
+.file-support__icon-box { width: 200px; height: 200px; background: var(--color-bg); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; font-size: 64px; box-shadow: var(--shadow-lg); max-width: 100%; }
