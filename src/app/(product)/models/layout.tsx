@@ -7,8 +7,8 @@ export const metadata: Metadata = {
     canonical: 'https://ai-sphere.ru/models',
   },
   openGraph: {
-    title: 'Каталог AI-моделей AI-Sphere',
-    description: 'Более 40 нейросетей в одном интерфейсе. Бесплатные кредиты каждый день.',
+    title: 'Все нейросети в AI-Sphere — каталог моделей',
+    description: 'DeepSeek, Claude, Gemini, ChatGPT и 40+ моделей в одном интерфейсе. Без VPN, без подписок.',
     url: 'https://ai-sphere.ru/models',
     locale: 'ru_RU',
     type: 'website',

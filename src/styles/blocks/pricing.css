@@ -150,12 +150,34 @@
   border-color: #667eea;
 }
 
-.plans__card-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 12px;
+.plans__card--popular {
+  border-color: #667eea;
+  box-shadow: 0 4px 20px rgba(102,126,234,0.2);
+  position: relative;
+  padding-top: 16px;
+}
+.plans__card--popular:hover {
+  box-shadow: 0 6px 28px rgba(102,126,234,0.3);
+}
+.plans__card-badge {
+  display: block;
+  margin: -18px auto 10px;
+  width: fit-content;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 16px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+.plans__card--popular {
+  border-color: #667eea;
+  box-shadow: 0 4px 20px rgba(102,126,234,0.2);
+  padding-top: 24px;
 }
 
 .plans__price {

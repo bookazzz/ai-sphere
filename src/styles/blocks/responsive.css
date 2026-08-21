@@ -88,7 +88,8 @@
   .quick-actions { gap: 6px; }
   .quick-actions__btn { font-size: 12px; padding: 6px 12px; }
   .chat__welcome { padding: 24px 16px 12px; }
-  .chat__input-area, .chat__placeholder { padding: 0 16px; }
+  .chat__input-model { max-width: 130px; }
+.chat__input-area, .chat__placeholder { padding: 0 16px; }
   .documents { padding: 60px 16px; }
   .documents__title { font-size: 24px; }
   section.documents .documents__grid { grid-template-columns: 1fr; }

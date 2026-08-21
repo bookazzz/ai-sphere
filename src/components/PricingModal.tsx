@@ -6,7 +6,7 @@ import { apiCall } from '@/lib/api';
 interface Plan {
   id: string;
   name: string;
-  price: number;   // копейки
+  price: number;   // рубли (API возвращает рубли)
   credits: number;
   bonus: number;
   popular: boolean;
@@ -22,7 +22,7 @@ interface Props {
 
 export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onSuccess }: Props) {
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -52,37 +52,48 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
       return;
     }
 
-    setLoading(true);
+    setLoadingPlanId(planId);
     setError(null);
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
       const result = await apiCall<{ payment_id: string; payment_url: string }>('/billing/top-up', {
         method: 'POST',
         body: JSON.stringify({ plan_id: planId }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
 
       // Redirect to Platega payment page
       window.location.href = result.payment_url;
     } catch (err: any) {
-      setError(err.message || 'Ошибка при создании платежа');
-      setLoading(false);
+      if (err.name === 'AbortError') {
+        setError('Сервер платежей не отвечает. Попробуйте позже.');
+      } else {
+        setError(err.message || 'Ошибка при создании платежа');
+      }
+      setLoadingPlanId(null);
     }
   };
 
   const displayPlans = plans.length > 0 ? plans : [
     { id: 'starter',  name: 'Стартовый',  price: 5000,  credits: 500,  bonus: 0,    popular: false },
     { id: 'basic',    name: 'Базовый',    price: 25000, credits: 2500,  bonus: 0,    popular: false },
-    { id: 'popular',  name: 'Популярный', price: 100000,credits: 10000, bonus: 1500, popular: true },
-    { id: 'premium',  name: 'Премиум',    price: 250000,credits: 25000, bonus: 5000, popular: false },
+    { id: 'popular',  name: 'Популярный', price: 100000, credits: 10000, bonus: 1500, popular: true },
+    { id: 'premium',  name: 'Премиум',    price: 250000, credits: 25000, bonus: 5000, popular: false },
   ];
+
+  const fmtPrice = (p: number) => (p / 100).toLocaleString('ru-RU'); // kop → rub
 
   if (!isOpen) return null;
 
   return (
     <div className="pricing-modal pricing-modal--open">
-      <div className="pricing-modal__overlay" onClick={loading ? undefined : onClose} />
+      <div className="pricing-modal__overlay" onClick={loadingPlanId ? undefined : onClose} />
       <div className="pricing-modal__content">
-        <button className="pricing-modal__close" onClick={loading ? undefined : onClose}>✕</button>
+        <button className="pricing-modal__close" onClick={loadingPlanId ? undefined : onClose}>✕</button>
 
         <h2 className="pricing-modal__title">Выберите тариф</h2>
         <p className="pricing-modal__subtitle">
@@ -100,7 +111,7 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
             <div className={`pricing-modal__card ${plan.popular ? 'pricing-modal__card--popular' : ''}`} key={plan.id}>
               {plan.popular && <div className="pricing-modal__card-badge">🔥 Выбор пользователей</div>}
               <div className="pricing-modal__card-header">
-                <span className="pricing-modal__price">{Math.round(plan.price / 100)} ₽</span>
+                <span className="pricing-modal__price">{fmtPrice(plan.price)} ₽</span>
                 {plan.bonus > 0 && (
                   <span className="pricing-modal__bonus">+{plan.bonus}</span>
                 )}
@@ -117,10 +128,10 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
               </div>
               <button
                 className="pricing-modal__btn"
-                disabled={loading}
+                disabled={loadingPlanId !== null}
                 onClick={() => handleTopUp(plan.id)}
               >
-                {loading ? 'Обработка...' : 'Пополнить'}
+                {loadingPlanId === plan.id ? 'Обработка...' : 'Пополнить'}
               </button>
             </div>
           ))}

@@ -24,3 +24,10 @@
 .auth-modal__social { display: flex; gap: 12px; }
 .auth-modal__social-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 14px; color: var(--color-text-secondary); transition: all var(--transition-fast); }
 .auth-modal__social-btn:hover { border-color: var(--color-accent); background: var(--color-accent-light); color: var(--color-accent); }
+
+.auth-modal__error { padding: 10px 14px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-md); font-size: 13px; color: #f87171; text-align: center; }
+
+.auth-modal__success { padding: 20px 14px; background: rgba(74, 222, 128, 0.1); border: 1px solid rgba(74, 222, 128, 0.3); border-radius: var(--radius-md); text-align: center; }
+.auth-modal__success p { margin: 4px 0; font-size: 14px; color: #4ade80; }
+.auth-modal__success p:first-child { font-weight: 600; font-size: 15px; }
+.auth-modal__success p:last-child { font-size: 13px; color: var(--color-text-secondary); }

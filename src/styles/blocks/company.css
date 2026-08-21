@@ -1,0 +1,229 @@
+/* ============================================================
+   Company Pages (company.css)
+   ============================================================ */
+
+/* ---------- Hero ---------- */
+.company-hero {
+  padding: 80px 0 60px;
+  background: linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg) 100%);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.company-hero__title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: var(--color-text-primary);
+}
+
+.company-hero__desc {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  max-width: 800px;
+  margin-bottom: 24px;
+}
+
+.company-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  font-size: 0.9rem;
+  color: var(--color-text-tertiary);
+}
+
+.company-hero__link {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.company-hero__link:hover {
+  color: var(--color-accent-hover);
+}
+
+/* ---------- Content Layout ---------- */
+.company-content {
+  padding-top: 40px;
+  padding-bottom: 80px;
+}
+
+.company-section {
+  margin-bottom: 48px;
+}
+
+.company-section__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.company-section__text {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+.company-section__text p {
+  margin-bottom: 16px;
+}
+
+.company-section__text strong {
+  color: var(--color-text-primary);
+}
+
+.company-section__text ul {
+  margin-bottom: 16px;
+  padding-left: 20px;
+}
+
+.company-section__text li {
+  list-style: disc;
+  margin-bottom: 6px;
+  line-height: 1.6;
+}
+
+.company-section__text a {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.company-section__text a:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+/* ---------- Products ---------- */
+.company-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.company-product {
+  padding: 24px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  transition: border-color var(--transition-fast);
+}
+
+.company-product:hover {
+  border-color: var(--color-accent);
+}
+
+.company-product__name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--color-text-primary);
+}
+
+.company-product__desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+/* ---------- Models List ---------- */
+.company-models {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.company-model {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.company-model:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.company-model__name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin-bottom: 4px;
+}
+
+.company-model__ctx {
+  font-size: 0.8rem;
+  color: var(--color-text-tertiary);
+  margin-bottom: 4px;
+}
+
+.company-model__desc {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.company-model__price-link {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-accent);
+  margin-top: auto;
+}
+
+/* ---------- CTA ---------- */
+.company-cta {
+  margin-top: 64px;
+  padding: 48px;
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-hover) 100%);
+  border-radius: 16px;
+  text-align: center;
+}
+
+.company-cta__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.company-cta__text {
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 24px;
+}
+
+.company-cta__btn {
+  display: inline-block;
+  padding: 14px 36px;
+  background: #fff;
+  color: var(--color-accent);
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.company-cta__btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  color: var(--color-accent-hover);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .company-hero { padding: 48px 0 36px; }
+  .company-hero__title { font-size: 1.5rem; }
+  .company-hero__desc { font-size: 1rem; }
+  .company-products { grid-template-columns: 1fr; }
+  .company-models { grid-template-columns: 1fr; }
+  .company-cta { padding: 32px 20px; }
+  .company-cta__title { font-size: 1.35rem; }
+}

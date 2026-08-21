@@ -23,6 +23,8 @@ interface SidebarProps {
   onSelectSession: (id: string) => void;
   onOpenAuth: () => void;
   onOpenPricing: () => void;
+  onOpenPromo: () => void;
+  onOpenSupport: () => void;
   onLogout: () => void;
   onDeleteSession?: (id: string) => void;
   onRenameSession?: (id: string, title: string) => void;
@@ -31,8 +33,8 @@ interface SidebarProps {
 function getDateLabel(ts: number): string {
   const d = new Date(ts);
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const dateDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const dateDay = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
   const diffDays = Math.floor((today.getTime() - dateDay.getTime()) / 86400000);
 
   if (diffDays === 0) return 'Сегодня';
@@ -48,7 +50,7 @@ export default function Sidebar({
   isOpen, isMobile, isLoggedIn, userName, userCredits,
   sessions, currentSessionId,
   onToggle, onNewChat, onSelectSession,
-  onOpenAuth, onOpenPricing, onLogout,
+  onOpenAuth, onOpenPricing, onOpenPromo, onOpenSupport, onLogout,
   onDeleteSession, onRenameSession
 }: SidebarProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -271,6 +273,22 @@ export default function Sidebar({
                         <path d="M8 11v.01" />
                       </svg>
                       Тарифы
+                    </button>
+                    <button className="sidebar__user-menu-item" onClick={(e) => { e.stopPropagation(); onOpenPromo(); setUserMenuOpen(false); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="5" width="12" height="9" rx="1" />
+                        <path d="M8 5V2M6 3l2-1 2 1" />
+                        <path d="M8 9v3" />
+                        <path d="M6.5 10.5h3" />
+                      </svg>
+                      Промокод
+                    </button>
+                    <button className="sidebar__user-menu-item" onClick={(e) => { e.stopPropagation(); onOpenSupport(); setUserMenuOpen(false); }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="8" cy="8" r="6" />
+                        <path d="M8 11V8M8 5.5v.01" />
+                      </svg>
+                      Техподдержка
                     </button>
                     <button className="sidebar__user-menu-item sidebar__user-menu-item--danger" onClick={(e) => { e.stopPropagation(); onLogout(); setUserMenuOpen(false); }}>
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

@@ -15,7 +15,7 @@ import FileSupportSection from '@/components/sections/FileSupportSection';
 import FAQSection from '@/components/sections/FAQSection';
 import CTASection from '@/components/sections/CTASection';
 import Footer from '@/components/Footer';
-import { getToken, clearToken, setToken, getMe, isAuthenticated, saveSession, deleteSessionApi } from '@/lib/api';
+import { getToken, clearToken, setToken, getMe, isAuthenticated, saveSession, deleteSessionApi, prepareRegenerateMessages } from '@/lib/api';
 import { DEFAULT_MODEL_ID } from '@/lib/models-data';
 import type { ChatMessage, ContentPart, EnsembleResponse } from '@/lib/api';
 
@@ -290,13 +290,23 @@ export default function Home() {
       await streamChat(selectedModelIdRef.current, updated, {
         onToken: (token: string) => {
           setThinkingText(''); // очищаем thinking при первом контенте
+          if (token.includes('![')) {
+            console.debug('[Chat onToken] token with markdown image:', token.slice(0, 150));
+          }
           setMessages(prev => {
             const copy = [...prev];
             const last = copy[copy.length - 1];
             if (last && last.role === 'assistant') {
-              copy[copy.length - 1] = { ...last, content: last.content + token };
+              const newContent = last.content + token;
+              copy[copy.length - 1] = { ...last, content: newContent };
+              if (newContent.includes('![generated]')) {
+                console.debug('[Chat onToken] message now contains ![generated]:', newContent.slice(0, 200));
+              }
             } else {
               copy.push({ role: 'assistant', content: token });
+              if (token.includes('![generated]')) {
+                console.debug('[Chat onToken] new message with ![generated]:', token.slice(0, 200));
+              }
             }
             return copy;
           });
@@ -377,6 +387,51 @@ export default function Home() {
 
     setMessages(prev => [...prev, ...newMessages]);
     setChatActive(true);
+  }, []);
+
+  const handleRegenerate = useCallback(async () => {
+    console.log('[Regen] handleRegenerate called');
+    const current = messagesRef.current;
+    console.log('[Regen] messages count:', current.length);
+    if (current.length === 0) { console.warn('[Regen] No messages - cannot regenerate'); return; }
+    const msgs = prepareRegenerateMessages(current);
+    console.log('[Regen] prepared msgs count:', msgs.length);
+    setMessages(msgs);
+    setSending(true);
+
+    try {
+      console.log('[Regen] calling streamChat with model:', selectedModelIdRef.current);
+      const { streamChat } = await import('@/lib/api');
+      console.log('[Regen] streamChat imported');
+      await streamChat(selectedModelIdRef.current, msgs, {
+        onToken: (token: string) => {
+          setThinkingText('');
+          setMessages(prev => {
+            const copy = [...prev];
+            const last = copy[copy.length - 1];
+            if (last && last.role === 'assistant') {
+              copy[copy.length - 1] = { ...last, content: last.content + token };
+            } else {
+              copy.push({ role: 'assistant', content: token });
+            }
+            return copy;
+          });
+        },
+        onDone: (creditsSpent: number) => {
+          if (creditsSpent > 0 && userRef.current) {
+            setUser({ ...userRef.current, credits: Math.max(0, userRef.current.credits - creditsSpent) });
+          }
+          setSending(false);
+          setThinkingText('');
+        },
+        onThinking: (text: string) => {
+          setThinkingText(text);
+        },
+      });
+    } catch (err: any) {
+      console.error('[Regen] Error caught:', err, err?.message, err?.stack);
+      setSending(false);
+    }
   }, []);
 
   const handleSelectSession = useCallback((sessionId: string) => {
@@ -723,6 +778,7 @@ export default function Home() {
           onShareChat={handleShareChat}
           onEnsembleResult={handleEnsembleResult}
           onActivateChat={handleActivateChat}
+          onRegenerate={handleRegenerate}
           currentSessionId={currentSessionIdRef.current}
         />
 

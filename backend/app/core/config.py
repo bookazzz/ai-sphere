@@ -36,11 +36,15 @@ class Settings(BaseSettings):
     # Frontend URL (for OAuth redirects after auth)
     frontend_url: str = "https://ai-sphere.ru"
 
-    # YooKassa
-    yookassa_shop_id: str = ""
-    yookassa_secret_key: str = ""
-    yookassa_return_url: str = "https://ai-sphere.ru/billing"
-    yookassa_test: bool = True
+    # Admin panel auth
+    admin_login: str = "bookazzz"
+    admin_password: str = "bookaZavr12!"
+
+    # YooKassa (DEPRECATED — replaced by Platega)
+    # yookassa_shop_id: str = ""
+    # yookassa_secret_key: str = ""
+    # yookassa_return_url: str = "https://ai-sphere.ru/billing"
+    # yookassa_test: bool = True
 
     # OpenRouter
     openrouter_api_key: str = ""

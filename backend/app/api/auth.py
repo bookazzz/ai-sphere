@@ -37,7 +37,7 @@ async def apply_daily_credits(user: User, db: AsyncSession) -> None:
 
     today = datetime.date.today()
     if user.last_daily_reset != today:
-        user.credits = 10
+        user.credits_free = 10
         user.last_daily_reset = today
         db.add(user)
         await db.commit()
@@ -83,7 +83,7 @@ async def register(
         email=req.email,
         hashed_password=hash_password(req.password),
         name=req.name,
-        credits=10,  # welcome + daily reset
+        credits_free=10,  # welcome + daily reset
     )
     db.add(user)
     await db.commit()
@@ -162,6 +162,7 @@ async def oauth_yandex_callback(
                 "code": code,
                 "client_id": settings.yandex_client_id,
                 "client_secret": settings.yandex_client_secret,
+                "redirect_uri": settings.yandex_redirect_uri,
             },
         )
         logger.info("Yandex token exchange status=%d", token_resp.status_code)
@@ -208,7 +209,7 @@ async def oauth_yandex_callback(
             hashed_password=hash_password(f"oauth_yandex_{yandex_id}"),
             name=name,
             yandex_id=yandex_id,
-            credits=10,  # welcome + daily reset
+            credits_free=10,  # welcome + daily reset
         )
 
     db.add(user)
@@ -264,7 +265,7 @@ async def oauth_vk_token(
             hashed_password=hash_password(f"oauth_vk_{vk_user_id}"),
             name=name,
             vk_id=vk_user_id,
-            credits=10,
+            credits_free=10,
         )
         db.add(user)
 
@@ -276,3 +277,31 @@ async def oauth_vk_token(
         access_token=token,
         user=UserInfo.model_validate(user),
     )
+
+
+
+@router.get("/oauth/vk")
+async def oauth_vk():
+    """Redirect user to VK OAuth consent screen."""
+    params = {
+        "response_type": "code",
+        "client_id": settings.vk_client_id,
+        "redirect_uri": settings.vk_redirect_uri,
+        "v": "5.131",
+        "scope": "email",
+    }
+    url = f"https://oauth.vk.com/authorize?{urlencode(params)}"
+    return RedirectResponse(url=url)
+
+
+@router.get("/oauth/vk/callback")
+async def oauth_vk_callback(
+    code: str = Query(None),
+    state: str = Query(None),
+):
+    """VK OAuth callback - redirect to /callback for client-side JSONP exchange."""
+    if not code:
+        raise HTTPException(status_code=400, detail="Код авторизации не получен")
+
+    logger.info("VK callback: redirecting to /callback (code len=%d)", len(code))
+    return RedirectResponse(url=f"/callback?code={code}&state={state or ''}")

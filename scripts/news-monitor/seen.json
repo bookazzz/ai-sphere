@@ -1,0 +1,2872 @@
+{
+  "https://ai-sphere.ru/blog/character-ai-janitor-ai-trendy": {
+    "source": "existing",
+    "time": "2026-07-26T12:00:00Z",
+    "title": "character ai janitor ai trendy"
+  },
+  "https://ai-sphere.ru/blog/claude-opus-5-rekord-arc-agi-3": {
+    "source": "existing",
+    "time": "2026-07-26T12:00:00Z",
+    "title": "claude opus 5 rekord arc agi 3"
+  },
+  "https://ai-sphere.ru/blog/deepseek-novye-modeli-2026": {
+    "source": "existing",
+    "time": "2026-07-26T12:00:00Z",
+    "title": "deepseek novye modeli 2026"
+  },
+  "https://ai-sphere.ru/blog/gpt-5-image-mini-reliz": {
+    "source": "existing",
+    "time": "2026-07-26T12:00:00Z",
+    "title": "gpt 5 image mini reliz"
+  },
+  "https://ai-sphere.ru/blog/openai-gpt-5-novye-vozmozhnosti": {
+    "source": "existing",
+    "time": "2026-07-26T12:00:00Z",
+    "title": "openai gpt 5 novye vozmozhnosti"
+  },
+  "https://ai-sphere.ru/blog/yandex-nejroseti-kandinsky-alisa-shedevrum": {
+    "source": "existing",
+    "time": "2026-07-26T12:00:00Z",
+    "title": "yandex nejroseti kandinsky alisa shedevrum"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/agentic-retrieval-for-amazon-bedrock-managed-knowledge-base/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Agentic retrieval for Amazon Bedrock Managed Knowledge Base"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/ai-teammates-how-monday-com-runs-production-ai-agents-on-amazon-bedrock/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "AI Teammates: how monday.com runs production AI agents on Amazon Bedrock"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/best-practices-for-applying-amazon-bedrock-guardrails-to-code-generation-workflows/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Best practices for applying Amazon Bedrock Guardrails to code generation workflows"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/build-an-explainable-next-best-product-recommendation-system-for-banking-on-aws/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Build an explainable next-best-product recommendation system for banking on AWS"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/build-enterprise-search-for-agents-with-amazon-bedrock-managed-knowledge-base/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Build enterprise search for agents with Amazon Bedrock Managed Knowledge Base"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/build-specialized-agent-workflows-for-your-business-with-amazon-quick-and-nvidia-nemo-agent-toolkit/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Build specialized agent workflows for your business with Amazon Quick and NVIDIA NeMo Agent Toolkit"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/building-multi-region-visualizations-with-highcharts-in-amazon-quick/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Building multi-Region visualizations with Highcharts in Amazon Quick"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/building-trade-assistant-how-jefferies-optimized-front-office-trading-operations-with-ai/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Building trade assistant: How Jefferies optimized front office trading operations with AI"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/custom-os-installation-now-available-on-aws-deepracer-devices/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Custom OS installation now available on AWS DeepRacer devices"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/detecting-silent-agent-failures-with-amazon-bedrock-agentcore-optimization/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Detecting silent agent failures with Amazon Bedrock AgentCore optimization"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/evaluating-ai-agents-a-production-blueprint-with-strands-and-agentcore/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Evaluating AI Agents: A production blueprint with Strands and AgentCore"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/evolving-from-legacy-bi-to-agentic-ai-at-tradeshift-with-amazon-quick/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Evolving from legacy BI to agentic AI at Tradeshift with Amazon Quick"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/exploring-self-distilled-reasoning-for-supervised-fine-tuning-with-amazon-nova/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Exploring self-distilled reasoning for supervised fine-tuning with Amazon Nova"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/get-started-with-openai-gpt-5-6-sol-terra-and-luna-on-amazon-bedrock/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Get started with OpenAI GPT-5.6 Sol, Terra, and Luna on Amazon Bedrock"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/how-couchbase-built-a-multi-model-ai-architecture-for-capella-iq-with-amazon-bedrock/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "How Couchbase built a multi-model AI architecture for Capella iQ with Amazon Bedrock"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/how-smartsheet-built-a-remote-mcp-server-on-aws/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "How Smartsheet built a remote MCP server on AWS"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/introducing-claude-opus-5-on-aws-anthropics-most-capable-opus-model/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Introducing Claude Opus 5 on AWS: Anthropic’s most capable Opus model"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/introducing-grok-on-amazon-bedrock/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Introducing Grok on Amazon Bedrock"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/introducing-mobile-layout-for-amazon-quick-dashboards/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Introducing Mobile Layout for Amazon Quick dashboards"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/transform-your-sales-organization-with-amazon-quick-your-new-agentic-ai-teammate/": {
+    "source": "aws-ml",
+    "time": "2026-07-26T18:21:24Z",
+    "title": "Transform your sales organization with Amazon Quick: your new agentic AI teammate"
+  },
+  "https://developer.nvidia.com/blog/advancing-semiconductor-innovation-across-materials-engineering-and-manufacturing/": {
+    "source": "rss-monitor",
+    "time": "2026-07-27T03:20:55.918532+00:00",
+    "title": "advancing semiconductor innovation across materials engineering and manufacturing"
+  },
+  "https://developer.nvidia.com/blog/nvidia-nemotron-3-ultra-leads-open-models-on-accuracy-and-efficiency-in-agentic-rtl-coding/": {
+    "source": "rss-monitor",
+    "time": "2026-07-27T03:20:55.918532+00:00",
+    "title": "nvidia nemotron 3 ultra leads open models on accuracy and efficiency in agentic rtl coding"
+  },
+  "https://simonwillison.net/2026/Jul/16/kimi-k3/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "Kimi K3, and what we can still learn from the pelican benchmark"
+  },
+  "https://simonwillison.net/2026/Jul/21/cat-and-thariq/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "A Fireside Chat with Cat and Thariq from the Claude Code team"
+  },
+  "https://simonwillison.net/2026/Jul/22/openai-cyberattack/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "OpenAI’s accidental cyberattack against Hugging Face is science fiction that happened"
+  },
+  "https://simonwillison.net/2026/Jul/5/sqlite-utils-fable/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "sqlite-utils 4.0rc2, mostly written by Claude Fable (for about $149.25)"
+  },
+  "https://simonwillison.net/2026/Jul/7/sqlite-utils-4/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "sqlite-utils 4.0, now with database schema migrations"
+  },
+  "https://simonwillison.net/2026/Jul/9/gpt-5-6/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "The new GPT-5.6 family: Luna, Terra, Sol"
+  },
+  "https://simonwillison.net/2026/Jun/11/fable-is-relentlessly-proactive/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "Claude Fable is relentlessly proactive"
+  },
+  "https://simonwillison.net/2026/Jun/13/publishing-wasm-wheels/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "Publishing WASM wheels to PyPI for use with Pyodide"
+  },
+  "https://simonwillison.net/2026/Jun/17/glm-52/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "GLM-5.2 is probably the most powerful text-only open weights LLM"
+  },
+  "https://simonwillison.net/2026/Jun/18/datasette-apps/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "Datasette Apps: Host custom HTML applications inside Datasette"
+  },
+  "https://simonwillison.net/2026/Jun/21/sqlite-utils-40rc1/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "sqlite-utils 4.0rc1 adds migrations and nested transactions"
+  },
+  "https://simonwillison.net/2026/Jun/22/porting-moebius/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "Porting the Moebius 0.2B image inpainting model to run in the browser with Claude Code"
+  },
+  "https://simonwillison.net/2026/Jun/30/shot-scraper-video/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "Have your agent record video demos of its work with shot-scraper video"
+  },
+  "https://simonwillison.net/2026/Jun/6/micropython-in-a-sandbox/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "Running Python code in a sandbox with MicroPython and WASM"
+  },
+  "https://simonwillison.net/2026/Jun/9/claude-fable-5/#atom-entries": {
+    "source": "simon-willison",
+    "time": "2026-07-26T09:51:33Z",
+    "title": "Initial impressions of Claude Fable 5"
+  },
+  "https://techcrunch.com/2026/07/23/aegisai-founded-by-former-google-security-execs-lands-36m-to-stop-ai-driven-spear-phishing/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "AegisAI, founded by former Google security execs, lands $36M to stop AI-driven spear phishing"
+  },
+  "https://techcrunch.com/2026/07/23/amd-takes-on-nvidia-with-its-helios-ai-rack-scale-system/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "AMD takes on Nvidia with its Helios AI rack-scale system"
+  },
+  "https://techcrunch.com/2026/07/23/anthropic-updates-claude-voice-mode-with-more-capable-models/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Anthropic updates Claude voice mode with more capable models"
+  },
+  "https://techcrunch.com/2026/07/23/how-ai-guardrails-are-impeding-the-work-of-offensive-cybersecurity-researchers/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "How AI guardrails are impeding the work of offensive cybersecurity researchers"
+  },
+  "https://techcrunch.com/2026/07/23/meta-launched-a-new-ai-optimism-ad-set-to-a-song-about-human-extinction/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Meta launched a new AI optimism ad set to a song about human extinction"
+  },
+  "https://techcrunch.com/2026/07/23/nvidia-is-sending-gpus-to-the-moon/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Nvidia is sending GPUs to the moon"
+  },
+  "https://techcrunch.com/2026/07/23/openai-makes-chatgpt-health-available-to-all-u-s-users/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "OpenAI makes ChatGPT Health available to all US users"
+  },
+  "https://techcrunch.com/2026/07/23/runway-bets-on-ai-model-routing-as-generative-media-gets-crowded/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Runway launches AI model router as generative media gets crowded"
+  },
+  "https://techcrunch.com/2026/07/24/anthropic-launches-opus-5/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Anthropic launches Opus 5"
+  },
+  "https://techcrunch.com/2026/07/24/as-us-weighs-response-to-chinese-ai-industry-urges-against-broad-open-weight-restrictions/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "As US weighs response to Chinese AI, industry urges against broad open-weight restrictions"
+  },
+  "https://techcrunch.com/2026/07/24/blueskys-ai-assistant-attie-expands-into-an-open-social-research-tool/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Bluesky’s AI assistant Attie expands into an open social research tool"
+  },
+  "https://techcrunch.com/2026/07/24/i-tried-out-openais-new-ai-keypad-which-will-be-fun-for-coders-and-slightly-mystifying-to-everyone-else/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "I tried out OpenAI’s new AI keypad — which will be fun for some coders and slightly mystifying to everyone else"
+  },
+  "https://techcrunch.com/2026/07/24/midjourney-acquired-the-astrology-app-co-star/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Midjourney acquired the astrology app Co-Star"
+  },
+  "https://techcrunch.com/2026/07/24/openais-new-voice-mode-makes-it-to-the-chatgpt-desktop-app/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "OpenAI’s new voice mode makes it to the ChatGPT desktop app"
+  },
+  "https://techcrunch.com/2026/07/24/prentis-new-ai-lab-co-founded-by-reid-hoffman-mark-pincus-in-talks-to-raise-100m/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Prentis, new AI lab co-founded by Reid Hoffman, Mark Pincus in talks to raise $100M"
+  },
+  "https://techcrunch.com/2026/07/24/why-cognition-bought-poke-ai-personality-is-becoming-a-competitive-advantage/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Why Cognition bought Poke: AI personality is becoming a competitive advantage"
+  },
+  "https://techcrunch.com/2026/07/25/librarians-are-hosting-viral-avoiding-ai-workshops-for-people-who-are-fed-up-with-big-tech/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Librarians are hosting viral ‘Avoiding AI’ workshops for people who are fed up with Big Tech"
+  },
+  "https://techcrunch.com/2026/07/25/one-fallen-power-line-exposed-a-growing-ai-data-center-problem-heres-how-to-fix-it/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "One fallen power line exposed a growing AI data center problem. Here’s how to fix it."
+  },
+  "https://techcrunch.com/2026/07/25/the-running-list-major-tech-layoffs-in-2026-where-employers-cited-ai/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Monday.com is the latest tech company to blame AI for layoffs — here are 20 others"
+  },
+  "https://techcrunch.com/2026/07/26/are-brain-waves-the-next-unlock-for-physical-ai/": {
+    "source": "rss-monitor",
+    "time": "2026-07-27T03:20:55.918532+00:00",
+    "title": "are brain waves the next unlock for physical ai?"
+  },
+  "https://techcrunch.com/2026/07/26/hugging-face-ceo-calls-for-radical-transparency-after-unprecedented-openai-hack/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T18:33:14Z",
+    "title": "Hugging Face CEO calls for ‘radical transparency’ after ‘unprecedented’ OpenAI hack"
+  },
+  "https://techcrunch.com/2026/07/26/making-sense-of-the-panic-over-chinese-ai/": {
+    "source": "rss-monitor",
+    "time": "2026-07-27T03:20:55.918532+00:00",
+    "title": "making sense of the panic over chinese ai"
+  },
+  "https://techcrunch.com/podcast/ai-communism-rogue-models-and-the-why-kimi-k3-spooked-wall-street/": {
+    "source": "techcrunch-ai",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "‘AI communism’, rogue models, and the why Kimi K3 spooked Wall Street"
+  },
+  "https://the-decoder.com/anthropic-claims-its-new-claude-opus-5-delivers-near-fable-5-performance-at-half-the-token-price/": {
+    "source": "the-decoder",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Anthropic's Claude Opus 5 delivers near-Fable 5 performance at half the token price"
+  },
+  "https://the-decoder.com/anthropics-claude-opus-5-costs-well-below-fable-5-while-matching-or-beating-it-across-most-benchmarks/": {
+    "source": "the-decoder",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Anthropic's Claude Opus 5 costs well below Fable 5 while matching or beating it across most benchmarks"
+  },
+  "https://the-decoder.com/anthropics-opus-5-blows-past-fable-5-and-gpt-5-6-sol-on-the-benchmark-designed-to-measure-real-intelligence/": {
+    "source": "the-decoder",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Anthropic's Opus 5 blows past Fable 5 and GPT-5.6 Sol on the benchmark designed to measure real intelligence"
+  },
+  "https://the-decoder.com/cursors-agent-swarm-suggests-cheaper-models-can-handle-most-coding-when-frontier-models-plan-the-work/": {
+    "source": "the-decoder",
+    "time": "2026-07-26T18:32:32Z",
+    "title": "Cursor's agent swarm suggests cheaper models can handle most coding when frontier models plan the work"
+  },
+  "https://the-decoder.com/hundreds-asked-chatgpt-for-poison-and-bioweapon-recipes-and-some-got-step-by-step-high-school-level-guides/": {
+    "source": "the-decoder",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Hundreds asked ChatGPT for poison and bioweapon recipes and some got step-by-step high school level guides"
+  },
+  "https://the-decoder.com/microsofts-open-weight-ai-push-is-so-obviously-an-azure-play-it-hurts/": {
+    "source": "the-decoder",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Microsoft's open-weight AI push is so obviously an Azure play it hurts"
+  },
+  "https://the-decoder.com/new-reports-reveal-the-extent-of-openais-loss-of-control-during-the-autonomous-hack-on-hugging-face/": {
+    "source": "the-decoder",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "New reports reveal the extent of OpenAI's loss of control during the autonomous hack on Hugging Face"
+  },
+  "https://the-decoder.com/opus-5-may-have-solved-browser-based-prompt-injection-the-biggest-security-flaw-haunting-ai-agents/": {
+    "source": "the-decoder",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Opus 5 may have solved browser-based prompt injection, the biggest security flaw haunting AI agents"
+  },
+  "https://the-decoder.com/sakana-claims-its-ai-model-router-fugu-ultra-v1-1-now-beats-fable-5-without-even-including-it-in-the-pool/": {
+    "source": "the-decoder",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "Sakana claims its AI model router Fugu Ultra v1.1 now beats Fable 5 without even including it in the pool"
+  },
+  "https://the-decoder.com/the-ai-coding-tutor-paradox-grows-as-educators-scramble-to-rethink-how-they-test-real-skills/": {
+    "source": "the-decoder",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "The AI coding tutor paradox grows as educators scramble to rethink how they test real skills"
+  },
+  "https://the-decoder.com/us-reportedly-favors-selective-bans-over-blanket-restrictions-on-chinese-open-weight-models-citing-security-concerns/": {
+    "source": "the-decoder",
+    "time": "2026-07-26T09:51:31Z",
+    "title": "US reportedly favors selective bans over blanket restrictions on Chinese open weight models citing security concerns"
+  },
+  "https://venturebeat.com/infrastructure/claude-code-costs-up-to-usd200-a-month-goose-does-the-same-thing-for-free": {
+    "source": "venturebeat-ai",
+    "time": "2026-07-26T09:51:32Z",
+    "title": "Claude Code costs up to $200 a month. Goose does the same thing for free."
+  },
+  "https://venturebeat.com/infrastructure/railway-secures-usd100-million-to-challenge-aws-with-ai-native-cloud": {
+    "source": "venturebeat-ai",
+    "time": "2026-07-26T09:51:32Z",
+    "title": "Railway secures $100 million to challenge AWS with AI-native cloud infrastructure"
+  },
+  "https://venturebeat.com/technology/anthropic-launches-cowork-a-claude-desktop-agent-that-works-in-your-files-no": {
+    "source": "venturebeat-ai",
+    "time": "2026-07-26T09:51:32Z",
+    "title": "Anthropic launches Cowork, a Claude Desktop agent that works in your files — no coding required"
+  },
+  "https://venturebeat.com/technology/google-just-redesigned-the-search-box-for-the-first-time-in-25-years-heres-why-it-matters-more-than-you-think": {
+    "source": "venturebeat-ai",
+    "time": "2026-07-26T09:51:32Z",
+    "title": "Google just redesigned the search box for the first time in 25 years — here’s why it matters more than you think."
+  },
+  "https://venturebeat.com/technology/listen-labs-raises-usd69m-after-viral-billboard-hiring-stunt-to-scale-ai": {
+    "source": "venturebeat-ai",
+    "time": "2026-07-26T09:51:32Z",
+    "title": "Listen Labs raises $69M after viral billboard hiring stunt to scale AI customer interviews"
+  },
+  "https://venturebeat.com/technology/nous-researchs-nouscoder-14b-is-an-open-source-coding-model-landing-right-in": {
+    "source": "venturebeat-ai",
+    "time": "2026-07-26T09:51:32Z",
+    "title": "Nous Research's NousCoder-14B is an open-source coding model landing right in the Claude Code moment"
+  },
+  "https://venturebeat.com/technology/salesforce-rolls-out-new-slackbot-ai-agent-as-it-battles-microsoft-and": {
+    "source": "venturebeat-ai",
+    "time": "2026-07-26T09:51:32Z",
+    "title": "Salesforce rolls out new Slackbot AI agent as it battles Microsoft and Google in workplace AI"
+  },
+  "https://arxiv.org/abs/2607.21619": {
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T07:40:12.779120+00:00",
+    "title": "Adversarial Style Optimization: Enhancing VLM Jailbreaks by GRPO-based Stylistic Triggers"
+  },
+  "https://arxiv.org/abs/2607.21632": {
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T07:40:12.779120+00:00",
+    "title": "A Consensus-Based Framework for Relative Preference Evaluation of Large Language Models"
+  },
+  "https://arxiv.org/abs/2607.21685": {
+    "title": "Evaluation design conditions the expert-vs-auto MeSH gap: a controlled comparison of bag-of-words and BiomedBERT on the Cohen benchmark",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21758": {
+    "title": "Humanly: A Configurable and Traceable Environment for Human-AI Collaborative Writing",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21774": {
+    "title": "Probing Latent Colombian Identity Inferences in Qwen2.5-7B with Natural Language Autoencoders",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21780": {
+    "title": "Khondo: A Multimodal Benchmark for Document Packet Splitting of Bangla Forms",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21799": {
+    "title": "Agentic Evaluation of Copyright Law Compliance",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21861": {
+    "title": "Data Quality over Capacity: Internalizing Documents into LoRA Adapters for Closed-Book QA",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21936": {
+    "title": "Leveraging External Knowledge for Historical Document Restoration via Retrieval-Augmented Large Language Models",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21961": {
+    "title": "On Improving Faithfulness of Podcasts from Documents",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21962": {
+    "title": "Ground Truth First: A Longitudinal Evaluation Instrument for Agent Memory, and the Tenure Crossover in Memory-Architecture Rankings",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21978": {
+    "title": "MoE$^2$-LoRA: When MoE Models Meet MoE-style Low-Rank Adaptation",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21980": {
+    "title": "Analyzing Toxic Behavior and Its Impact on the Mastodon Community",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21981": {
+    "title": "J-CoT: Chain-of-Thought in J-Space",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21988": {
+    "title": "Analysing Self-Harm Representations in Language Models: a Cross-Architecture Study",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22026": {
+    "title": "DWT-Fusion: A Signal-Based Framework for Training-Free LLM-Generated Text Detection",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22039": {
+    "title": "Enough is as good as a feast: A Comprehensive Analysis of How Reinforcement Learning Mitigates Task Conflicts in LLMs",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22041": {
+    "title": "Developing and Validating the Spanish Version of the Large Language Models Dependency Scale (LLM-D12-SP)",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22043": {
+    "title": "Scaling Native Multimodal Pre-Training From Scratch",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22067": {
+    "title": "Benchmarking Fine-tuning and Retrieval Strategies for a Multimodal Language Model on the NRC Reactor Operator Licensing Examination",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22075": {
+    "title": "FSE: Continual Learning for Named Entity Recognition by Fast-Slow Experts",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22100": {
+    "title": "MEUSLI: a Multilingual Projector for LLM-based ASR and Beyond",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22136": {
+    "title": "Dynamic Commonsense Coordination for Empathetic Response Generation",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22182": {
+    "title": "From Isolated Tasks to Structured Capabilities: A Multilayer Taxonomy for Large Language Models",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22218": {
+    "title": "Why Large Language Models and Humans Converge and Diverge in Evaluating Creativity",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22300": {
+    "title": "Biomedical Machine Translation for Low-Resource Arabic-Script Languages via Cross-Lingual Transfer and LoRA Adapter Merging",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22376": {
+    "title": "A Factorial Study of Synthetic Data Generation for Low-Resource Machine Translation using Grammar Books",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22456": {
+    "title": "grapheme-kit: Grapheme-Level Metrics and Text Processing for Multilingual NLP",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22529": {
+    "title": "Skill Self-Play: Pushing the Frontier of LLM Capability with Co-Evolving Skills",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21608": {
+    "title": "From Obligation to Specification: A Survey on Validating EU AI Act Requirements in RE",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21613": {
+    "title": "The Hard Decision Layer: Evidence for Committed Inference in Transformers",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21617": {
+    "title": "Do VLMs Read or Rewrite? On Transcription Faithfulness in Vision-Language Models",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21653": {
+    "title": "Molt: A Scalable PyTorch-Native Training Framework for Agentic Reinforcement Learning",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21655": {
+    "title": "Progress Reward Modeling for Robotic Learning: A Comprehensive Survey",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21692": {
+    "title": "Learning What Matters: Supervising Sparse Attention Routing with Causal Evidence Sets",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21785": {
+    "title": "From Seasonality to Semantics: Benchmarking a Hybrid Probabilistic Forecasting System for Roadblocks in Bolivia",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21804": {
+    "title": "Adversarial Prompts for Acceptance Collapse in Speculative Decoding",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21856": {
+    "title": "LeAct: Learning to Reason from Expert Actions",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21887": {
+    "title": "Towards Reducing Foreign Language Anxiety Using Level-Appropriate Embodied Conversational Agents",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21904": {
+    "title": "Diffusion Models in Medical Image Inpainting: Challenges, Solution Taxonomy, and Future Directions",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21971": {
+    "title": "Teaching LLMs to Self-Evolve: Cultivating Core Meta-Skills with Reinforcement Learning",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22014": {
+    "title": "Zero-Shot Mission-Level Evaluation for Aerial MLLM Agents",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22034": {
+    "title": "Small Vision-Language Models Know When They Are Wrong But Cannot Say So: A Two-Model Study of Stated versus Internal Confidence Under Realistic Image Degradation",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22083": {
+    "title": "Nanbeige4.2-3B: Unlocking Agentic Capabilities in a Compact Mode",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22165": {
+    "title": "DBA-Bench: A Production-Fidelity Benchmark for LLM-Based Database Operations Agents",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22334": {
+    "title": "Cross-Tokenizer On-Policy Distillation via Byte-Prefix Marginalization",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22513": {
+    "title": "Opaque Epistemic Mediation: How LLM Deployment Configurations Shape the Validation of Pseudo-Science",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2505.19212": {
+    "title": "When Ethics and Payoffs Diverge: LLM Agents in Morally Charged Social Dilemmas",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2506.06616": {
+    "title": "Interpretable Depression Detection from Social Media Text Using LLM-Derived Embeddings",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2508.05618": {
+    "title": "Learning to Reason for Factuality",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2508.12393": {
+    "title": "MedKGent: A Large Language Model Agent Framework for Constructing Temporally Evolving Medical Knowledge Graph",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2510.24668": {
+    "title": "InteractComp: Evaluating Search Agents With Ambiguous Queries",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.03190": {
+    "title": "Maximizing Local Entropy Where It Matters: Prefix-Aware Localized LLM Unlearning",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.06347": {
+    "title": "What Matters When Building Universal Multilingual Named Entity Recognition Models?",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.08160": {
+    "title": "SwiftMem: Fast Agentic Memory via Query-aware Indexing",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2603.07025": {
+    "title": "Language-Aware Distillation for Multilingual Instruction-Following Speech LLMs with ASR-Only Supervision",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2603.12572": {
+    "title": "LMEB: Long-horizon Memory Embedding Benchmark",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2604.00024": {
+    "title": "WHBench: Evaluating Frontier LLMs with Expert-in-the-Loop Validation on Women's Health Topics",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2605.01006": {
+    "title": "Can AI Debias the News? LLM Interventions Improve Cross-Partisan Receptivity but LLMs Overestimate Their Own Effectiveness",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2605.03534": {
+    "title": "SURE-RAG: Sufficiency and Uncertainty-Aware Evidence Verification for Selective Retrieval-Augmented Generation",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2606.03021": {
+    "title": "Hint-Guided Diversified Policy Optimization for LLM Reasoning",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2606.27347": {
+    "title": "Mapping Political-Elite Networks in Europe with a Multilingual Joint Entity-Relation Extraction Pipeline",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.02770": {
+    "title": "Gemma 4 Technical Report",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.10428": {
+    "title": "Enjoy Your Talk: A Human-Centered Benchmark for Multi-Turn Dialogue with Decoupled User Simulation, Target Modeling, and Judging",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.19686": {
+    "title": "Multi-Mask Diffusion Language Models for Few-Step Generation",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.20062": {
+    "title": "Solar Open 2 Technical Report",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.20803": {
+    "title": "The Geometry of Personality: Activation Steering with Jungian Cognitive Functions",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21143": {
+    "title": "One More Turn, Less Regret: A Regret-Based Multi-Turn Benchmark for LLMs' Clarification Policies",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2507.01551": {
+    "title": "Self-Guided Process Reward Optimization with Redefined Step-wise Advantage for Process Reinforcement Learning",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2605.17770": {
+    "title": "Entropy-Gradient Inversion: Moving Toward Internal Mechanism of Large Reasoning Models",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2606.20295": {
+    "title": "Token-Operations-Oriented Inference Optimization Techniques for Large Models",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.07003": {
+    "title": "Dissociating the Internal Representations of Sycophancy in LLMs",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.15456": {
+    "title": "Looped Latent Attention: Cross-Loop KV Compression for Looped Transformers",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.18292": {
+    "title": "Reliability Scales Inversely: Bigger Language Models Compound Mistakes Faster",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.18722": {
+    "title": "Stale but Stable: Staleness-Adaptive Trust Regions for Stabilizing Asynchronous Reinforcement Learning",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.18955": {
+    "title": "H$^2$SD: Hybrid Hindsight Self-Distillation",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.20487": {
+    "title": "Directional Hallucinations: Ideological Drift in News-Grounded LLM Question Answering",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.20491": {
+    "title": "DFAH-Bench: Benchmarking Observable Agent Instability in Financial Decision-Making",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.20757": {
+    "title": "GaugeQuant: Online Learning of Quantization-Optimal Bases from LLM Symmetries",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21482": {
+    "title": "Agentic coding without the cloud: evaluating open-weight large language models on longitudinal data preparation tasks",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21557": {
+    "title": "OpenForgeRL: Train Harness-native Agents in Any Environment",
+    "source": "arxiv-cscl",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21623": {
+    "title": "Cloud-Native Evaluation-as-a-Service: A Microservices Architecture for Scalable AI Monitoring with Conformal Guarantees",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21633": {
+    "title": "On the Depth Scalability of Logic Gate Networks",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21634": {
+    "title": "MotifRole-Diff: Risk-Optimal Role-Aware Corruption for Masked Molecular Graph Diffusion",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21635": {
+    "title": "Toward User-Conditioned Evaluation of Personal LLM Agents under Temporal Interventions",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21636": {
+    "title": "Measuring the Dependency Gap: Diagnosing Inter-Column Fidelity in Tabular Generative Models",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21637": {
+    "title": "Quasi-Monte Carlo Initialization for Meta-Reinforcement Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21644": {
+    "title": "Toward Goal-Agnostic Joint-Embedding Predictive Control of Partial Differential Equations",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21645": {
+    "title": "Multi-Horizon Consistency as Geometry: When Latent Dynamics Contract, and When They Do Not",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21646": {
+    "title": "Adjustment Speed as a Safety Constraint for Nonstationary Reinforcement Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21647": {
+    "title": "A Drift Stable Quantum Federated Learning for Intelligent Services",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21651": {
+    "title": "Shallower ReLU Network Representations via Exact Linear Algebra",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21665": {
+    "title": "Physically Constrained Federated Additive Models for O-RAN SLA-Risk Prediction",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21671": {
+    "title": "Neural Feature Governance: Extending Atom Prevalence",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21673": {
+    "title": "Self-Poisoning in Adaptive Out-of-Distribution Detection: A Sharp-Threshold Theory and Certified Label-Free Calibration",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21680": {
+    "title": "Encoding Invisible Causation for Bridge Diagnostic Agents: Triple-Guided Retrieval-Augmented Fine-Tuning with QLoRA",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21681": {
+    "title": "CARNet Cycle-Conditioned Core Aggregation and Redistribution for Multivariate Time Series Forecasting",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21702": {
+    "title": "An Introduction to Bayesian and Frequentist Simulation-Based Inference with Machine Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21716": {
+    "title": "A Defense of the Quadratic Model",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21731": {
+    "title": "RED-PIM: Reducing Data Movement for Transformers using Processing-in-Memory",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21752": {
+    "title": "Parameter-free Adaptive Sparse Attention via Compression-Based Content Selection",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21773": {
+    "title": "Smart predict-then-robustly-optimize",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21776": {
+    "title": "Physiological Signals as a Forensic Modality for Talking-Face Deepfake Detection",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21806": {
+    "title": "Bounding the Causal Impact of ML-assisted Decision-Making via Counterfactual Correctness",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21823": {
+    "title": "Data eccentricity, asymptotics of Gaussian RBF reproducing kernel Hilbert space, and kernel PCA",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21831": {
+    "title": "A Graph-Based Control Interface for Traffic Signals on Heterogeneous Road Networks",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21855": {
+    "title": "Searching the Space of Feed-Forward Neural-Network Weight-Update Rules with Fixed Depth Symbolic Regression",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21866": {
+    "title": "Scaling Laws for Classical Machine Learning on Tabular Data: A Benchmark Study",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21876": {
+    "title": "Variance-Reduced Q-Learning over Static and Time-Varying Networks",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21885": {
+    "title": "Remedying Coarsening-Based GNN Training under Heterophily via Adaptive Complementary Enhancement",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21922": {
+    "title": "MissHyper: Restoring Clinical Synchronicity in Missingness-Guided Hypergraph Forecasting",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21927": {
+    "title": "RIS-Kernel: A Model-Agnostic Architecture for Long-Context LLM Inference via Sparse Attention",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21941": {
+    "title": "LatentFlow: Visual Analytics for Latent Space Analysis in Molecular Graph Neural Networks",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21946": {
+    "title": "Multi-Agent Debate and Visual Information Extraction for SeePhys Pro: A 1st-Place Technical Report from ICML 2026 AI4Math Track 3 Challenge",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21949": {
+    "title": "MA-DAR: Manifold-Aligned Dynamic Adaptive Routing for Continual Temporal Knowledge Graph Reasoning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21975": {
+    "title": "On the Convergence of Stochastic Low-Rank Adaptation",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21999": {
+    "title": "From Perturbation Correction to Geometry-Aware Sampling: Sharpness-Guided Equilibrium Sampling for Balanced Flat Minima in Long-Tailed Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22004": {
+    "title": "Energy Manifold Natural Gradient Descent: Riemannian Optimization for Neural PDE Solvers",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22012": {
+    "title": "Cross-Domain Off-Policy Evaluation and Learning for Contextual Bandits",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22035": {
+    "title": "DCS: A Unified Conditional Sensitivity Framework for Cross-Modal Copyright Infringement Detection",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22045": {
+    "title": "CEL: Comprehensive Counterfactual Explanations Library and Benchmark",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22081": {
+    "title": "A Leakage-Free Stacked Ensemble Method for Multiclass Classification",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22114": {
+    "title": "Pretraining EHR Foundation Models with Patient-Aware Sampling",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22143": {
+    "title": "TriGlue: a Biology-Inspired Generative Model for Generating Molecular Glue-Induced Ternary Complex",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22149": {
+    "title": "Unbiased Open World Regularization for Fair Self-Supervised Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22199": {
+    "title": "From Score Approximation to Distribution Approximation in Score-Based Diffusion Models",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22215": {
+    "title": "Latent PDE mapping for efficient physics-informed learning across geometries with limited data",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22238": {
+    "title": "Optimization of time-consuming experimental conditions using pseudo-experimental data guided by adaptive polynomial regression",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22251": {
+    "title": "IFCLoRA: Topology-Aware Rank Allocation for Parameter-Efficient Fine-Tuning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22258": {
+    "title": "Class-Balanced Softmax: A Bayes Theory-Based Method for Long-Tailed Recognition",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22264": {
+    "title": "Autoregressive EHR Foundation Models with Multimodal Inputs",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22286": {
+    "title": "An Insight on Evaluation Metrics Under the Imbalanced Case of Anomaly Detection",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22287": {
+    "title": "Efficient Recommendations via Graph Coarsening and Label Propagation",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22304": {
+    "title": "Synthetic Speech, Real Signal: Paralinguistic Preservation and Cross-Lingual Augmentation via Voice Cloning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22314": {
+    "title": "Evolution-Aware MSA Reasoning for Subsampling via Factor Graphs",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22342": {
+    "title": "Beyond Binary Rooftop Mapping: A Four-Class Deep Learning Framework for Green Roof Potential Assessment from Open Swiss Geospatial Data",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22351": {
+    "title": "IQ-JEPA: A Joint-Embedding Predictive Architecture with a Hermitian Vision Transformer for Sound Speed and Attenuation Estimation from Ultrasound IQ Data",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22356": {
+    "title": "Integrated Order Dispatching and Routing for Last-Mile Pickup via Deep Reinforcement Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22361": {
+    "title": "Indexing: the Beginning and the End",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22367": {
+    "title": "Interior interpretability with attention rollout: contraction and propagation profiles in Transformers",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22381": {
+    "title": "Local-Global Geometric Insights for Graph Neural Networks via Entropic Curvature",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22408": {
+    "title": "LunarFM: A Shared Multimodal Representation of the Moon's Surface",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22430": {
+    "title": "On the Identifiability of Controlled World Models",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22444": {
+    "title": "Hyperball May Not Be a Free Lunch",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22458": {
+    "title": "Phylogenetic signal in marine mammal and bird vocalizations captured by audio foundation models: the limited benefit of domain-specific pretraining",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22467": {
+    "title": "Complexity Bounds and Approaches to Learning Projected Gradient Descent Solver Iterates",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22474": {
+    "title": "Beyond Negative-Ridge Endpoints: Mixed-Sign Spectral Regularization via Negative-Shifted Gradient Descent",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22489": {
+    "title": "\\k{appa}-LoRA: Condition Numbers Reveal Which LoRA Matrices Worth Updating",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22491": {
+    "title": "Susceptible Reservoir Architectures for Regime-Conditional Volatility Forecasting",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22508": {
+    "title": "Interpretable EEG biomarkers with bag-of-waves: Spatial and temporal waveform dictionaries for low-data regimes",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22514": {
+    "title": "Dysphagia Risk Stratification in Head and Neck Cancer via Two-Stage PRO-Clinical Stacking",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.17441": {
+    "title": "An Explainable FFT-Based Spatial-Frequency Fusion Framework for Deepfake Detection",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21186": {
+    "title": "Do emulated quantum circuits change what CNNs look at? Performance and explainability comparison in medical image classification",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21607": {
+    "title": "Spectral Flow Certificates for Depth-Aware Long-Range Propagation in Graph Neural Networks",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21610": {
+    "title": "SCOPE and SCION: A Benchmark and an Auditable Reference Pipeline for Schema Induction and Fusion from Text",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21612": {
+    "title": "Procedural Knowledge Is Not Low-Rank: Why LoRA Fails to Internalize Multi-Step Procedures",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21615": {
+    "title": "FrED: External Data Influence Estimation via Domain Knowledge Graph Grounding",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21622": {
+    "title": "Local Synaptic Rules Can Implement a SIGReg Gradient Without Backpropagation",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21624": {
+    "title": "FBLayout: Optimizing Memory Layout for Efficient LLM Finetuning on Mobile GPUs",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21627": {
+    "title": "Do Modules Stay in Their Lane? Role Drift in Compound LLM Systems",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21654": {
+    "title": "Computer Vision Based Neurology Brain Activity Rejection Architecture and Implementation",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21660": {
+    "title": "Generative and multimodal AI for materials prediction and design: Progress, challenges, and perspectives",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21670": {
+    "title": "Ordered Action Tokens for Visuomotor Policy Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21688": {
+    "title": "Explainable quantum-compressed machine learning for complex fluid flows",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21721": {
+    "title": "Prior laundering: learned priors with inherited, undetectable overconfidence",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21745": {
+    "title": "Deep Sigma Point Processes for RCS Modeling in Spaceborne SAR Imagery",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21756": {
+    "title": "Prompt as a Data Type: In-Database LLM Prompt Management and Rewriting",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21761": {
+    "title": "Encoding orders and trees in real-valued functions",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21772": {
+    "title": "Reliability-Aware Bayesian Optimization of 1310 nm PCSELs with FDTD Verification",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21797": {
+    "title": "Relaxed activation analysis of dataflow networks - A clock calculus for machine learning and real-time scheduling",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21805": {
+    "title": "Natural Invariant Measures for Chaotic Game Dynamics: Finding Order in Chaos",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21817": {
+    "title": "Longitudinal Random Forests for Sparse and Irregular Response Trajectories",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21820": {
+    "title": "Probing Speaker Identity Sensitivity in Audio Deepfake Detectors",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21832": {
+    "title": "How Do AI Coding Agents Contribute to Software Development? an Empirical Study of Agentic Pull Requests",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21839": {
+    "title": "Certified in Theory, Broken in Practice: Assumption Gaps in Cryptographic Model Certification",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21842": {
+    "title": "Quantifying Political Partisanship for Cross-Platform Analyses",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21843": {
+    "title": "Simulation-Based Empirical Bayes",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21847": {
+    "title": "Distributional Determinantal Point Process for Repulsive Clustering of Distributions",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21881": {
+    "title": "Farmland Extent and Visible Boundary Mapping from 1 m NAIP Imagery Using Residual U-Net and Text-Prompted SAM 3 Refinement",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21958": {
+    "title": "Efficient Online LLM Watermark Detection via Rao-Blackwellized E-Processes",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21985": {
+    "title": "Unified Static-Dynamic Pruning for Efficient LLM Inference",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21995": {
+    "title": "QC-PHAST Search: Classical--Quantum Query Benchmarks for Finite-Pool Rare-Regime Discovery",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22068": {
+    "title": "Rethinking Multi-Branch and Cross-Backbone Fusion for Vehicle Re-Identification in the Foundation-Model Era",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22086": {
+    "title": "MemNMF: Memory-Augmented NMF on LPC Spectra for Anomalous Sound Detection",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22098": {
+    "title": "Reasoning Denoiser: Denoising Reasoning Traces for Hallucination Detection in Large Reasoning Models",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22119": {
+    "title": "One Hand Watches The Other: Dynamic Multi-Agent Cooperation for Sample-Efficient Bimanual Manipulation in Dynamic Environments",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22139": {
+    "title": "CARDIAG: A Dense Segment Classification Benchmark of Deep Learning Architectures for Coronary Angiography",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22153": {
+    "title": "Industrial Tokenization for LLM-Based Health Intelligence: A Federated Architecture for Industrial Evidence Integration",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22173": {
+    "title": "Bowel Obstruction Detection and Localization on Abdominal CT with Deep Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22201": {
+    "title": "Trajectory-Regularized Stochastic Optimal Control via KL Divergence",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22212": {
+    "title": "Deep Convolutional Large-Margin $\\ell_p$-SVDD for Visual Anomaly Detection",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22221": {
+    "title": "Convergence analysis of a family of Zermelo-type iterations for the Bradley--Terry model",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22262": {
+    "title": "Variational Low-rank Tensor Decomposition for Multisubject Spatiotemporal Data Analysis",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22263": {
+    "title": "Explicit Iteration Complexity of Exact Data-Driven Inverse Optimization for Integer Linear Programs",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22268": {
+    "title": "General Value Functions for Remaining Useful Life and Failure-Mode Prediction",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22299": {
+    "title": "Hopformer: Homogeneity-Pursuit Transformer for Time Series Forecasting",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22313": {
+    "title": "Learning Bidirectional Causal Interactions with Heteroscedastic Neural Networks",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22385": {
+    "title": "Agentic Root Cause Analysis through Evidence-Grounded Reasoning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22389": {
+    "title": "HiKV: Hierarchical Importance-Aware KV Cache with Hardware Acceleration for LLM Decoding",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22397": {
+    "title": "Universal BCI Personalization: One API for Frozen EEG Trunks and Foundation Models",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22399": {
+    "title": "Learning Ergodic Dynamical Systems from a Finite Trajectory",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22413": {
+    "title": "Reflector: Arrangement-Aware Harmonic Retrieval for Sample-Based Composition",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22428": {
+    "title": "Unboxing Diffusion Models for the Arts: Interactive Model Bending and Practice-Based Explainability",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22436": {
+    "title": "Graph-Based Correlation Matrix Generation: A Convex Optimization Approach",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22465": {
+    "title": "TRACE-ROUTER: Task-Consistent and Adaptive Online Routing for Agentic AI",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22484": {
+    "title": "Singular value soft-thresholding via the polar decomposition",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22511": {
+    "title": "CausalForge: A Formally Grounded, Self-Improving Agentic Framework for Automated Research in Causal Inference",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22516": {
+    "title": "Quantum Spectral Model: Data Reuploading with Input-Conditioned Frequency Support",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.22518": {
+    "title": "PinEqualizer: Full Funnel Content Exploration and Debiasing System at Pinterest",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2408.02295": {
+    "title": "Generalized Gaussian Temporal Difference Error for Uncertainty-aware Reinforcement Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2501.18049": {
+    "title": "Online Pricing and Allocation with Demand Learning and Fulfillment Cost",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2503.07869": {
+    "title": "Carpe Diem: Critical Learning Period-Aware Contract-Based Incentives for Federated Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2505.00473": {
+    "title": "Spatially-Enhanced Temporal Fusion Transformer: Interpretable Multi-Output Prediction for Parametric Dynamical Systems with Time-Varying Inputs",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2505.23378": {
+    "title": "Meta-Learning Approaches for Speaker-Dependent Voice Fatigue Models",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2509.10517": {
+    "title": "A Comparative Benchmark of Federated Learning Strategies for Mortality Prediction on Heterogeneous and Imbalanced Clinical Data",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2509.14562": {
+    "title": "LiMuon: Light and Fast Muon Optimizer for Large Models",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2509.14617": {
+    "title": "HD3C: Efficient Medical Data Classification for Edge Devices",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2509.22352": {
+    "title": "SurvDiff: A Diffusion Model for Generating Synthetic Data in Survival Analysis",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2509.25582": {
+    "title": "Safe In-Context Reinforcement Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2510.05416": {
+    "title": "Correlating Cross-Iteration Noise for DP-SGD using Model Curvature",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2510.21770": {
+    "title": "Numerical Fragility in Transformers: A Layer-wise Theory for Risk Estimation and Selective Stabilization",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2510.26369": {
+    "title": "CorVS+: Correspondence-Driven Association of Video Trajectories and Sensors for Identity-Aware Person Localization in Warehouses",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2511.13465": {
+    "title": "AdamNX: An Adam improvement algorithm based on a novel exponential decay mechanism for the second-order moment estimate",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2512.06143": {
+    "title": "gp2Scale: A Class of Compactly Supported Non-Stationary Kernels and Distributed Computing for Exact Gaussian Processes on 10 Million Data Points",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.04268": {
+    "title": "Replacing Tunable Parameters in Weather and Climate Models with State-Dependent Functions using Reinforcement Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.09825": {
+    "title": "Eluder dimension: localise it!",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.17303": {
+    "title": "Decentralized Multi-Agent Swarms for Autonomous Grid Security in Industrial IoT: A Consensus-based Approach",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.17483": {
+    "title": "Automatic Stability and Recovery for Neural Network Training",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2602.04120": {
+    "title": "Scalable Explainability-as-a-Service (XaaS) for Edge AI Systems",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2602.05988": {
+    "title": "Layer-wise LoRA fine-tuning: a similarity metric approach",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2603.11308": {
+    "title": "Heavy-Tailed Principal Component Analysis",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2603.19139": {
+    "title": "Hierarchical Latent Structure Learning through Online Inference",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2604.16763": {
+    "title": "LLM-Extracted Covariates for Clinical Causal Inference: Rethinking Integration Strategies",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2604.22407": {
+    "title": "Hidden Failure Modes of Gradient Modification under Adam in Continual Learning, and Adaptive Decoupled Moment Routing as a Repair",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2605.11017": {
+    "title": "Simpson's Paradox in Behavioral Curves: How Aggregation Distorts Parametric Models of User Dynamics",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2605.12183": {
+    "title": "DriftXpress: Faster Drifting Models via Projected RKHS Fields",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2605.22142": {
+    "title": "Short-Term-to-Long-Term Memory Transfer for Knowledge Graphs under Partial Observability",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2605.30789": {
+    "title": "Smaller Models are Natural Explorers for Policy-Level Diversity in GRPO",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2606.06479": {
+    "title": "Pretraining Recurrent Networks without Recurrence",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2606.14022": {
+    "title": "PostDeg: Placement Beats Parameterization in LayerNorm GNNs",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2606.21257": {
+    "title": "An Empirical Study of OpenPangu Quantization on Ascend NPUs",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2606.26212": {
+    "title": "A General Framework for Learning Algebraic Properties from Cayley Graphs using Graph Neural Networks",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2606.27459": {
+    "title": "Geometry-Conditioned Fourier Neural Operators for Cubic Nonlinear Schrodinger Dynamics on Periodic Domains",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2606.29221": {
+    "title": "A Linear Matching Bandit Approach to Online Multi-Human Multi-Robot Teaming",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.03664": {
+    "title": "A Structural Interpretation of GELU and Threshold-Transmission Activations via the First-Order Loss Function",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.12447": {
+    "title": "The Computational Basis of Confidence in Large Language Models",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.13897": {
+    "title": "RF Spectrogram Anomaly Detection with Quantum Kitchen Sinks: Architecture, Representation, and Hardware Validation",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.16811": {
+    "title": "Interpretable Anomaly and Drift Detection with Gaussian Mixture Models",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.18020": {
+    "title": "FlashPDE: A Drop-In Fused Triton Operator Library for Neural PDE Solvers",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.18504": {
+    "title": "Now We Know? A Systematic Comparison of TerraMind and THOR",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.20002": {
+    "title": "Post-Training in Time Series Foundation Models: A Unifying Framework",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.20577": {
+    "title": "AI-Driven Surrogate Models for Predicting Electrode-Scale Discharge Behavior in Lithium-Ion Batteries",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.20822": {
+    "title": "Robust Asynchronous Q-Learning under Reward and State Corruption via Batching",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.21453": {
+    "title": "Test-Time Scaling via Error Localization",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2205.07739": {
+    "title": "The Role of Pseudo-labels in Self-training Linear Classifiers on High-dimensional Gaussian Mixture Data",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2411.19715": {
+    "title": "Forensics Adapter: Unleashing CLIP for Generalizable Face Forgery Detection",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2412.12807": {
+    "title": "Ask for More Than Bayes Optimal: A Theory of Indecisions for Selective Hypothesis Testing",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2501.18530": {
+    "title": "Optimal generalisation and learning transition in extensive-width shallow neural networks near interpolation",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2505.08784": {
+    "title": "PCS-UQ: Uncertainty Quantification via the Predictability-Computability-Stability Framework",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2505.24849": {
+    "title": "Statistical mechanics of extensive-width Bayesian neural networks near interpolation",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2506.18748": {
+    "title": "Fast State-Augmented Learning for Wireless Resource Allocation with Dual Variable Regression",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2508.10017": {
+    "title": "A Robust Pipeline for Differentially Private Federated Learning on Imbalanced Clinical Data using SMOTETomek and FedProx",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2509.26371": {
+    "title": "Vector-Valued Reproducing Kernel Banach Spaces for Neural Networks and Operators",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2510.04602": {
+    "title": "Wasserstein Gradient Flows for Scalable and Regularized Barycenter Computation",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2510.24616": {
+    "title": "Statistical physics of deep learning: Optimal learning of a multi-layer perceptron near interpolation",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2511.02130": {
+    "title": "Re-FORC: Adaptive Reward Prediction for Efficient Chain-of-Thought Reasoning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2512.23849": {
+    "title": "Security Without Detection: Economic Denial as a Primitive for Edge and IoT Defense",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.05148": {
+    "title": "Atlas 2 -- Foundation models for clinical deployment",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.12238": {
+    "title": "On the Provable Suboptimality of Momentum SGD in Nonstationary Stochastic Optimization",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.12311": {
+    "title": "Cross-reality location privacy protection in 6G-enabled vehicular metaverses: an LLM-enhanced hybrid generative diffusion model-based approach",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.13731": {
+    "title": "Breaking the Data Barrier in Learning Symbolic Computation: A Case Study on Variable Ordering Suggestion for Cylindrical Algebraic Decomposition",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.17454": {
+    "title": "Embodiment-Induced Coordination Regimes in Tabular Multi-Agent Q-Learning",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.18685": {
+    "title": "LLAMA LIMA: A Living Meta-Analysis on the Effects of Generative AI on Learning Mathematics",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2601.19618": {
+    "title": "The pretraining domain outweighs the training objective in setting the privacy-utility trade-off of differentially private medical image analysis",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2602.09572": {
+    "title": "Predictive Query Language: A Domain-Specific Language for Predictive Modeling on Relational Databases",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2602.13935": {
+    "title": "Statistical Early Stopping for Reasoning Models",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2603.05789": {
+    "title": "The Coordination Gap: Multi-Agent Alternation Metrics for Temporal Fairness in Repeated Games",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2603.06851": {
+    "title": "Bilateral Trade Under Heavy-Tailed Valuations: Minimax Regret with Infinite Variance",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2603.28956": {
+    "title": "Minimum Norm Interpolation via the Local Theory of Banach Spaces: The Role of $2$-Uniform Convexity",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2604.26675": {
+    "title": "Parameterized Quantum Circuits as Feature Maps: Representation Quality and Readout Effects in Multispectral Land-Cover Classification",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2604.27618": {
+    "title": "Math Education Digital Shadows for Investigating Learning with GenAI: Mathematics Performance, Anxiety, and Confidence in LLMs",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2605.10285": {
+    "title": "Scalable Gaussian process inference via neural feature maps",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2605.13642": {
+    "title": "Conformal Anomaly Detection in Python: Moving Beyond Heuristic Thresholds with nonconform",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2605.31152": {
+    "title": "Approximation and learning of anisotropic and mixed smooth functions by deep ReLU neural networks",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2606.11098": {
+    "title": "Do Transformers Actually Help Intrusion Detection? A Temporal Sequence Evaluation on CIC-IDS2017",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2606.14954": {
+    "title": "Representation Costs in Data Science: Foundations and the Quasi-Banach Spaces of Deep Neural Networks",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.10023": {
+    "title": "Local Multimodal Music Alignment from Global Supervision",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.14186": {
+    "title": "NexForge: Scaling Agent Capabilities through Requirement-Driven Task Synthesis for LLMs",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.14193": {
+    "title": "Operator-Informed Gaussian Processes for Complex Helmholtz Wavefields: From Synthetic Benchmarks to In Vivo Brain Elastography",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.16292": {
+    "title": "It Depends on the Dataset: When a Brain-Encoding Model's Predicted Responses Beat Their Visual Backbone for Video Memorability",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://arxiv.org/abs/2607.17872": {
+    "title": "Entanglement geometry separates circuit cutting, classical hardness, and trainability",
+    "source": "arxiv-cslg",
+    "time": "2026-07-27T11:58:14Z"
+  },
+  "https://developer.nvidia.com/blog/six-agent-harness-capabilities-for-higher-model-performance/": {
+    "source": "nvidia-dev",
+    "time": "2026-07-27T12:26:38Z",
+    "title": "Six Agent Harness Capabilities for Higher Model Performance"
+  },
+  "https://developer.nvidia.com/blog/nvidia-ising-enables-fully-automated-quantum-computer-calibration-with-enhanced-in-context-learning/": {
+    "date": "2026-07-27",
+    "source": "nvidia-dev"
+  },
+  "https://blogs.nvidia.com/blog/open-secure-ai-alliance/": {
+    "source": "nvidia-tech",
+    "time": "2026-07-27T20:58:21Z",
+    "title": "open secure ai alliance"
+  },
+  "https://blogs.nvidia.com/blog/vera-cpu-eda/": {
+    "source": "nvidia-tech",
+    "time": "2026-07-27T20:58:21Z",
+    "title": "nvidia vera cpu eda"
+  },
+  "https://arxiv.org/abs/2607.22546": {
+    "title": "Explaining GAND: A Resource on Gender-Ambiguous Natural Data & Contrastive Attribution",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T07:15:50Z"
+  },
+  "https://arxiv.org/abs/2607.22552": {
+    "title": "MioFFAn: an Annotation Software for Formula Formalization with LLM Automation Capabilities",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T07:16:40Z"
+  },
+  "https://arxiv.org/abs/2607.22553": {
+    "title": "Evaluating the Impact of Reviewer Guideline Design on LLM-Based Automated Peer Review",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T07:17:28Z"
+  },
+  "https://arxiv.org/abs/2607.22622": {
+    "title": "Learning When to Reason for Text-to-SQL via SFT and DPO",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T08:21:00Z"
+  },
+  "https://arxiv.org/abs/2607.22657": {
+    "title": "Between Suppression and Collapse: Evaluating Narrative Unlearning with LENS",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T08:21:57Z"
+  },
+  "https://arxiv.org/abs/2607.22859": {
+    "title": "PatiGonit22K: A Comprehensive Dataset for Solving Complex Bengali MWPs",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T08:22:47Z"
+  },
+  "https://arxiv.org/abs/2607.22884": {
+    "title": "CHiPS: Character Histograms and Positional Signals for Lightweight Authorship Attribution in Romanian Texts",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T09:11:57Z"
+  },
+  "https://arxiv.org/abs/2607.22923": {
+    "title": "Simple Language Normalization Wins: Cross-Lingual Speaker Verification for the TidyVoice 2026 Challenge",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T09:13:27Z"
+  },
+  "https://arxiv.org/abs/2607.22925": {
+    "title": "Not All LLM Reasoning is Visible in the Chain-of-Thought",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T09:16:18Z"
+  },
+  "https://arxiv.org/abs/2607.22954": {
+    "title": "Toward Automated Detection of Documentation Inconsistencies in Electronic Health Records",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T10:00:09Z"
+  },
+  "https://arxiv.org/abs/2607.22996": {
+    "title": "Beyond Direct Answering: Aligning Educational LLMs as Socratic Guides via Heuristic Reinforcement Learning",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T10:01:54Z"
+  },
+  "https://arxiv.org/abs/2607.23037": {
+    "title": "Speech Signals Complement LLMs for Predicting Interpersonal Attraction in Speed Dating",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T10:03:01Z"
+  },
+  "https://arxiv.org/abs/2607.23976": {
+    "title": "Tag Questions and the Generational Reversal of Sycophancy Across 45 Language Models",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T13:57:20Z"
+  },
+  "https://news.google.com/rss/articles/CBMipgFBVV95cUxPUEhnTlFzX2dSNDczWERZSl9IVm9xcnduNF9sV0FveE54Z3dLTmtJeDkxbWpuam5OejRUWjNJTzBySjF1cnBmbVpYWnlYNFhERVVaaGxxdWlCQzloUWEzU3BGZS1ET0tGRmJhMC0zcUlIVGxtLXY4NFd0Qm9qUXduenF6VzFoaUtqbzJzbTlvMFZYLTJsUGNvcjV1bWk2QmY1a05QTFZ3?oc=5": {
+    "title": "Nvidia, Microsoft launch open AI security alliance — without OpenAI, Google, or Anthropic - The Verge",
+    "source": "google-news-oa",
+    "time": "2026-07-28T13:57:20Z",
+    "status": "discovery_skipped"
+  },
+  "https://news.google.com/rss/articles/CBMi7AJBVV95cUxQUXpwUEpYUTc0OHFCYVpwa182MWt5VFp1WTZfaVhGM2hnT1ctYTNuUDlYc2xqMGRmeElNRHJkWjBTNUNWUEQyR3l4WmN5dFc5ZjRSay03T2xVbDlGd1BDLVFCcUw1YUlWc3B1bE1TaGVxWnAxYUt6dXdlNGdaNkMxUnJmYzExdzBKbml5RElIcFlyQ29KOVVEdjcwYTRsakVBLTZ4c3oxdlZ6OWNieUt1ZExYekV1c2phWEk5SEpUWWVXekl0Q2ZwMGl2WTRfVkplSEx4YzFoZmlSemdHWFZ6bk9xNHhhTVVUd0hzQXRqeUM4cDFOQmZfSEd0NVduLVFiek5yVlJyVzN3SzQ2Z3B6eUR3UU9YbHFuQ2k4dDY1RDBoUTlzVHNWbjNmMkZ1UjBiUjlERWtpd3phN3NlUnFIME53Q1JzYW1CUU5FWDI5OW5OTnF2NFJJNHhFQkdHR0tmSGtrT1UtV01oMlcy?oc=5": {
+    "title": "Moonshot AI releases weights for Kimi-K3, firing a shot across the bow of OpenAI and Anthropic — open-weight model performs almost as well as frontier models while being 2-3x easier to run - Tom's Hardware",
+    "source": "google-news-oa",
+    "time": "2026-07-28T13:57:20Z",
+    "status": "discovery_skipped"
+  },
+  "https://news.google.com/rss/articles/CBMiqwJBVV95cUxPbi1KeUFoOGVsWS0wT29pY2xSTUxlb1FBRjVtZUhnS0NGNnVEVVVDdURuc0NIWGNqQTJSaWthNkZ3SmNYLXJHM1dnUUJNcmxaYzNxQmMwVWZ5RE5ibnYySDhBMy1lV0x4dURYXzJIcVhxLTh6UVVEVG9MS05DVktBM0FoeGtoWlp5RzVkYjdJam4tZ1AyREFZVG9QbDFCTmx1UHc2VXU1Vk1YMVJCaDN2aU53dG53MWp5c1RPbjlrd2Z4OFZ6RmRsTUwtTUphaTZ2cFFCMjItWS1ZSnAwUWtTTlZ6aUNoVmN1WnEyeW9iTy1QdHkxZFY0VWJNZG5PbUlTVWZaVnZJS2VVSnpkZG85Q01PMEF0LWxSdldsdlNtUDJOeFU3dUFNS1BCRQ?oc=5": {
+    "title": "OpenAI, Google, and Anthropic absent from Nvidia-led Open Secure AI Alliance — 30+ companies join security alliance after OpenAI agent breach - Tom's Hardware",
+    "source": "google-news-oa",
+    "time": "2026-07-28T14:02:57Z",
+    "status": "discovery_skipped"
+  },
+  "https://news.google.com/rss/articles/CBMiogFBVV95cUxPdm5EQ3p5N0ZsWV95TDRBcmYtYXV6c2VIdHVnNUd5TE82OExSTkxudmFEc25sUTBPb3NGcUVHcTgyNUFFMl9iU2lCa1cycEE4OUlId1dXanR3aW9qemJPOUp5LWdpSWFkMmRiZ2txcFNZZU5BSjdYbmw5dkRpZUdnLUVsN2xyWEk5R28yMTFyZmUyTWdqX0IwMUpMWHBCbzVsWEE?oc=5": {
+    "title": "NVIDIA, Microsoft Launch AI Security Alliance Without OpenAI, Anthropic, Google - WinBuzzer",
+    "source": "google-news-oa",
+    "time": "2026-07-28T14:02:57Z",
+    "status": "discovery_skipped"
+  },
+  "https://news.google.com/rss/articles/CBMigwFBVV95cUxOR3VYRDgzbDNGN1hfYnpXRXhqY1dfU2h4M1VsR2FSVjE0SDJsb1V6cENtclZYdkxEaUxSa0JmTTNTa0Z0OExhR2Y2ck9LVnVpNTFBVXJYeXNRdW94cmEzbE1ueFVYTXExN0VqUmZ4V1dVSTdRUlNrN1lPVVZET1plSU1pMNIBiAFBVV95cUxQZnhoenA3SDZieTZNTy1SbEZndXZRMjFmN1ZJemI2SHFkdF90Zmt1T013cUM5bWZObzVYMVpNVXd3Zk9MS1Ywa2xrdUpOT1VTYUt4aW5qVHRfX0Q2UlM5ME1VX0RnOGY1RUxqZkJBODhjUW9hU0JzemZEWnNDWlk2OVNlN0FFQU5o?oc=5": {
+    "title": "Nvidia, SpaceX, Microsoft launch AI safety initiative as OpenAI cyberattack fallout continues - CNBC",
+    "source": "google-news-oa",
+    "time": "2026-07-28T14:02:57Z",
+    "status": "discovery_skipped"
+  },
+  "https://arxiv.org/abs/2607.23519": {
+    "title": "Auditing Alignment Controllability in LLMs via Political Axes",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T14:09:37Z"
+  },
+  "https://the-decoder.com/moonshot-ai-releases-kimi-k3-open-weights-and-infrastructure-after-shaking-up-the-frontier-model-race/": {
+    "title": "Moonshot AI releases Kimi K3 open weights and infrastructure after shaking up the frontier model race",
+    "source": "the-decoder",
+    "time": "2026-07-28T14:11:32Z",
+    "status": "no_verified_facts_available"
+  },
+  "https://arxiv.org/abs/2606.10156": {
+    "title": "$\\tau$-Rec: A Verifiable Benchmark for Agentic Recommender Systems",
+    "source": "arxiv-cscl",
+    "time": "2026-07-28T14:41:30Z"
+  },
+  "https://the-decoder.com/microsoft-launches-its-own-cybersecurity-model-mai-cyber-1-flash-but-still-depends-on-openai-for-the-toughest-tasks/": {
+    "title": "Microsoft launches its own cybersecurity model MAI-Cyber-1-Flash but still depends on OpenAI for the toughest tasks",
+    "source": "the-decoder",
+    "time": "2026-07-28T14:43:55Z",
+    "status": "no_verified_facts_available"
+  },
+  "https://the-decoder.com/gpt-transcribe-improves-on-its-predecessor-but-cant-catch-elevenlabs-google-or-mistral-on-error-rates/": {
+    "title": "GPT Transcribe improves on its predecessor but can't catch ElevenLabs, Google, or Mistral on error rates",
+    "source": "the-decoder",
+    "time": "2026-07-29T14:54:06Z",
+    "status": "classification: Failed to parse stage1 output"
+  },
+  "https://the-decoder.com/openai-open-sources-codex-security-cli-to-help-developers-find-and-fix-vulnerabilities-from-the-command-line/": {
+    "title": "OpenAI open-sources Codex Security CLI to help developers find and fix vulnerabilities from the command line",
+    "source": "the-decoder",
+    "time": "2026-07-29T14:55:44Z"
+  },
+  "https://arxiv.org/abs/2607.25041": {
+    "title": "ScoreShield: Differentially Private Release of Similarity Scores",
+    "source": "arxiv-cslg",
+    "time": "2026-07-29T14:56:53Z"
+  },
+  "https://techcrunch.com/2026/07/29/microsoft-is-openly-competing-with-openai-anthropic-more-than-ever/": {
+    "title": "Microsoft is openly competing with OpenAI, Anthropic more than ever",
+    "source": "techcrunch-ai",
+    "time": "2026-07-30T06:59:54Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://arxiv.org/abs/2607.26300": {
+    "title": "AgentGUI: An Interface for Observing and Steering Long-Running AI Agents",
+    "source": "arxiv-cscl",
+    "time": "2026-07-30T07:01:25Z"
+  },
+  "https://arxiv.org/abs/2607.26062": {
+    "title": "Identifying Implicit Bias in LLM-based Chat AI Toward People with Intellectual Disabilities",
+    "source": "arxiv-cscl",
+    "time": "2026-07-30T07:04:53Z"
+  },
+  "https://arxiv.org/abs/2607.26286": {
+    "title": "Evaluating Prompt Scope and Demonstration Similarity in Local LLM Machine Translation",
+    "source": "arxiv-cscl",
+    "time": "2026-07-30T07:08:48Z"
+  },
+  "https://the-decoder.com/openai-claims-gpt-5-6-sol-beats-opus-5-on-arc-agi-3-but-only-with-its-own-custom-test-harness/": {
+    "title": "OpenAI claims GPT-5.6 Sol beats Opus 5 on ARC-AGI-3 but only with its own custom test harness",
+    "source": "the-decoder",
+    "time": "2026-07-30T09:00:37Z"
+  },
+  "https://arxiv.org/abs/2607.26760": {
+    "title": "Metis: Memory Foundation Model",
+    "source": "arxiv-cscl",
+    "time": "2026-07-30T09:01:46Z"
+  },
+  "https://the-decoder.com/openai-claims-gpt-5-6-sol-beats-opus-5-on-arc-agi-3-with-its-latest-api-and-two-additional-settings/": {
+    "title": "OpenAI claims GPT-5.6 Sol beats Opus 5 on ARC-AGI-3 with its latest API and two additional settings",
+    "source": "the-decoder",
+    "time": "2026-07-30T11:10:14Z"
+  },
+  "https://arxiv.org/abs/2504.03772": {
+    "title": "Low-cost Embedded Breathing Rate Determination Using 802.15.4z IR-UWB Hardware for Remote Healthcare",
+    "source": "arxiv-cslg",
+    "time": "2026-07-30T11:11:18Z"
+  },
+  "https://techcrunch.com/2026/07/29/microsoft-logs-3-2b-from-anthropic-investment-but-openai-was-a-mixed-bag/": {
+    "title": "Microsoft logs $3.2B from Anthropic investment, but OpenAI was a mixed bag",
+    "source": "techcrunch-ai",
+    "time": "2026-07-30T11:14:18Z"
+  },
+  "https://the-decoder.com/microsoft-ai-bets-on-cheap-specialist-models-instead-of-chasing-the-frontier/": {
+    "title": "Microsoft AI bets on cheap specialist models instead of chasing the frontier",
+    "source": "the-decoder",
+    "time": "2026-07-30T13:24:01Z"
+  },
+  "https://arxiv.org/abs/2606.02184": {
+    "title": "The Ghost Couple: Correlated LLM Name Priors and Their Haunting of the Web and Academic Publishing",
+    "source": "arxiv-cslg",
+    "time": "2026-07-30T13:25:39Z"
+  },
+  "https://techcrunch.com/2026/07/30/meta-says-ai-is-making-it-easier-to-build-new-apps-and-more-are-coming/": {
+    "title": "Meta says AI is making it easier to build new apps — and more are coming",
+    "source": "techcrunch-ai",
+    "time": "2026-07-30T17:36:36Z"
+  },
+  "https://the-decoder.com/openai-goes-full-china-pricing-mode-with-an-80-percent-cut-to-its-most-affordable-gpt-5-6-model/": {
+    "title": "OpenAI goes full China pricing mode with an 80 percent cut to its most affordable GPT-5.6 model",
+    "source": "the-decoder",
+    "time": "2026-07-30T19:43:58Z"
+  },
+  "https://techcrunch.com/2026/07/30/anthropic-says-its-own-ai-models-breached-three-companies-during-security-tests/": {
+    "title": "Anthropic says its own AI models breached three companies during security tests",
+    "source": "techcrunch-ai",
+    "time": "2026-07-31T02:42:18Z"
+  },
+  "https://arxiv.org/abs/2607.28274": {
+    "title": "MORFES: A Benchmark for Productive Inflectional Competence in Modern Greek",
+    "source": "arxiv-cscl",
+    "time": "2026-07-31T04:57:13Z"
+  },
+  "https://arxiv.org/abs/2607.27353": {
+    "title": "LayerRAG-Bench: A Cross-Layer Reliability Benchmark for Agentic Retrieval-Augmented Generation",
+    "source": "arxiv-cscl",
+    "time": "2026-07-31T04:59:40Z"
+  },
+  "https://arxiv.org/abs/2607.20145": {
+    "title": "SLAI T-Rex: Full-Parameter Post-training of the DeepSeek-V4 Family on Ascend SuperPOD",
+    "source": "arxiv-cscl",
+    "time": "2026-07-31T07:13:15Z"
+  },
+  "https://arxiv.org/abs/2607.27308": {
+    "title": "ZUNA1.1: A more flexible EEG foundation model for Denoising and Super-resolution",
+    "source": "arxiv-cslg",
+    "time": "2026-07-31T07:17:06Z"
+  },
+  "https://the-decoder.com/anthropic-follows-openai-in-admitting-its-claude-models-reached-out-of-test-environments-and-attacked-real-world-systems/": {
+    "title": "Anthropic follows OpenAI in admitting its Claude models reached out of test environments and attacked real-world systems",
+    "source": "the-decoder",
+    "time": "2026-07-31T15:32:26Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://the-decoder.com/google-deepmind-unveils-gemini-robotics-2-to-power-robots-of-all-shapes-from-tabletop-arms-to-humanoids/": {
+    "title": "Google Deepmind unveils Gemini Robotics 2 to power robots of all shapes from tabletop arms to humanoids",
+    "source": "the-decoder",
+    "time": "2026-07-31T21:46:14Z"
+  },
+  "https://simonwillison.net/2026/Jul/31/stateless-mcp/#atom-entries": {
+    "title": "Stateless MCP has recaptured my interest (and inspired mcp-explorer and datasette-mcp)",
+    "source": "simon-willison",
+    "time": "2026-07-31T23:53:32Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://the-decoder.com/thinking-machines-bets-on-efficiency-over-size-with-its-second-model-inkling-small/": {
+    "title": "Thinking Machines bets on efficiency over size with its second model, Inkling Small",
+    "source": "the-decoder",
+    "time": "2026-07-31T23:56:55Z"
+  },
+  "https://the-decoder.com/openai-is-reportedly-building-astra-a-model-family-designed-to-work-on-problems-for-hours-or-days/": {
+    "title": "OpenAI is reportedly building Astra, a model family designed to work on problems for hours or days",
+    "source": "the-decoder",
+    "time": "2026-08-01T08:33:57Z"
+  },
+  "https://the-decoder.com/openai-announces-its-next-major-model-astra-by-dropping-ten-previously-unsolved-math-solutions/": {
+    "title": "OpenAI announces its \"next major model\" Astra by dropping ten previously unsolved math solutions",
+    "source": "the-decoder",
+    "time": "2026-08-01T10:41:19Z"
+  },
+  "https://the-decoder.com/after-hugging-face-incident-metr-urges-independent-root-cause-investigations-into-ai-agent-misbehavior/": {
+    "title": "After Hugging Face incident, METR urges independent root-cause investigations into AI agent misbehavior",
+    "source": "the-decoder",
+    "time": "2026-08-02T09:30:15Z"
+  },
+  "https://the-decoder.com/openai-presence-wants-to-make-ai-agents-production-ready-for-businesses/": {
+    "title": "OpenAI Presence wants to make AI agents production-ready for businesses",
+    "source": "the-decoder",
+    "time": "2026-08-02T13:42:17Z"
+  },
+  "https://the-decoder.com/meta-ai-uses-a-second-ai-agent-as-a-memory-coach-to-keep-long-tasks-on-track/": {
+    "title": "Meta AI uses a second AI agent as a memory coach to keep long tasks on track",
+    "source": "the-decoder",
+    "time": "2026-08-02T13:46:21Z"
+  },
+  "https://arxiv.org/abs/2607.29250": {
+    "title": "Data Turnstile: A Scalable Open Framework for Function-Calling Data Generation",
+    "source": "arxiv-cscl",
+    "time": "2026-08-03T04:33:45Z"
+  },
+  "https://arxiv.org/abs/2607.29539": {
+    "title": "ARB: A Matched Authorship-Rewriting Benchmark Dataset for AI-Text Detector Evaluation",
+    "source": "arxiv-cscl",
+    "time": "2026-08-03T06:39:05Z"
+  },
+  "https://arxiv.org/abs/2607.29100": {
+    "title": "StraightDP: Geometry-Aware Differential Privacy for Rectified-Flow Transformers",
+    "source": "arxiv-cslg",
+    "time": "2026-08-03T06:41:46Z"
+  },
+  "https://arxiv.org/abs/2607.28655": {
+    "title": "Geographically Weighted Surrogate Models for Rapid Small-Area Chronic Disease Estimation",
+    "source": "arxiv-cslg",
+    "time": "2026-08-03T08:45:25Z"
+  },
+  "https://arxiv.org/abs/2510.03434": {
+    "title": "Paris: A Decentralized Trained Open-Weight Diffusion Model",
+    "source": "arxiv-cslg",
+    "time": "2026-08-03T08:47:41Z"
+  },
+  "https://the-decoder.com/alibabas-new-qwen-model-is-also-taking-your-job-but-this-time-its-great/": {
+    "title": "Alibaba's new Qwen model is also taking your job, but this time it's great",
+    "source": "the-decoder",
+    "time": "2026-08-03T17:21:29Z"
+  },
+  "https://techcrunch.com/2026/08/03/congresss-favorite-ai-tool-chatgpt/": {
+    "title": "Congress’s favorite AI tool? ChatGPT",
+    "source": "techcrunch-ai",
+    "time": "2026-08-03T17:24:36Z"
+  },
+  "https://arxiv.org/abs/2506.17467": {
+    "title": "Computational Approaches to Understanding Large Language Model Impact on Writing and Information Ecosystems",
+    "source": "arxiv-cscl",
+    "time": "2026-08-04T04:03:00Z"
+  },
+  "https://arxiv.org/abs/2608.01400": {
+    "title": "TabDPT-Turbo: Efficient In-Context Learning for Tabular Prediction",
+    "source": "arxiv-cslg",
+    "time": "2026-08-04T04:23:03Z"
+  },
+  "https://arxiv.org/abs/2608.02464": {
+    "title": "Real-Time Detection and Repair of LLM Agent Failures",
+    "source": "arxiv-cslg",
+    "time": "2026-08-04T06:28:00Z"
+  },
+  "https://arxiv.org/abs/2608.00004": {
+    "title": "Cost-Effective Automated Judging of Natural-Language Mathematical Proofs",
+    "source": "arxiv-cscl",
+    "time": "2026-08-04T06:43:13Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://arxiv.org/abs/2608.00009": {
+    "title": "AgentMemBench: A Systematic Benchmark for Evaluating Long-Term Memory Management Strategies in Conversational AI Agents",
+    "source": "arxiv-cscl",
+    "time": "2026-08-04T08:49:33Z"
+  },
+  "https://arxiv.org/abs/2608.00267": {
+    "title": "LoopsBench: From Harness Engineering to Loop Engineering in Benchmarking Coding Agent",
+    "source": "arxiv-cscl",
+    "time": "2026-08-04T08:52:36Z"
+  },
+  "https://the-decoder.com/openai-fires-back-at-apples-trade-secret-lawsuit-with-chat-logs-showing-apple-employees-kept-texting-their-former-colleague/": {
+    "title": "OpenAI fires back at Apple's trade secret lawsuit with chat logs showing Apple employees kept texting their former colleague",
+    "source": "the-decoder",
+    "time": "2026-08-04T11:04:52Z"
+  },
+  "https://arxiv.org/abs/2607.23893": {
+    "title": "Who Gets Named: Citation Type Predicts Individual Naming by Grounded Language Models, and a Roster Instrument Captures 0.5% of It",
+    "source": "arxiv-cscl",
+    "time": "2026-08-04T11:06:01Z"
+  },
+  "https://arxiv.org/abs/2602.02599": {
+    "title": "RAP: KV-Cache Compression via RoPE-Aligned Pruning",
+    "source": "arxiv-cslg",
+    "time": "2026-08-04T11:09:58Z"
+  },
+  "https://the-decoder.com/silicon-valleys-rift-over-open-source-pushes-back-contemplated-white-house-bans-on-chinese-ai/": {
+    "title": "Silicon Valley’s rift over open source pushes back contemplated White House bans on Chinese AI",
+    "source": "the-decoder",
+    "time": "2026-08-04T15:30:54Z"
+  },
+  "https://techcrunch.com/2026/08/04/nvidia-doesnt-mess-around-a-week-after-open-ai-industry-group-formed-its-already-showing-progress/": {
+    "title": "Nvidia doesn’t mess around: A week after open AI industry group formed, it’s already showing progress",
+    "source": "techcrunch-ai",
+    "time": "2026-08-04T19:56:48Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://simonwillison.net/2026/Aug/4/new-release-of-llm/#atom-entries": {
+    "title": "New release of LLM adds support for reasoning traces, OpenAI Responses, server-side tools, and smarter logging",
+    "source": "simon-willison",
+    "time": "2026-08-05T00:07:42Z"
+  },
+  "https://arxiv.org/abs/2608.03659": {
+    "title": "How Closely Do LLM Reviews Align with Human Peer Review?",
+    "source": "arxiv-cscl",
+    "time": "2026-08-05T04:17:19Z"
+  },
+  "https://arxiv.org/abs/2608.03070": {
+    "title": "AI Security Leaderboard: Methodology, Results and Minimal Standard",
+    "source": "arxiv-cscl",
+    "time": "2026-08-05T04:19:51Z"
+  },
+  "https://the-decoder.com/an-ai-agent-went-rogue-during-uk-safety-tests-creating-fake-identities-and-launching-social-engineering-attacks-unprompted/": {
+    "title": "An AI agent went rogue during UK safety tests, creating fake identities and launching social engineering attacks unprompted",
+    "source": "the-decoder",
+    "time": "2026-08-05T10:31:57Z"
+  },
+  "https://the-decoder.com/black-forest-labs-makes-flux-3-video-generally-available-and-claims-it-beats-seedance-2-0/": {
+    "title": "Black Forest Labs makes FLUX 3 Video generally available and claims it beats Seedance 2.0",
+    "source": "the-decoder",
+    "time": "2026-08-05T14:45:54Z"
+  },
+  "https://techcrunch.com/2026/08/05/meta-launches-muse-code-an-ai-agent-for-large-code-bases/": {
+    "title": "Meta launches Muse Code, an AI agent for large code bases",
+    "source": "techcrunch-ai",
+    "time": "2026-08-05T23:27:38Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/run-production-ai-agents-in-n8n-with-amazon-bedrock-agentcore-harness/": {
+    "title": "Run production AI agents in n8n with Amazon Bedrock AgentCore harness",
+    "source": "aws-ml",
+    "time": "2026-08-05T23:30:25Z"
+  },
+  "https://the-decoder.com/openai-developer-warns-the-tireless-eagle-eyes-of-a-million-models-are-coming-for-your-exposed-api-keys-and-crypto-wallets/": {
+    "title": "OpenAI developer warns the \"tireless eagle eyes of a million models\" are coming for your exposed API keys and crypto wallets",
+    "source": "the-decoder",
+    "time": "2026-08-06T10:29:00Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://the-decoder.com/openai-reportedly-slows-research-after-its-own-models-secretly-coordinated-hacks-for-weeks-undetected/": {
+    "title": "OpenAI reportedly slows research after its own models secretly coordinated hacks for weeks undetected",
+    "source": "the-decoder",
+    "time": "2026-08-06T14:42:27Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/control-agent-behaviors-and-cost-beyond-a-single-action-new-capabilities-in-amazon-bedrock-agentcore/": {
+    "title": "Control agent behaviors and cost beyond a single action: new capabilities in Amazon Bedrock AgentCore",
+    "source": "aws-ml",
+    "time": "2026-08-06T17:00:26Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://arxiv.org/abs/2608.05420": {
+    "title": "Can Open-Weight LLMs Produce Kernel-Verified Coq Proofs? A Pilot Study",
+    "source": "arxiv-cslg",
+    "time": "2026-08-07T05:41:43Z"
+  },
+  "https://the-decoder.com/amazon-cursor-microsoft-openai-and-vercel-unite-on-a-shared-standard-for-ai-agent-plugins/": {
+    "title": "Amazon, Cursor, Microsoft, OpenAI, and Vercel unite on a shared standard for AI agent plugins",
+    "source": "the-decoder",
+    "time": "2026-08-07T09:55:07Z"
+  },
+  "https://techcrunch.com/2026/08/07/cloudflare-launches-kitesurf-a-browser-built-for-ai-agents/": {
+    "title": "Cloudflare launches Kitesurf, a browser built for AI agents",
+    "source": "techcrunch-ai",
+    "time": "2026-08-07T16:30:10Z"
+  },
+  "https://the-decoder.com/amd-acquires-taalas-a-startup-that-bakes-ai-models-directly-into-silicon/": {
+    "title": "AMD acquires Taalas, a startup that bakes AI models directly into silicon",
+    "source": "the-decoder",
+    "time": "2026-08-07T18:35:05Z"
+  },
+  "https://the-decoder.com/openai-flags-its-new-astra-model-as-potentially-reaching-the-highest-cybersecurity-risk-level-for-the-first-time/": {
+    "title": "OpenAI flags its new Astra model as potentially reaching the highest cybersecurity risk level for the first time",
+    "source": "the-decoder",
+    "time": "2026-08-07T20:38:50Z"
+  },
+  "https://simonwillison.net/2026/Aug/7/openai-timeline/#atom-entries": {
+    "title": "Now we have a timeline of the OpenAI accidental attack against Hugging Face",
+    "source": "simon-willison",
+    "time": "2026-08-08T00:46:26Z"
+  },
+  "https://the-decoder.com/ai-agents-use-roughly-600-times-more-energy-than-a-simple-chat-prompt/": {
+    "title": "AI agents use roughly 600 times more energy than a simple chat prompt",
+    "source": "the-decoder",
+    "time": "2026-08-08T10:01:17Z"
+  },
+  "https://the-decoder.com/xais-imagine-image-2-0-lands-just-behind-openais-gpt-image-2-in-arena-benchmarks/": {
+    "title": "xAI's Imagine Image 2.0 lands just behind OpenAI's GPT-Image-2 in Arena benchmarks",
+    "source": "the-decoder",
+    "time": "2026-08-08T10:04:25Z"
+  },
+  "https://the-decoder.com/backflip-ai-turns-3d-scans-into-editable-cad-models-in-minutes-instead-of-hours/": {
+    "title": "Backflip AI turns 3D scans into editable CAD models in minutes instead of hours",
+    "source": "the-decoder",
+    "time": "2026-08-08T14:17:58Z"
+  },
+  "https://the-decoder.com/anthropic-sets-claude-code-to-auto-mode-by-default-to-protect-developers-from-bad-approvals/": {
+    "title": "Anthropic sets Claude Code to Auto Mode by default to protect developers from bad approvals",
+    "source": "the-decoder",
+    "time": "2026-08-08T16:29:19Z"
+  },
+  "https://techcrunch.com/2026/08/08/openai-acquires-presentation-startup-nextslide/": {
+    "title": "OpenAI acquires presentation startup NextSlide",
+    "source": "techcrunch-ai",
+    "time": "2026-08-08T20:42:43Z"
+  },
+  "https://the-decoder.com/ai-is-flooding-britains-employment-courts-with-lawsuits/": {
+    "title": "AI is flooding Britain's employment courts with lawsuits",
+    "source": "the-decoder",
+    "time": "2026-08-09T11:17:18Z"
+  },
+  "https://techcrunch.com/2026/08/09/the-ai-safety-test-is-becoming-a-safety-risk/": {
+    "title": "The AI safety test is becoming a safety risk",
+    "source": "techcrunch-ai",
+    "time": "2026-08-09T15:27:32Z",
+    "status": "classification: Failed to parse stage1 output"
+  },
+  "https://techcrunch.com/2026/08/09/anthropic-is-turning-claude-codes-auto-mode-on-by-default/": {
+    "title": "Anthropic is turning Claude Code’s auto mode on by default",
+    "source": "techcrunch-ai",
+    "time": "2026-08-09T19:40:21Z"
+  },
+  "https://arxiv.org/abs/2608.07249": {
+    "title": "Stoicheia: Character-Level Masked Diffusion for Ancient Greek Textual Restoration, Parsing, and Metrical Scansion",
+    "source": "arxiv-cscl",
+    "time": "2026-08-10T04:11:08Z"
+  },
+  "https://arxiv.org/abs/2602.02276": {
+    "title": "Kimi K2.5: Visual Agentic Intelligence",
+    "source": "arxiv-cscl",
+    "time": "2026-08-10T04:18:53Z"
+  },
+  "https://arxiv.org/abs/2608.05930": {
+    "title": "Deep Generalised Mixed Models: a Novel Neural Network Structure for Analysing Hierarchical Data",
+    "source": "arxiv-cslg",
+    "time": "2026-08-10T06:22:43Z"
+  },
+  "https://the-decoder.com/meta-returns-to-open-models-with-zuckerbergs-plan-to-out-copy-china-and-sell-compute-by-auction/": {
+    "title": "Meta returns to open models with Zuckerberg's plan to out-copy China and sell compute by auction",
+    "source": "the-decoder",
+    "time": "2026-08-10T14:49:57Z"
+  },
+  "https://the-decoder.com/openai-launches-gpt-5-6-cyber-to-help-defenders-find-vulnerabilities-before-attackers-do/": {
+    "title": "OpenAI launches GPT-5.6-Cyber to help defenders find vulnerabilities before attackers do",
+    "source": "the-decoder",
+    "time": "2026-08-10T19:02:44Z"
+  },
+  "https://techcrunch.com/2026/08/10/as-ai-led-attacks-multiply-openai-launches-a-new-cyber-model/": {
+    "title": "As AI-led attacks multiply, OpenAI launches a new cyber model",
+    "source": "techcrunch-ai",
+    "time": "2026-08-11T01:34:44Z"
+  },
+  "https://arxiv.org/abs/2608.08634": {
+    "title": "Can Open-Weight Models Compete on Financial Text Comprehension?",
+    "source": "arxiv-cscl",
+    "time": "2026-08-11T05:46:30Z",
+    "status": "classification: Failed to parse stage1 output"
+  },
+  "https://arxiv.org/abs/2605.17062": {
+    "title": "The Range Shrinks, the Threat Remains: Re-evaluating LLM Package Hallucinations on the 2026 Frontier-Model Cohort",
+    "source": "arxiv-cslg",
+    "time": "2026-08-11T07:51:18Z"
+  },
+  "https://arxiv.org/abs/2607.02587": {
+    "title": "The Moving Target: A Longitudinal Audit of Trust-Benchmark Score Drift Across Open-Source Chat LLM Release Lines",
+    "source": "arxiv-cslg",
+    "time": "2026-08-11T07:57:16Z"
+  },
+  "https://the-decoder.com/anthropic-watermarks-all-claude-outputs-globally-with-marks-that-may-persist-through-some-editing/": {
+    "title": "Anthropic watermarks all Claude outputs globally with marks that \"may persist through some editing\"",
+    "source": "the-decoder",
+    "time": "2026-08-11T10:03:33Z"
+  },
+  "https://arxiv.org/abs/2608.08910": {
+    "title": "Tied Trit-Planes: Constraining PTQTP to a Uniform Nine-Level Quantizer, with a Persistent Folded Format for Disk-Streamed Mixture-of-Experts Serving",
+    "source": "arxiv-cscl",
+    "time": "2026-08-11T10:14:36Z"
+  },
+  "https://the-decoder.com/openai-introduces-125-premium-seats-for-chatgpt-business-as-agentic-ai-burns-through-more-tokens/": {
+    "title": "OpenAI introduces $125 Premium Seats for ChatGPT Business as agentic AI burns through more tokens",
+    "source": "the-decoder",
+    "time": "2026-08-11T12:19:32Z"
+  },
+  "https://arxiv.org/abs/2608.09046": {
+    "title": "Measuring the Tokenization Premium: A Cost Audit for Underserved Language Communities",
+    "source": "arxiv-cscl",
+    "time": "2026-08-11T12:22:19Z"
+  },
+  "https://the-decoder.com/but-marinade-and-leaked-passwords-are-what-researchers-found-in-chatgpts-hidden-reasoning/": {
+    "title": "\"But marinade\" and leaked passwords are what researchers found in ChatGPT's hidden reasoning",
+    "source": "the-decoder",
+    "time": "2026-08-11T18:36:21Z"
+  },
+  "https://techcrunch.com/2026/08/11/openai-launches-chatgpt-desktop-app-for-linux/": {
+    "title": "OpenAI launches ChatGPT desktop app for Linux",
+    "source": "techcrunch-ai",
+    "time": "2026-08-11T20:44:32Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://techcrunch.com/2026/08/11/googles-gemini-app-surges-to-one-billion-users/": {
+    "title": "Google’s Gemini app surges to one billion users",
+    "source": "techcrunch-ai",
+    "time": "2026-08-11T20:45:46Z"
+  },
+  "https://arxiv.org/abs/2608.06926": {
+    "title": "TRIBE: Predicting Team Performance via Communication Behavior Ensembles",
+    "source": "arxiv-cscl",
+    "time": "2026-08-12T05:14:43Z"
+  },
+  "https://arxiv.org/abs/2608.10008": {
+    "title": "Do LLM Recommenders Know When They're Hallucinating? Auditing Confidence Calibration in Catalog Faithfulness",
+    "source": "arxiv-cscl",
+    "time": "2026-08-12T05:25:56Z"
+  },
+  "https://arxiv.org/abs/2606.15821": {
+    "title": "The Truth Stays in the Family: Enhancing Contextual Grounding via Inherited Truthful Heads in Model Lineages",
+    "source": "arxiv-cscl",
+    "time": "2026-08-12T07:29:14Z"
+  },
+  "https://arxiv.org/abs/2608.05353": {
+    "title": "Evidence Lock Before Commitment: A Frozen Interface Degrades LLM-as-Judge Evaluation",
+    "source": "arxiv-cscl",
+    "time": "2026-08-12T07:45:57Z"
+  },
+  "https://the-decoder.com/microsofts-new-mai-code-1-1-flash-gets-crushed-by-deepseek-on-both-price-and-performance/": {
+    "title": "Microsoft's new MAI Code 1.1 Flash gets crushed by Deepseek on both price and performance",
+    "source": "the-decoder",
+    "time": "2026-08-12T11:54:28Z"
+  },
+  "https://the-decoder.com/openai-launches-chatgpt-desktop-app-for-linux/": {
+    "title": "OpenAI launches ChatGPT desktop app for Linux",
+    "source": "the-decoder",
+    "time": "2026-08-12T14:15:47Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/how-oneadvanced-deployed-over-50-ai-agents-on-uk-sovereign-aws/": {
+    "title": "How OneAdvanced deployed over 50 AI agents on UK-sovereign AWS",
+    "source": "aws-ml",
+    "time": "2026-08-12T14:17:05Z"
+  },
+  "https://the-decoder.com/legal-startup-founder-robert-mahari-joins-anthropic-to-lead-claudes-push-into-law-practices/": {
+    "title": "Legal startup founder Robert Mahari joins Anthropic to lead Claude's push into law practices",
+    "source": "the-decoder",
+    "time": "2026-08-12T14:18:15Z"
+  },
+  "https://the-decoder.com/googles-gemini-is-losing-market-share-to-chatgpt-and-claude-according-to-new-market-data/": {
+    "title": "Google's Gemini is losing market share to ChatGPT and Claude according to new market data",
+    "source": "the-decoder",
+    "time": "2026-08-12T16:27:50Z"
+  },
+  "https://the-decoder.com/spacexais-grok-4-6-matches-openais-best-model-and-undercuts-it-on-price/": {
+    "title": "SpaceXAI's Grok 4.6 matches OpenAI's best model and undercuts it on price",
+    "source": "the-decoder",
+    "time": "2026-08-12T22:40:37Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://the-decoder.com/deepseek-launches-an-improved-v4-pro-model-raises-api-prices-and-makes-its-agent-software-open-source/": {
+    "title": "Deepseek ships improved V4 Pro, open-sources its agent software, and raises API prices",
+    "source": "the-decoder",
+    "time": "2026-08-13T17:39:00Z"
+  },
+  "https://the-decoder.com/gemini-3-7-flash-lands-with-coding-gains-and-undercuts-its-three-week-old-predecessors-price-by-50/": {
+    "title": "Gemini 3.7 Flash lands with coding gains and undercuts its three-week-old predecessor's price by 50%",
+    "source": "the-decoder",
+    "time": "2026-08-13T19:48:07Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://techcrunch.com/2026/08/13/openai-introduces-ultrafast-a-new-mode-that-makes-gpt-5-6-sol-work-at-14x-the-speed/": {
+    "title": "OpenAI introduces ‘Ultrafast,’ a new mode that makes GPT 5.6 Sol work at 14x the speed",
+    "source": "techcrunch-ai",
+    "time": "2026-08-13T19:50:32Z"
+  },
+  "https://techcrunch.com/2026/08/13/anthropic-set-ai-agents-loose-on-the-same-task-they-started-a-turf-war/": {
+    "title": "Anthropic set AI agents loose on the same task. They started a turf war.",
+    "source": "techcrunch-ai",
+    "time": "2026-08-13T19:51:52Z"
+  },
+  "https://techcrunch.com/2026/08/13/writer-introduces-new-ai-model-and-upgraded-harness-to-contain-token-costs/": {
+    "title": "Writer introduces new AI model and upgraded harness to contain token costs",
+    "source": "techcrunch-ai",
+    "time": "2026-08-13T21:58:58Z"
+  },
+  "https://arxiv.org/abs/2608.13331": {
+    "title": "Training AI Scientists to Replicate Research",
+    "source": "arxiv-cslg",
+    "time": "2026-08-14T05:28:10Z"
+  },
+  "https://arxiv.org/abs/2608.12593": {
+    "title": "DiG-bench: Discovery in Games",
+    "source": "arxiv-cslg",
+    "time": "2026-08-14T05:30:37Z"
+  },
+  "https://arxiv.org/abs/2608.13063": {
+    "title": "Explanatory Engagement Under Rare Anomalous Failure: Asymptotic Rarity in Model Behavior (or: The Asymptotic AI)",
+    "source": "arxiv-cslg",
+    "time": "2026-08-14T07:40:55Z"
+  },
+  "https://arxiv.org/abs/2512.13325": {
+    "title": "Security and Detectability Analysis of Unicode Text Watermarking Methods against Large Language Models",
+    "source": "arxiv-cslg",
+    "time": "2026-08-14T09:45:38Z"
+  },
+  "https://the-decoder.com/zhipu-ai-releases-glm-5-3-claims-its-the-strongest-open-weights-coding-model/": {
+    "title": "Zhipu AI releases GLM-5.3, claims it's the strongest open-weights coding model",
+    "source": "the-decoder",
+    "time": "2026-08-14T11:54:24Z"
+  },
+  "https://the-decoder.com/alibabas-qwen-team-releases-qwen-3-8-models-with-open-weights-under-the-apache-2-0-license/": {
+    "title": "Alibaba's Qwen team releases Qwen 3.8 models with open weights under the Apache 2.0 license",
+    "source": "the-decoder",
+    "time": "2026-08-14T19:07:55Z"
+  },
+  "https://the-decoder.com/study-contradicts-anthropic-and-openai-claims-that-autonomous-ai-research-is-within-reach/": {
+    "title": "Study contradicts Anthropic and OpenAI claims that autonomous AI research is within reach",
+    "source": "the-decoder",
+    "time": "2026-08-14T19:08:21Z",
+    "status": "classification: Failed to parse stage1 output"
+  },
+  "https://the-decoder.com/gpt-5-6-sol-goes-14x-faster-as-openai-launches-ultrafast-mode-powered-by-cerebras/": {
+    "title": "GPT-5.6 Sol goes 14x faster as OpenAI launches Ultrafast mode powered by Cerebras",
+    "source": "the-decoder",
+    "time": "2026-08-14T19:10:18Z"
+  },
+  "https://techcrunch.com/video/does-mark-zuckerberg-really-believe-ai-is-for-everyone/": {
+    "title": "Does Mark Zuckerberg really believe AI is ‘for everyone’?",
+    "source": "techcrunch-ai",
+    "time": "2026-08-14T21:18:08Z"
+  },
+  "https://techcrunch.com/podcast/metas-open-ai-and-a-250m-deal-gone-very-wrong/": {
+    "title": "Meta’s ‘open’ AI, and a $250M deal gone very wrong",
+    "source": "techcrunch-ai",
+    "time": "2026-08-14T21:19:22Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://the-decoder.com/anthropic-announces-watermark-detection-api-that-will-let-third-parties-detect-claudes-ai-texts/": {
+    "title": "Anthropic announces watermark detection API that will let third parties detect Claude's AI texts",
+    "source": "the-decoder",
+    "time": "2026-08-14T23:28:28Z"
+  },
+  "https://the-decoder.com/world-labs-turns-one-real-world-robot-task-into-thousands-of-simulated-variations-for-training/": {
+    "title": "World Labs turns one real-world robot task into thousands of simulated variations for training",
+    "source": "the-decoder",
+    "time": "2026-08-15T14:26:21Z"
+  },
+  "https://the-decoder.com/openais-computer-history-turns-your-clicks-and-keystrokes-into-a-searchable-chatgpt-memory-timeline/": {
+    "title": "OpenAI's Computer History turns your clicks and keystrokes into a searchable ChatGPT memory timeline",
+    "source": "the-decoder",
+    "time": "2026-08-15T14:29:15Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/monitor-on-premises-and-multi-cloud-ai-agents-with-agentcore-observability/": {
+    "title": "Monitor on-premises and multi-cloud AI agents with AgentCore Observability",
+    "source": "aws-ml",
+    "time": "2026-08-15T14:31:04Z"
+  },
+  "https://the-decoder.com/investor-pressure-forces-nvidia-to-shrink-its-openai-bet-just-as-anthropics-numbers-defy-bubble-warnings/": {
+    "title": "Investor pressure forces Nvidia to shrink its OpenAI bet just as Anthropic's numbers defy bubble warnings",
+    "source": "the-decoder",
+    "time": "2026-08-15T16:36:34Z"
+  },
+  "https://techcrunch.com/2026/08/15/anthropic-shares-more-details-about-how-claudes-new-watermarks-will-work/": {
+    "title": "Anthropic shares more details about how Claude’s new watermarks will work",
+    "source": "techcrunch-ai",
+    "time": "2026-08-16T00:51:51Z"
+  },
+  "https://the-decoder.com/optima-tackles-ai-benchmarkings-biggest-flaw-by-letting-users-test-models-against-their-own-data/": {
+    "title": "Optima tackles AI benchmarking's biggest flaw by letting users test models against their own data",
+    "source": "the-decoder",
+    "time": "2026-08-16T07:00:50Z"
+  },
+  "https://the-decoder.com/openai-dissolved-the-team-built-to-catch-catastrophic-ai-risks-reassigning-its-work-to-other-groups/": {
+    "title": "OpenAI dissolved the team built to catch catastrophic AI risks, reassigning its work to other groups",
+    "source": "the-decoder",
+    "time": "2026-08-16T09:11:37Z"
+  },
+  "https://simonwillison.net/2026/Aug/16/qwen-38-27b/": {
+    "title": "Qwen 3.8 27B is excellent, but it defaults to wildly overthinking things",
+    "source": "simon-willison",
+    "time": "2026-08-16T23:37:29Z"
+  },
+  "https://arxiv.org/abs/2608.13675": {
+    "title": "From BERT to Frontier Agents: Eight Years of Language-Model Progress, the Collapse of the Capability-Cost Curve, and the Rise of Task-Targeted Models",
+    "source": "arxiv-cslg",
+    "time": "2026-08-17T05:53:17Z"
+  },
+  "https://arxiv.org/abs/2608.13722": {
+    "title": "BM25-Augmented Many-Shot Translation for Low-Resource North-Eastern Indian Languages",
+    "source": "arxiv-cscl",
+    "time": "2026-08-17T06:01:19Z"
+  },
+  "https://arxiv.org/abs/2608.13674": {
+    "title": "Asymmetric Discourse Homogenization and Shared Language Technology: Evidence from Reddit",
+    "source": "arxiv-cscl",
+    "time": "2026-08-17T08:08:53Z"
+  },
+  "https://arxiv.org/abs/2605.25420": {
+    "title": "SomaliBench Eval: Measuring English-to-Somali Refusal Gaps in Open-Weight Language Models",
+    "source": "arxiv-cscl",
+    "time": "2026-08-17T08:10:46Z",
+    "status": "classification: Failed to parse stage1 output"
+  },
+  "https://arxiv.org/abs/2608.13987": {
+    "title": "Nanbeige4.2-3B on Apple Silicon: Fixing Deployment Bugs and Decreasing Looped Transformer Memory Overhead",
+    "source": "arxiv-cslg",
+    "time": "2026-08-17T10:13:38Z"
+  },
+  "https://techcrunch.com/2026/08/17/nvidia-investing-1-5b-in-softbank-data-center-developer-behind-openai-project/": {
+    "title": "Nvidia investing $1.5B in SoftBank data center developer behind OpenAI project",
+    "source": "techcrunch-ai",
+    "time": "2026-08-17T16:29:44Z"
+  },
+  "https://the-decoder.com/openai-signs-record-ohio-data-center-lease-with-nvidia-backing-up-to-105-billion/": {
+    "title": "OpenAI signs record Ohio data center lease with Nvidia backing up to $105 billion",
+    "source": "the-decoder",
+    "time": "2026-08-18T02:48:30Z"
+  },
+  "https://arxiv.org/abs/2607.14345": {
+    "title": "Value Leakage: An LLM's Answers Are Silently Shaped by Its Own Values",
+    "source": "arxiv-cslg",
+    "time": "2026-08-18T04:54:30Z"
+  },
+  "https://arxiv.org/abs/2602.02414": {
+    "title": "Misconception Diagnosis From Student-Tutor Dialogue: Generate, Retrieve, Rerank",
+    "source": "arxiv-cslg",
+    "time": "2026-08-18T04:57:09Z"
+  },
+  "https://arxiv.org/abs/2608.14055": {
+    "title": "HERMES: a multi-agent framework for structured knowledge extraction from ultra-long documents in geoscience",
+    "source": "arxiv-cscl",
+    "time": "2026-08-18T07:04:12Z"
+  },
+  "https://the-decoder.com/anthropic-increases-revenue-sevenfold-hits-annualized-rate-above-65-billion/": {
+    "title": "Anthropic increases revenue sevenfold, hits annualized rate above $65 billion",
+    "source": "the-decoder",
+    "time": "2026-08-18T09:09:36Z"
+  },
+  "https://arxiv.org/abs/2608.14377": {
+    "title": "A Survey of Large Models in Sports",
+    "source": "arxiv-cscl",
+    "time": "2026-08-18T09:12:05Z"
+  },
+  "https://the-decoder.com/openai-launches-a-chatgpt-version-built-for-teens/": {
+    "title": "OpenAI launches a ChatGPT version built for teens",
+    "source": "the-decoder",
+    "time": "2026-08-18T13:24:02Z"
+  },
+  "https://techcrunch.com/2026/08/18/openai-launches-a-safer-chatgpt-for-teens-years-after-teens-started-using-it/": {
+    "title": "OpenAI launches a safer ChatGPT for teens — years after teens started using it",
+    "source": "techcrunch-ai",
+    "time": "2026-08-18T15:31:06Z"
+  },
+  "https://the-decoder.com/new-benchmark-ranks-search-apis-for-ai-agents-on-quality-cost-and-speed/": {
+    "title": "New benchmark ranks search APIs for AI agents on quality, cost, and speed",
+    "source": "the-decoder",
+    "time": "2026-08-18T19:37:30Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/amazon-bedrock-agentcore-payments-is-now-generally-available-enabling-agents-to-transact-safely-and-autonomously-at-scale/": {
+    "title": "Amazon Bedrock AgentCore payments is now generally available: Enabling agents to transact safely and autonomously at scale",
+    "source": "aws-ml",
+    "time": "2026-08-18T19:39:48Z"
+  },
+  "https://techcrunch.com/2026/08/18/cursor-capitalizes-on-github-frustration-launches-rival-hosting-platform/": {
+    "title": "Cursor capitalizes on GitHub frustration, launches rival hosting platform",
+    "source": "techcrunch-ai",
+    "time": "2026-08-18T23:48:28Z"
+  },
+  "https://arxiv.org/abs/2608.17744": {
+    "title": "Thinking in a Low-Resource Language: What SFT Builds, What RL Fixes, What Accuracy Cannot See",
+    "source": "arxiv-cscl",
+    "time": "2026-08-19T07:57:23Z",
+    "status": "classification: Failed to parse stage1 output"
+  },
+  "https://arxiv.org/abs/2608.17356": {
+    "title": "ArguLens: An Open-Source System for Automated Essay Scoring and Label-Aware Feedback Generation",
+    "source": "arxiv-cscl",
+    "time": "2026-08-19T09:59:54Z"
+  },
+  "https://arxiv.org/abs/2311.06273": {
+    "title": "Potential of ChatGPT in predicting stock market trends based on Twitter Sentiment Analysis",
+    "source": "arxiv-cscl",
+    "time": "2026-08-19T14:05:41Z"
+  },
+  "https://arxiv.org/abs/2608.16909": {
+    "title": "When Personalization Becomes Bias: Structural and Discursive Religious Framing in AI-Generated Financial Advice",
+    "source": "arxiv-cscl",
+    "time": "2026-08-19T14:09:39Z"
+  },
+  "https://arxiv.org/abs/2603.24472": {
+    "title": "Why Does Self-Distillation (Sometimes) Degrade the Reasoning Capability of LLMs?",
+    "source": "arxiv-cscl",
+    "time": "2026-08-19T16:20:08Z"
+  },
+  "https://the-decoder.com/glm-5-3-tops-the-open-model-rankings-and-undercuts-rivals-on-price-but-its-release-is-delayed/": {
+    "title": "GLM-5.3 tops the open-model rankings and undercuts rivals on price, but its release is delayed",
+    "source": "the-decoder",
+    "time": "2026-08-19T16:22:33Z"
+  },
+  "https://the-decoder.com/anthropic-says-any-lab-can-now-let-a-language-model-agent-run-the-whole-protein-design-stack/": {
+    "title": "Anthropic says any lab can now let a language model agent run the whole protein design stack",
+    "source": "the-decoder",
+    "time": "2026-08-19T16:24:45Z"
+  },
+  "https://the-decoder.com/anthropic-passes-openai-on-revenue-for-the-first-time/": {
+    "title": "Anthropic passes OpenAI on revenue for the first time",
+    "source": "the-decoder",
+    "time": "2026-08-19T18:31:10Z"
+  },
+  "https://techcrunch.com/2026/08/19/google-launches-new-study-tools-for-students-across-search-and-gemini/": {
+    "title": "Google packs Search and Gemini with new AI study tools",
+    "source": "techcrunch-ai",
+    "time": "2026-08-19T20:38:31Z"
+  },
+  "https://techcrunch.com/2026/08/19/cognition-ceo-denies-report-that-spacex-tried-to-acquire-the-startup/": {
+    "title": "Cognition CEO denies report that SpaceX tried to acquire the startup",
+    "source": "techcrunch-ai",
+    "time": "2026-08-19T22:44:45Z"
+  },
+  "https://techcrunch.com/2026/08/19/openai-seeks-to-one-up-anthropic-with-new-customer-privacy-protections/": {
+    "title": "OpenAI seeks to one-up Anthropic with new customer privacy protections",
+    "source": "techcrunch-ai",
+    "time": "2026-08-19T22:46:02Z"
+  },
+  "https://arxiv.org/abs/2608.16931": {
+    "title": "SW-ProxyCE: Zero-Query Adversarial Transfer from Public EEG Encoders to Private Downstream Models",
+    "source": "arxiv-cslg",
+    "time": "2026-08-20T02:52:04Z"
+  },
+  "https://arxiv.org/abs/2608.18164": {
+    "title": "Are LLMs Safe Beyond Text: Do Emojis Expose Gaps in Safety Evaluation",
+    "source": "arxiv-cscl",
+    "time": "2026-08-20T04:54:46Z"
+  },
+  "https://arxiv.org/abs/2511.04707": {
+    "title": "Jailbreaking in the Haystack",
+    "source": "arxiv-cscl",
+    "time": "2026-08-20T06:58:51Z"
+  },
+  "https://arxiv.org/abs/2608.18089": {
+    "title": "Latent Space Refusal Anchoring for Low-Resource African Languages: Mechanistic Safety Recovery Without Retraining",
+    "source": "arxiv-cscl",
+    "time": "2026-08-20T07:03:26Z"
+  },
+  "https://arxiv.org/abs/2608.18102": {
+    "title": "Stability-Aware Feature Design for Robust Watermark Detection in Machine-Generated Text",
+    "source": "arxiv-cscl",
+    "time": "2026-08-20T09:05:50Z"
+  },
+  "https://arxiv.org/abs/2608.19072": {
+    "title": "What is Missing from AI Post-Training AI: An Empirical Analysis",
+    "source": "arxiv-cscl",
+    "time": "2026-08-20T09:09:30Z"
+  },
+  "https://the-decoder.com/openai-builds-safety-system-that-catches-misuse-without-storing-customer-data/": {
+    "title": "OpenAI builds safety system that catches misuse without storing customer data",
+    "source": "the-decoder",
+    "time": "2026-08-20T09:10:47Z"
+  },
+  "https://techcrunch.com/2026/08/20/binance-now-lets-ai-agents-trade-but-keeping-them-in-check-is-largely-up-to-users/": {
+    "title": "Binance now lets AI agents trade, but keeping them in check is largely up to users",
+    "source": "techcrunch-ai",
+    "time": "2026-08-20T11:15:17Z"
+  },
+  "https://the-decoder.com/anthropic-uses-an-unpublished-ai-model-called-model-2-internally/": {
+    "title": "Anthropic's most capable model, codenamed \"Model 2,\" is for internal use only",
+    "source": "the-decoder",
+    "time": "2026-08-20T11:17:34Z"
+  },
+  "https://arxiv.org/abs/2607.20379": {
+    "title": "Train the Model, Not the Reader: Decodability Supervision for Verifiable Activation Explanations",
+    "source": "arxiv-cscl",
+    "time": "2026-08-20T11:18:21Z"
+  },
+  "https://the-decoder.com/gen-1-5-generalist-ai-teaches-robots-new-tasks-from-a-single-demo/": {
+    "title": "GEN-1.5: Generalist AI teaches robots new tasks from a single demo",
+    "source": "the-decoder",
+    "time": "2026-08-20T13:25:05Z"
+  },
+  "https://arxiv.org/abs/2607.16660": {
+    "title": "From Adoption to Deployment: A Qualitative Study on AI Integration in Software Development Practice",
+    "source": "arxiv-cslg",
+    "time": "2026-08-20T13:25:41Z"
+  },
+  "https://techcrunch.com/2026/08/20/ramp-launches-its-own-ai-model-router-called-router/": {
+    "title": "Ramp launches its own AI model router, called Router",
+    "source": "techcrunch-ai",
+    "time": "2026-08-20T17:37:42Z"
+  },
+  "https://techcrunch.com/2026/08/20/a-third-of-webpages-published-since-chatgpts-launch-show-signs-of-ai-authorship-study-finds/": {
+    "title": "A third of webpages published since ChatGPT’s launch show signs of AI authorship, study finds",
+    "source": "techcrunch-ai",
+    "time": "2026-08-20T17:38:45Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://techcrunch.com/2026/08/20/openai-is-gaining-on-anthropic-with-business-users-new-data-indicates/": {
+    "title": "OpenAI is gaining on Anthropic with business users, new data indicates",
+    "source": "techcrunch-ai",
+    "time": "2026-08-20T23:45:18Z"
+  },
+  "https://arxiv.org/abs/2608.19857": {
+    "title": "Inadvertent Context Leakage in Language Models",
+    "source": "arxiv-cslg",
+    "time": "2026-08-21T05:54:14Z"
+  },
+  "https://the-decoder.com/openais-gpt-image-2-can-now-generate-images-without-a-background/": {
+    "title": "OpenAI's GPT-Image-2 can now generate images without a background",
+    "source": "the-decoder",
+    "time": "2026-08-21T07:59:45Z"
+  },
+  "https://the-decoder.com/gpt-5-6-sol-drives-openais-revenue-surge-as-it-regains-ground-on-anthropic/": {
+    "title": "GPT-5.6 Sol drives OpenAI's revenue surge as it regains ground on Anthropic",
+    "source": "the-decoder",
+    "time": "2026-08-21T10:02:25Z"
+  }
+}

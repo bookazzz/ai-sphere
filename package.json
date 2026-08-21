@@ -4,15 +4,21 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "presitemap": "node scripts/generate-sitemap.cjs",
+    "presitemap": "node scripts/validate-blog.cjs && node scripts/generate-sitemap.cjs",
     "build": "npm run presitemap && node scripts/validate-seo.cjs && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "new-post": "node scripts/new-post.cjs",
+    "validate-blog": "node scripts/validate-blog.cjs"
   },
   "dependencies": {
+    "gray-matter": "^4.0.3",
     "next": "^15",
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "react-markdown": "^10.1.0",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@types/node": "^22",

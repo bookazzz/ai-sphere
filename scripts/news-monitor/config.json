@@ -1,0 +1,130 @@
+{
+  "sources": {
+    "google-news-ai": {
+      "name": "Google News AI",
+      "url": "https://news.google.com/rss/search?q=artificial+intelligence&hl=en-US&gl=US&ceid=US:en",
+      "type": "rss",
+      "lang": "en",
+      "priority": 8,
+      "tier": "discovery"
+    },
+    "google-news-oa": {
+      "name": "Google News OpenAI/Anthropic",
+      "url": "https://news.google.com/rss/search?q=OpenAI+Anthropic&hl=en-US&gl=US&ceid=US:en",
+      "type": "rss",
+      "lang": "en",
+      "priority": 8,
+      "tier": "discovery"
+    },
+    "reddit-artificial": {
+      "name": "Reddit r/artificial",
+      "url": "https://www.reddit.com/r/artificial/.rss",
+      "type": "rss",
+      "lang": "en",
+      "priority": 6,
+      "tier": "discovery"
+    },
+    "reddit-ml": {
+      "name": "Reddit r/MachineLearning",
+      "url": "https://www.reddit.com/r/MachineLearning/.rss",
+      "type": "rss",
+      "lang": "en",
+      "priority": 6,
+      "tier": "discovery"
+    },
+    "reddit-llama": {
+      "name": "Reddit r/LocalLLaMA",
+      "url": "https://www.reddit.com/r/LocalLLaMA/.rss",
+      "type": "rss",
+      "lang": "en",
+      "priority": 5,
+      "tier": "discovery"
+    },
+    "hn-ai": {
+      "name": "Hacker News AI",
+      "url": "https://hnrss.org/frontpage?q=AI&count=10",
+      "type": "rss",
+      "lang": "en",
+      "priority": 7,
+      "tier": "discovery"
+    },
+    "the-decoder": {
+      "name": "The Decoder",
+      "url": "https://the-decoder.com/feed/",
+      "type": "rss",
+      "lang": "en",
+      "priority": 9,
+      "tier": "media"
+    },
+    "techcrunch-ai": {
+      "name": "TechCrunch AI",
+      "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+      "type": "rss",
+      "lang": "en",
+      "priority": 7,
+      "tier": "media"
+    },
+    "venturebeat-ai": {
+      "name": "VentureBeat AI",
+      "url": "https://venturebeat.com/category/ai/feed/",
+      "type": "rss",
+      "lang": "en",
+      "priority": 7,
+      "tier": "media"
+    },
+    "simon-willison": {
+      "name": "Simon Willison",
+      "url": "https://simonwillison.net/atom/entries/",
+      "type": "atom",
+      "lang": "en",
+      "priority": 8,
+      "tier": "media"
+    },
+    "arxiv-cscl": {
+      "name": "arXiv cs.CL",
+      "url": "https://rss.arxiv.org/rss/cs.CL",
+      "type": "rss",
+      "lang": "en",
+      "priority": 8,
+      "tier": "media"
+    },
+    "arxiv-cslg": {
+      "name": "arXiv cs.LG",
+      "url": "https://rss.arxiv.org/rss/cs.LG",
+      "type": "rss",
+      "lang": "en",
+      "priority": 8,
+      "tier": "media"
+    },
+    "nvidia-dev": {
+      "name": "NVIDIA Developer Blog",
+      "url": "https://developer.nvidia.com/blog/feed/",
+      "type": "rss",
+      "lang": "en",
+      "priority": 7,
+      "tier": "media"
+    },
+    "aws-ml": {
+      "name": "AWS Machine Learning",
+      "url": "https://aws.amazon.com/blogs/machine-learning/feed/",
+      "type": "rss",
+      "lang": "en",
+      "priority": 6,
+      "tier": "official"
+    },
+    "elevenlabs": {
+      "name": "ElevenLabs",
+      "url": "https://elevenlabs.io/feed.xml",
+      "type": "rss",
+      "lang": "en",
+      "priority": 6,
+      "tier": "official"
+    }
+  },
+  "settings": {
+    "max_articles_per_run": 3,
+    "check_interval_hours": 4,
+    "output_dir": "src/content/news",
+    "seen_file": "scripts/news-monitor/seen.json"
+  }
+}

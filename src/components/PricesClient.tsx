@@ -14,7 +14,7 @@ const faqItems = [
   },
   {
     q: 'Есть ли бесплатный лимит?',
-    a: 'Да, после регистрации вы получаете 50 кредитов на тестирование. Этого достаточно, чтобы опробовать разные модели и выбрать подходящую.',
+    a: 'Да, после регистрации вы получаете 10 кредитов на тестирование. Этого достаточно, чтобы опробовать разные модели и выбрать подходящую.',
   },
   {
     q: 'Какие модели доступны?',
@@ -24,9 +24,9 @@ const faqItems = [
 
 const plans = [
   { amount: 50, bonus: null, bonusCredits: 0 },
-  { amount: 250, bonus: '+10%', bonusCredits: 25 },
-  { amount: 1000, bonus: '+15%', bonusCredits: 150 },
-  { amount: 2500, bonus: '+20%', bonusCredits: 500 },
+  { amount: 250, bonus: null, bonusCredits: 0 },
+  { amount: 1000, bonus: '+15%', bonusCredits: 1500, isPopular: true },
+  { amount: 2500, bonus: '+20%', bonusCredits: 5000 },
 ];
 
 export default function PricesClient() {
@@ -51,7 +51,8 @@ export default function PricesClient() {
           <h2 className="plans__title">Выберите тариф</h2>
           <div className="plans__grid">
             {plans.map((plan) => (
-              <div className="plans__card" key={plan.amount}>
+              <div className={'plans__card' + (plan.isPopular ? ' plans__card--popular' : '')} key={plan.amount}>
+                {plan.isPopular && <span className="plans__card-badge">Популярный</span>}
                 <div className="plans__card-header">
                   <span className="plans__price">{plan.amount} ₽</span>
                   {plan.bonus && (
@@ -112,7 +113,6 @@ export default function PricesClient() {
           setShowAuthModal(false);
           window.location.href = 'https://ai-sphere.ru/prices?topup=true';
         }}
-        onOpenVkAuth={() => {}}
       />
     </>
   );

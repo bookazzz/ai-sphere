@@ -19,7 +19,7 @@ export default function PromptExamplesBlock({ section }: Props) {
             <strong>Результат:</strong>
             <p>{ex.result}</p>
           </div>
-          {ex.note && <p className="seo-prompt__note">📝 {ex.note}</p>}
+          {ex.note && <p className="seo-prompt__note">{ex.note}</p>}
         </div>
       ))}
     </section>

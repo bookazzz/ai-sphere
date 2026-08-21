@@ -10,4 +10,3 @@
 .features__card-icon { font-size: 32px; margin-bottom: 16px; display: block; }
 .features__card-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--color-text-primary); word-break: break-word; }
 .features__card-desc { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; word-break: break-word; }
-.features__card-icon {

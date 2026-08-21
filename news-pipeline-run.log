@@ -1,0 +1,113 @@
+[2026-08-20 17:31:20] === News Pipeline ===
+[2026-08-20 17:31:20] Stage 1: News monitor...
+============================================================
+AI-Sphere News Monitor — v3.1 Pipeline
+Started: 2026-08-20T17:31:20.894272
+============================================================
+Proxy: configured
+Sources: 15
+Max articles: 3
+Already seen: 563 entries
+
+  [arXiv cs.CL] 141 items, 133 new
+
+  [arXiv cs.LG] 237 items, 223 new
+
+  [AWS Machine Learning] 20 items, 8 new
+
+  [ElevenLabs] 0 items, 0 new
+
+  [Google News AI] 100 items, 66 new
+
+  [Google News OpenAI/Anthropic] 100 items, 65 new
+
+  [Hacker News AI]     fetch error: HTTP Error 502: Bad Gateway
+fetch failed
+
+  [NVIDIA Developer Blog] 0 items, 0 new
+
+  [Reddit r/artificial] 0 items, 0 new
+
+  [Reddit r/LocalLLaMA]     fetch error: HTTP Error 429: Too Many Requests
+fetch failed
+
+  [Reddit r/MachineLearning]     fetch error: HTTP Error 429: Too Many Requests
+fetch failed
+
+  [Simon Willison] 15 items, 1 new
+
+  [TechCrunch AI] 20 items, 13 new
+
+  [The Decoder] 10 items, 6 new
+
+  [VentureBeat AI] 7 items, 1 new
+
+
+Total new AI articles: 516
+Processing top 2 articles...
+
+--- Article 1/2 ---
+  Title: Ramp launches its own AI model router, called Router
+  Source: TechCrunch AI
+  Link: https://techcrunch.com/2026/08/20/ramp-launches-its-own-ai-model-router-called-r
+  Tier: media
+  [v3.1] Stage 1/6: keyword-classification...
+  [v3.1] Stage 2/6: semantic-clustering...
+  [v3.1] Stage 3/6: seo-brief...
+  [v3.1] Stage 3b/6: article-extraction...
+2026-08-20 17:33:18,052 [INFO] fetching article HTML: https://techcrunch.com/2026/08/20/ramp-launches-its-own-ai-model-router-called-r
+2026-08-20 17:33:18,219 [ERROR] article extraction error for https://techcrunch.com/2026/08/20/ramp-launches-its-own-ai-model-router-called-r: Cannot set format, must be one of: csv, html, json, markdown, python, txt, xml, xmltei
+2026-08-20 17:33:18,383 [INFO] fallback extracted 4990 chars from https://techcrunch.com/2026/08/20/ramp-launches-its-own-ai-model-router-called-r
+2026-08-20 17:33:18,384 [INFO] article_text: source=TechCrunch AI/161 chars extracted=OK/4990 chars
+  [v3.1] Stage 4/6: research-fact-check...
+2026-08-20 17:37:08,593 [INFO] fact_check: source=TechCrunch AI facts=1 unverifiable=4
+  [v3.1] Stage 5/6: content-writing...
+  [v3.1] Stage 6/6: quality-gate...
+  Writing draft file...
+  File: /root/ai-sphere/src/content/news/ramp-launches-ai-model-router.md
+  QA: passed
+
+--- Article 2/2 ---
+  Title: A third of webpages published since ChatGPT’s launch show signs of AI authorship
+  Source: TechCrunch AI
+  Link: https://techcrunch.com/2026/08/20/a-third-of-webpages-published-since-chatgpts-l
+  Tier: media
+  [v3.1] Stage 1/6: keyword-classification...
+  [v3.1] Stage 2/6: semantic-clustering...
+  [v3.1] Stage 3/6: seo-brief...
+  [v3.1] Stage 3b/6: article-extraction...
+2026-08-20 17:37:55,314 [INFO] fetching article HTML: https://techcrunch.com/2026/08/20/a-third-of-webpages-published-since-chatgpts-l
+2026-08-20 17:37:55,585 [ERROR] article extraction error for https://techcrunch.com/2026/08/20/a-third-of-webpages-published-since-chatgpts-l: Cannot set format, must be one of: csv, html, json, markdown, python, txt, xml, xmltei
+2026-08-20 17:37:55,747 [INFO] fallback extracted 5312 chars from https://techcrunch.com/2026/08/20/a-third-of-webpages-published-since-chatgpts-l
+2026-08-20 17:37:55,748 [INFO] article_text: source=TechCrunch AI/78 chars extracted=OK/5312 chars
+  [v3.1] Stage 4/6: research-fact-check...
+2026-08-20 17:38:13,495 [INFO] fact_check: source=TechCrunch AI facts=1 unverifiable=4
+  [v3.1] Stage 5/6: content-writing...
+  ERROR: writing: Failed to parse article JSON
+
+Seen.json updated: 565 total entries
+
+============================================================
+Generated 1 articles (drafts):
+  ✓ Ramp запускает собственный AI-роутер Router (ramp-launches-ai-model-router) — QA: passed
+============================================================
+  Published: /news/ramp-launches-ai-model-router
+
+Published 1 articles (draft→ready).
+Note: build+deploy runs on separate daily cron.
+Done!
+[2026-08-20 17:31:20] Monitor exit code: 0
+[2026-08-20 17:31:20] Newly published this run: 1
+[2026-08-20 17:31:20] Total ready articles: 167
+[2026-08-20 17:31:20] Stage 2: npm run build...
+  └ other shared chunks (total)                               1.94 kB
+
+
+○  (Static)  prerendered as static content
+●  (SSG)     prerendered as static HTML (uses generateStaticParams)
+[2026-08-20 17:31:20] Build OK.
+[2026-08-20 17:31:20] Stage 3: Deploy to VPS...
+[2026-08-20 17:31:20] Deploy complete.
+[2026-08-20 17:31:20] Stage 4: Ping search engines...
+[2026-08-20 17:31:20]   Yandex ping: HTTP 200
+[2026-08-20 17:31:20] === Pipeline complete ===

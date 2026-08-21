@@ -13,7 +13,11 @@ export const navigation = {
     { href: '/models', label: 'Модели' },
   ],
   company: [
+    { href: '/news', label: 'Новости' },
+    { href: '/company/openai', label: 'OpenAI' },
+    { href: '/company/anthropic', label: 'Anthropic' },
     { href: '/about', label: 'О нас' },
+    { href: '/blog', label: 'Блог' },
     { href: '/contacts', label: 'Контакты' },
     { href: '/faq', label: 'FAQ' },
     { href: '/security', label: 'Безопасность' },

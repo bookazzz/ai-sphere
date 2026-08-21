@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, FormEvent, useCallback, useEffect, useRef } from 'react';
-import { loginUser, registerUser, apiCall, setToken } from '@/lib/api';
+import { useState, FormEvent } from 'react';
+import { loginUser, registerUser } from '@/lib/api';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onLogin: (user: any) => void;
-  onOpenVkAuth?: () => void;
 }
 
 function getYandexUrl() {
@@ -15,7 +14,12 @@ function getYandexUrl() {
   return `${window.location.origin}/api/auth/oauth/yandex`;
 }
 
-export default function AuthModal({ isOpen, onClose, onLogin, onOpenVkAuth }: Props) {
+function getVkUrl() {
+  if (typeof window === 'undefined') return 'https://ai-sphere.ru/api/auth/oauth/vk';
+  return `${window.location.origin}/api/auth/oauth/vk`;
+}
+
+export default function AuthModal({ isOpen, onClose, onLogin }: Props) {
   const [tab, setTab] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -53,11 +57,6 @@ export default function AuthModal({ isOpen, onClose, onLogin, onOpenVkAuth }: Pr
     }
   };
 
-  const handleVkLogin = useCallback(() => {
-    // Close auth modal and open full-screen VK overlay
-    onOpenVkAuth?.();
-  }, [onOpenVkAuth]);
-
   if (!isOpen) return null;
 
   return (
@@ -92,12 +91,7 @@ export default function AuthModal({ isOpen, onClose, onLogin, onOpenVkAuth }: Pr
         {/* Social Buttons */}
         <div className="auth-modal__social">
           <a href={getYandexUrl()} className="auth-modal__social-btn">Яндекс</a>
-          <button
-            className="auth-modal__social-btn auth-modal__social-btn--vk"
-            onClick={handleVkLogin}
-          >
-            VK
-          </button>
+          <a href={getVkUrl()} className="auth-modal__social-btn auth-modal__social-btn--vk">VK</a>
         </div>
 
         <div className="auth-modal__divider">или</div>

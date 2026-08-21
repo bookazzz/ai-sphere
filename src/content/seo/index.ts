@@ -8,9 +8,15 @@ import { midjourney_nejroset } from './models/midjourney-nejroset';
 import { kandinsky_nejroset } from './models/kandinsky-nejroset';
 import { stable_diffusion } from './models/stable-diffusion';
 import { dalle_nejroset } from './models/dalle-nejroset';
+import { gemini_onlayn } from './models/gemini-onlayn';
+import { claude_onlayn } from './models/claude-onlayn';
+import { yandex_gpt } from './models/yandex-gpt';
+import { gigachat } from './models/gigachat';
+import { grok } from './models/grok';
 
 // ИНСТРУМЕНТЫ
 import { generaciya_izobrazhenij } from './tools/generaciya-izobrazhenij';
+import { gamma_ai } from './tools/gamma-ai';
 import { nejroset_perevodchik } from './tools/nejroset-perevodchik';
 import { prezentaciya_nejroset } from './tools/prezentaciya-nejroset';
 import { ozvuchka_teksta_nejroset } from './tools/ozvuchka-teksta-nejroset';
@@ -51,11 +57,17 @@ export const seoContentMap: Record<string, SeoPageContent> = {
   'chat-gpt-online': chat_gpt_online,
   'deepseek-chat': deepseek_chat,
   'gpt-4-chat': gpt_4_chat,
+  'gemini-onlayn': gemini_onlayn,
+  'claude-onlayn': claude_onlayn,
+  'yandex-gpt': yandex_gpt,
+  'gigachat': gigachat,
+  'grok': grok,
   'midjourney-nejroset': midjourney_nejroset,
   'kandinsky-nejroset': kandinsky_nejroset,
   'stable-diffusion': stable_diffusion,
   'dalle-nejroset': dalle_nejroset,
   'generaciya-izobrazhenij': generaciya_izobrazhenij,
+  'gamma-ai': gamma_ai,
   'nejroset-perevodchik': nejroset_perevodchik,
   'prezentaciya-nejroset': prezentaciya_nejroset,
   'ozvuchka-teksta-nejroset': ozvuchka_teksta_nejroset,
