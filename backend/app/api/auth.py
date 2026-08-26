@@ -1,307 +1,187 @@
-"""Auth API: register, login, OAuth (Yandex, VK), profile."""
+"""OAuth-only user authentication (Yandex and VK)."""
 
-import datetime
 import logging
+import secrets
 from urllib.parse import urlencode
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from fastapi.responses import HTMLResponse, RedirectResponse
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
+from fastapi.responses import RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.core.credits import moscow_today
 from app.core.database import get_db
 from app.core.deps import get_current_user
-from app.core.security import create_access_token, hash_password, verify_password
-from app.core.limiter import limiter
+from app.core.security import create_access_token, hash_password
 from app.models.user import User
-from app.schemas.auth import (
-    LoginRequest,
-    OAuthRedirectResponse,
-    RegisterRequest,
-    TokenResponse,
-    UserInfo,
-)
+from app.schemas.auth import UserInfo
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
-
 logger = logging.getLogger("ai-sphere.auth")
 
 
-async def apply_daily_credits(user: User, db: AsyncSession) -> None:
-    """Бесплатным пользователям — 10 кредитов каждый день (не копятся)."""
-    if user.total_spent_rub > 0:
-        return  # платящие — не трогаем
-
-    today = datetime.date.today()
-    if user.last_daily_reset != today:
-        user.credits_free = 10
-        user.last_daily_reset = today
-        db.add(user)
-        await db.commit()
-
-OAUTH_SUCCESS_HTML = """<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>Вход выполнен</title></head>
-<body>
-<script>
-(function(){
-  var token = "TOKEN_PLACEHOLDER";
-  var provider = "PROVIDER_PLACEHOLDER";
-  if (token) {
-    localStorage.setItem('auth_token', token);
-    localStorage.setItem('auth_provider', provider);
-  }
-  window.location.replace('/');
-})();
-</script>
-</body>
-</html>"""
-
-
-# ──────────────────── Email/Password ────────────────────
-
-
-@router.post("/register", response_model=TokenResponse)
-@limiter.limit("3/minute")
-async def register(
-    request: Request,
-    req: RegisterRequest,
-    db: AsyncSession = Depends(get_db),
-):
-    """Register new user with email and password."""
-    result = await db.execute(select(User).where(User.email == req.email))
-    if result.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Email уже зарегистрирован")
-
-    if len(req.password) < 6:
-        raise HTTPException(status_code=400, detail="Пароль должен быть не менее 6 символов")
-
-    user = User(
-        email=req.email,
-        hashed_password=hash_password(req.password),
-        name=req.name,
-        credits_free=10,  # welcome + daily reset
-    )
-    db.add(user)
-    await db.commit()
-    await db.refresh(user)
-
-    token = create_access_token(user.id, user.email)
-    return TokenResponse(
-        access_token=token,
-        user=UserInfo.model_validate(user),
+def _set_auth_cookie(response: Response, token: str) -> None:
+    response.set_cookie(
+        key=settings.auth_cookie_name, value=token,
+        max_age=settings.access_token_expire_minutes * 60,
+        httponly=True, secure=settings.cookie_secure, samesite="lax", path="/",
     )
 
 
-@router.post("/login", response_model=TokenResponse)
-@limiter.limit("5/minute")
-async def login(
-    request: Request,
-    req: LoginRequest,
-    db: AsyncSession = Depends(get_db),
-):
-    """Login with email and password."""
-    result = await db.execute(select(User).where(User.email == req.email))
-    user = result.scalar_one_or_none()
-    if not user or not verify_password(req.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Неверный email или пароль")
-    if not user.is_active:
-        raise HTTPException(status_code=403, detail="Аккаунт заблокирован")
+def _state_cookie(provider: str) -> str:
+    return f"ai_sphere_oauth_{provider}"
 
-    await apply_daily_credits(user, db)
 
-    token = create_access_token(user.id, user.email)
-    return TokenResponse(
-        access_token=token,
-        user=UserInfo.model_validate(user),
+def _set_oauth_state(response: Response, provider: str, state: str) -> None:
+    response.set_cookie(
+        key=_state_cookie(provider), value=state, max_age=600,
+        httponly=True, secure=settings.cookie_secure, samesite="lax", path="/api/auth/oauth",
     )
+
+
+def _check_oauth_state(request: Request, provider: str, state: str | None) -> None:
+    expected = request.cookies.get(_state_cookie(provider))
+    if not state or not expected or not secrets.compare_digest(state, expected):
+        raise HTTPException(400, "РќРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ OAuth")
+
+
+async def _existing_by_verified_email(db: AsyncSession, email: str) -> User | None:
+    if not email or email.endswith("@placeholder.local"):
+        return None
+    return (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
+
+
+def _new_oauth_user(**values) -> User:
+    return User(
+        hashed_password=hash_password(secrets.token_urlsafe(48)),
+        credits_free=10, last_daily_reset=moscow_today(), **values,
+    )
+
+
+@router.post("/logout", status_code=204)
+async def logout(response: Response):
+    response.delete_cookie(settings.auth_cookie_name, path="/", secure=settings.cookie_secure, samesite="lax")
+    response.status_code = 204
 
 
 @router.get("/me", response_model=UserInfo)
-async def get_me(
-    user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    """Get current user profile."""
-    await apply_daily_credits(user, db)
+async def get_me(user: User = Depends(get_current_user)):
     return UserInfo.model_validate(user)
-
-
-# ──────────────────── Yandex OAuth ────────────────────
 
 
 @router.get("/oauth/yandex")
 async def oauth_yandex():
-    """Redirect user to Yandex OAuth consent screen."""
-    params = {
-        "response_type": "code",
-        "client_id": settings.yandex_client_id,
-        "redirect_uri": settings.yandex_redirect_uri,
-        "force_confirm": 1,
-    }
-    url = f"https://oauth.yandex.ru/authorize?{urlencode(params)}"
-    return RedirectResponse(url=url)
+    if not settings.yandex_client_id:
+        raise HTTPException(503, "РђРІС‚РѕСЂРёР·Р°С†РёСЏ РЇРЅРґРµРєСЃ РЅРµ РЅР°СЃС‚СЂРѕРµРЅР°")
+    state = secrets.token_urlsafe(32)
+    url = "https://oauth.yandex.ru/authorize?" + urlencode({
+        "response_type": "code", "client_id": settings.yandex_client_id,
+        "redirect_uri": settings.yandex_redirect_uri, "force_confirm": 1, "state": state,
+    })
+    response = RedirectResponse(url=url)
+    _set_oauth_state(response, "yandex", state)
+    return response
 
 
 @router.get("/oauth/yandex/callback")
 async def oauth_yandex_callback(
-    code: str = Query(...),
+    request: Request, code: str = Query(...), state: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
-    """Handle Yandex OAuth callback — exchange code for token, get user info, return JWT."""
-    logger.info("Yandex callback: code received")
-    async with httpx.AsyncClient() as client:
-        # Exchange code for access token
-        token_resp = await client.post(
-            "https://oauth.yandex.ru/token",
-            data={
-                "grant_type": "authorization_code",
-                "code": code,
-                "client_id": settings.yandex_client_id,
-                "client_secret": settings.yandex_client_secret,
-                "redirect_uri": settings.yandex_redirect_uri,
-            },
-        )
-        logger.info("Yandex token exchange status=%d", token_resp.status_code)
-        if token_resp.status_code != 200:
-            raise HTTPException(status_code=400, detail="Ошибка авторизации Яндекс")
-
-        token_data = token_resp.json()
-        access_token = token_data["access_token"]
-
-        # Get user info from Yandex
-        user_resp = await client.get(
+    _check_oauth_state(request, "yandex", state)
+    async with httpx.AsyncClient(timeout=15) as client:
+        token_response = await client.post("https://oauth.yandex.ru/token", data={
+            "grant_type": "authorization_code", "code": code,
+            "client_id": settings.yandex_client_id, "client_secret": settings.yandex_client_secret,
+            "redirect_uri": settings.yandex_redirect_uri,
+        })
+        if token_response.status_code != 200:
+            logger.warning("Yandex token exchange failed status=%s", token_response.status_code)
+            raise HTTPException(400, "РћС€РёР±РєР° Р°РІС‚РѕСЂРёР·Р°С†РёРё РЇРЅРґРµРєСЃ")
+        profile_response = await client.get(
             "https://login.yandex.ru/info",
-            headers={"Authorization": f"OAuth {access_token}"},
+            headers={"Authorization": f"OAuth {token_response.json().get('access_token')}"},
         )
-        logger.info("Yandex user info status=%d", user_resp.status_code)
-        if user_resp.status_code != 200:
-            raise HTTPException(status_code=400, detail="Не удалось получить данные пользователя Яндекс")
-
-        yandex_user = user_resp.json()
-        yandex_id = str(yandex_user["id"])
-        email = yandex_user.get("default_email", f"yandex_{yandex_id}@placeholder.local")
-        name = yandex_user.get("display_name") or yandex_user.get("real_name")
-        logger.info("Yandex auth success: yandex_id=%s email=%s", yandex_id, email)
-
-    # Find or create user
-    result = await db.execute(select(User).where(User.yandex_id == yandex_id))
-    user = result.scalar_one_or_none()
-
-    if not user:
-        # Check if email already exists (linked to another account)
-        result = await db.execute(select(User).where(User.email == email))
-        user = result.scalar_one_or_none()
-
+        if profile_response.status_code != 200:
+            raise HTTPException(400, "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЇРЅРґРµРєСЃ")
+        profile = profile_response.json()
+    yandex_id = str(profile["id"])
+    email = profile.get("default_email") or f"yandex_{yandex_id}@placeholder.local"
+    user = (await db.execute(select(User).where(User.yandex_id == yandex_id))).scalar_one_or_none()
+    user = user or await _existing_by_verified_email(db, email)
     if user:
-        # Link Yandex to existing account
-        if not user.yandex_id:
-            user.yandex_id = yandex_id
-            if yandex_user.get("display_name") and not user.name:
-                user.name = yandex_user["display_name"]
+        if user.yandex_id and user.yandex_id != yandex_id:
+            raise HTTPException(409, "Email СѓР¶Рµ СЃРІСЏР·Р°РЅ СЃ РґСЂСѓРіРёРј РЇРЅРґРµРєСЃ ID")
+        user.yandex_id = yandex_id
+        user.name = user.name or profile.get("display_name") or profile.get("real_name")
     else:
-        # Create new user
-        user = User(
-            email=email,
-            hashed_password=hash_password(f"oauth_yandex_{yandex_id}"),
-            name=name,
-            yandex_id=yandex_id,
-            credits_free=10,  # welcome + daily reset
-        )
-
+        user = _new_oauth_user(email=email, name=profile.get("display_name") or profile.get("real_name"), yandex_id=yandex_id, registered_by="yandex")
     db.add(user)
     await db.commit()
     await db.refresh(user)
-
-    token = create_access_token(user.id, user.email)
-    return HTMLResponse(
-        content=OAUTH_SUCCESS_HTML.replace("TOKEN_PLACEHOLDER", token).replace("PROVIDER_PLACEHOLDER", "yandex"),
-        status_code=200,
-    )
-
-
-# ──────────────────── VK OAuth (VK ID SDK) ────────────────────
-
-
-class VKTokenRequest(BaseModel):
-    vk_id: str
-    first_name: str = ""
-    last_name: str = ""
-    photo: str = ""
-
-
-@router.post("/oauth/vk/token")
-async def oauth_vk_token(
-    req: VKTokenRequest,
-    db: AsyncSession = Depends(get_db),
-):
-    """Handle VK OAuth — receive client-processed VK user data, create/login user.
-
-    The client (VkAuthOverlay) gets the access_token via VK ID SDK exchangeCode(),
-    fetches user info via VK API JSONP (browser-side to avoid CORS),
-    then sends verified user data here.
-    """
-    vk_user_id = req.vk_id
-    first_name = req.first_name
-    last_name = req.last_name
-    name = f"{first_name} {last_name}".strip() or None
-    logger.info("VK ID auth: user_id=%s name=%s", vk_user_id, name)
-
-    # Find or create user
-    result = await db.execute(select(User).where(User.vk_id == vk_user_id))
-    user = result.scalar_one_or_none()
-
-    if user:
-        if not user.vk_id:
-            user.vk_id = vk_user_id
-        if name and not user.name:
-            user.name = name
-    else:
-        user = User(
-            email=f"vk_{vk_user_id}@placeholder.local",
-            hashed_password=hash_password(f"oauth_vk_{vk_user_id}"),
-            name=name,
-            vk_id=vk_user_id,
-            credits_free=10,
-        )
-        db.add(user)
-
-    await db.commit()
-    await db.refresh(user)
-
-    token = create_access_token(user.id, user.email)
-    return TokenResponse(
-        access_token=token,
-        user=UserInfo.model_validate(user),
-    )
-
+    response = RedirectResponse(settings.frontend_url, status_code=303)
+    response.delete_cookie(_state_cookie("yandex"), path="/api/auth/oauth")
+    _set_auth_cookie(response, create_access_token(user.id, user.email))
+    return response
 
 
 @router.get("/oauth/vk")
 async def oauth_vk():
-    """Redirect user to VK OAuth consent screen."""
-    params = {
-        "response_type": "code",
-        "client_id": settings.vk_client_id,
-        "redirect_uri": settings.vk_redirect_uri,
-        "v": "5.131",
-        "scope": "email",
-    }
-    url = f"https://oauth.vk.com/authorize?{urlencode(params)}"
-    return RedirectResponse(url=url)
+    if not settings.vk_client_id:
+        raise HTTPException(503, "РђРІС‚РѕСЂРёР·Р°С†РёСЏ VK РЅРµ РЅР°СЃС‚СЂРѕРµРЅР°")
+    state = secrets.token_urlsafe(32)
+    url = "https://oauth.vk.com/authorize?" + urlencode({
+        "response_type": "code", "client_id": settings.vk_client_id,
+        "redirect_uri": settings.vk_redirect_uri, "v": "5.131", "scope": "email", "state": state,
+    })
+    response = RedirectResponse(url=url)
+    _set_oauth_state(response, "vk", state)
+    return response
 
 
 @router.get("/oauth/vk/callback")
 async def oauth_vk_callback(
-    code: str = Query(None),
-    state: str = Query(None),
+    request: Request, code: str | None = Query(None), state: str | None = Query(None),
+    db: AsyncSession = Depends(get_db),
 ):
-    """VK OAuth callback - redirect to /callback for client-side JSONP exchange."""
+    _check_oauth_state(request, "vk", state)
     if not code:
-        raise HTTPException(status_code=400, detail="Код авторизации не получен")
+        raise HTTPException(400, "РљРѕРґ Р°РІС‚РѕСЂРёР·Р°С†РёРё РЅРµ РїРѕР»СѓС‡РµРЅ")
+    async with httpx.AsyncClient(timeout=15) as client:
+        token_response = await client.get("https://oauth.vk.com/access_token", params={
+            "client_id": settings.vk_client_id, "client_secret": settings.vk_client_secret,
+            "redirect_uri": settings.vk_redirect_uri, "code": code,
+        })
+        token_data = token_response.json()
+        if token_response.status_code != 200 or not token_data.get("access_token") or not token_data.get("user_id"):
+            logger.warning("VK token exchange failed status=%s", token_response.status_code)
+            raise HTTPException(400, "РћС€РёР±РєР° Р°РІС‚РѕСЂРёР·Р°С†РёРё VK")
+        vk_id = str(token_data["user_id"])
+        profile_response = await client.get("https://api.vk.com/method/users.get", params={
+            "access_token": token_data["access_token"], "user_ids": vk_id, "v": "5.131",
+        })
+        profiles = profile_response.json().get("response", [])
+        if not profiles:
+            raise HTTPException(400, "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ VK")
+        profile = profiles[0]
+    email = token_data.get("email") or f"vk_{vk_id}@placeholder.local"
+    name = f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip() or None
+    user = (await db.execute(select(User).where(User.vk_id == vk_id))).scalar_one_or_none()
+    user = user or await _existing_by_verified_email(db, email)
+    if user:
+        if user.vk_id and user.vk_id != vk_id:
+            raise HTTPException(409, "Email СѓР¶Рµ СЃРІСЏР·Р°РЅ СЃ РґСЂСѓРіРёРј VK ID")
+        user.vk_id = vk_id
+        user.name = user.name or name
+    else:
+        user = _new_oauth_user(email=email, name=name, vk_id=vk_id, registered_by="vk")
+    db.add(user)
+    await db.commit()
+    await db.refresh(user)
+    response = RedirectResponse(settings.frontend_url, status_code=303)
+    response.delete_cookie(_state_cookie("vk"), path="/api/auth/oauth")
+    _set_auth_cookie(response, create_access_token(user.id, user.email))
+    return response
 
-    logger.info("VK callback: redirecting to /callback (code len=%d)", len(code))
-    return RedirectResponse(url=f"/callback?code={code}&state={state or ''}")
