@@ -1,60 +1,56 @@
 """AI-Sphere FastAPI backend."""
 
 import logging
+import asyncio
+import json
+from datetime import datetime, timezone
 logger = logging.getLogger("ai-sphere")
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 
 from app.core.config import settings
-from app.core.database import engine
+from app.core.database import engine, async_session
 from app.core.limiter import limiter
+from app.core.admin_audit import admin_security_middleware
 from app.models.base import Base
-from app.api import auth, billing, chat, admin, public, tickets
+from app.api import auth, billing, chat, admin, public, tickets, generations, feedback, workspace, growth
+
+
+async def catalogue_sync_loop() -> None:
+    """Refresh OpenRouter in the background without delaying application startup."""
+    if not settings.openrouter_api_key:
+        return
+    await asyncio.sleep(60)
+    while True:
+        try:
+            async with async_session() as db:
+                result = await admin.auto_update_prices(None, db)
+                logger.info("Scheduled OpenRouter sync: %s", result)
+        except asyncio.CancelledError:
+            raise
+        except Exception as exc:
+            logger.warning("Scheduled OpenRouter sync failed: %s", exc)
+        await asyncio.sleep(6 * 60 * 60)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Create tables on startup + migrate existing DB."""
+    """Create tables for fresh development databases and seed missing defaults.
+
+    Existing production databases must be upgraded with Alembic before startup.
+    """
+    settings.data_dir.mkdir(parents=True, exist_ok=True)
+    settings.uploads_dir.mkdir(parents=True, exist_ok=True)
+    settings.generations_dir.mkdir(parents=True, exist_ok=True)
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-        def _migrate(sync_conn):
-            """Add new columns to users table if missing."""
-            from sqlalchemy import inspect
-            inspector = inspect(sync_conn)
-            cols = [c["name"] for c in inspector.get_columns("users")]
-            for col, col_type in [
-                ("last_daily_reset", "DATE"),
-                ("credits_paid", "INTEGER DEFAULT 0"),
-                ("credits_free", "INTEGER DEFAULT 0"),
-                ("credits_bonus", "INTEGER DEFAULT 0"),
-                ("credits_promo", "INTEGER DEFAULT 0"),
-                ("free_program_start", "DATE"),
-                ("free_program_days", "INTEGER DEFAULT 60"),
-                ("role_id", "INTEGER"),
-                ("total_spent_credits", "INTEGER DEFAULT 0"),
-                ("total_paid_rub", "INTEGER DEFAULT 0"),
-                ("request_count", "INTEGER DEFAULT 0"),
-                ("chat_count", "INTEGER DEFAULT 0"),
-                ("registered_by", "VARCHAR(50) DEFAULT 'email'"),
-                ("reg_ip", "VARCHAR(50)"),
-                ("reg_ua", "VARCHAR(500)"),
-                ("reg_source", "VARCHAR(255)"),
-                ("reg_utm", "VARCHAR(500)"),
-                ("referrer_id", "INTEGER"),
-                ("referral_code", "VARCHAR(50)"),
-            ]:
-                if col not in cols:
-                    sync_conn.exec_driver_sql(f"ALTER TABLE users ADD COLUMN {col} {col_type}")
-                    logger.info("Added column users.%s", col)
-
-        await conn.run_sync(_migrate)
+        if settings.environment.lower() != "production":
+            await conn.run_sync(Base.metadata.create_all)
 
         # Seed default data if empty
         from sqlalchemy import text
@@ -63,21 +59,25 @@ async def lifespan(app: FastAPI):
         from app.models.credit_plan import CreditPlan
         from app.models.promo import PromoCode
         from app.models.seo_page import SeoPage
+        from app.models.task_template import TaskTemplate
+        from app.models.product_growth import Mission, Survey, SurveyQuestion, Achievement
+        from app.models.app_setting import AppSetting
+        from app.core.gamification import DEFAULT_MISSIONS, DEFAULT_SURVEYS
 
         role_count = (await conn.execute(text("SELECT COUNT(*) FROM admin_roles"))).scalar()
         if role_count == 0:
             roles = [
-                Role(name="Суперадминистратор", description="Полный доступ",
+                Role(name="РЎСѓРїРµСЂР°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ", description="РџРѕР»РЅС‹Р№ РґРѕСЃС‚СѓРї",
                      permissions='{"*": "crud"}', is_system=True),
-                Role(name="Администратор", description="Управление пользователями и моделями",
+                Role(name="РђРґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ", description="РЈРїСЂР°РІР»РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРјРё Рё РјРѕРґРµР»СЏРјРё",
                      permissions='{"users": "crud", "models": "crud", "plans": "crud", "promo": "crud"}', is_system=True),
-                Role(name="Фин. менеджер", description="Финансы и платежи",
+                Role(name="Р¤РёРЅ. РјРµРЅРµРґР¶РµСЂ", description="Р¤РёРЅР°РЅСЃС‹ Рё РїР»Р°С‚РµР¶Рё",
                      permissions='{"payments": "crud", "plans": "r", "users": "r"}', is_system=True),
-                Role(name="Контент-менеджер", description="SEO и контент",
+                Role(name="РљРѕРЅС‚РµРЅС‚-РјРµРЅРµРґР¶РµСЂ", description="SEO Рё РєРѕРЅС‚РµРЅС‚",
                      permissions='{"content": "crud"}', is_system=True),
-                Role(name="Техподдержка", description="Пользователи и обращения",
+                Role(name="РўРµС…РїРѕРґРґРµСЂР¶РєР°", description="РџРѕР»СЊР·РѕРІР°С‚РµР»Рё Рё РѕР±СЂР°С‰РµРЅРёСЏ",
                      permissions='{"users": "r", "chats": "r"}', is_system=True),
-                Role(name="Аналитик", description="Только чтение",
+                Role(name="РђРЅР°Р»РёС‚РёРє", description="РўРѕР»СЊРєРѕ С‡С‚РµРЅРёРµ",
                      permissions='{"*": "r"}', is_system=True),
             ]
             for r in roles:
@@ -135,19 +135,38 @@ async def lifespan(app: FastAPI):
                 ), {"name": m[0], "or_id": m[1], "prov": m[2], "cat": m[3],
                     "pi": m[4], "po": m[5], "max_in": m[6], "max_out": m[7], "vis": m[8]})
             logger.info("Seeded %d initial models", len(models))
+            await conn.execute(text("UPDATE ai_models SET input_modalities = '[\"text\",\"image\"]' WHERE vision = 1"))
             # Set fixed_price for image models
             await conn.execute(text(
-                "UPDATE ai_models SET fixed_price = 40 WHERE or_model_id = 'google/gemini-3.1-flash-lite-image'"
+                "UPDATE ai_models SET fixed_price = 40, output_modalities = '[\"image\"]', "
+                "input_modalities = '[\"text\"]', auto_route_enabled = 1 "
+                "WHERE or_model_id = 'google/gemini-3.1-flash-lite-image'"
             ))
             logger.info("Set fixed_price=40 for Gemini 3.1 Flash Lite Image")
+
+        # Idempotent seed by stable provider ID. Never overwrite admin changes.
+        default_model_id = "deepseek/deepseek-v4-flash"
+        default_exists = (await conn.execute(
+            text("SELECT COUNT(*) FROM ai_models WHERE or_model_id = :model_id"),
+            {"model_id": default_model_id},
+        )).scalar()
+        if not default_exists:
+            await conn.execute(AiModel.__table__.insert().values(
+                name="DeepSeek V4 Flash", description="DeepSeek V4 Flash",
+                or_model_id=default_model_id, provider="DeepSeek", category="fast",
+                price_input=1, price_output=2, max_input_tokens=65536,
+                max_output_tokens=4096, max_context=65536, is_active=True,
+                is_visible=True, vision=False, sort_order=10,
+            ))
+            logger.info("Seeded missing default model %s", default_model_id)
 
         plan_count = (await conn.execute(text("SELECT COUNT(*) FROM credit_plans"))).scalar()
         if plan_count == 0:
             plans = [
-                ("Стартовый", 5000, 500, 0, None, None, 1),
-                ("Базовый", 25000, 2500, 0, None, None, 2),
-                ("Популярный", 100000, 10000, 1500, 115000, "+15%", 3),
-                ("Премиум", 250000, 25000, 5000, 300000, "+20%", 4),
+                ("РЎС‚Р°СЂС‚РѕРІС‹Р№", 5000, 500, 0, None, None, 1),
+                ("Р‘Р°Р·РѕРІС‹Р№", 25000, 2500, 0, None, None, 2),
+                ("РџРѕРїСѓР»СЏСЂРЅС‹Р№", 100000, 10000, 1500, 115000, "+15%", 3),
+                ("РџСЂРµРјРёСѓРј", 250000, 25000, 5000, 300000, "+20%", 4),
             ]
             for p in plans:
                 await conn.execute(text(
@@ -159,7 +178,82 @@ async def lifespan(app: FastAPI):
                 ), {"name": p[0], "price": p[1], "credits": p[2], "bonus": p[3],
                     "old_price": p[4], "badge": p[5], "order": p[6]})
             logger.info("Seeded %d credit plans", len(plans))
-    yield
+        template_count = (await conn.execute(text("SELECT COUNT(*) FROM task_templates"))).scalar()
+        if template_count == 0:
+            from app.core.task_templates import DEFAULT_TASK_TEMPLATES
+            templates = [template for template in DEFAULT_TASK_TEMPLATES if template["slug"] != "improve-text"]
+            for template in templates:
+                await conn.execute(TaskTemplate.__table__.insert().values(**template))
+            logger.info("Seeded %d task templates", len(templates))
+        # The launch catalogue intentionally contains twelve mass-market tasks.
+        # Editing is covered by the combined write/improve scenario.
+        await conn.execute(text("UPDATE task_templates SET is_active = 0 WHERE slug = 'improve-text'"))
+        await conn.execute(text("UPDATE task_templates SET title = :title, description = :description WHERE slug = 'write-text'"), {
+            "title": "РќР°РїРёСЃР°С‚СЊ РёР»Рё СѓР»СѓС‡С€РёС‚СЊ С‚РµРєСЃС‚",
+            "description": "РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ С‚РµРєСЃС‚ РёР»Рё РѕС‚СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ РіРѕС‚РѕРІС‹Р№",
+        })
+        mission_count = (await conn.execute(text("SELECT COUNT(*) FROM missions"))).scalar()
+        if mission_count == 0:
+            for item in DEFAULT_MISSIONS:
+                await conn.execute(Mission.__table__.insert().values(
+                    code=item["code"], title=item["title"], description=item["description"],
+                    criteria_json=json.dumps(item["criteria"], ensure_ascii=False),
+                    reward_credits=item["credits"], reward_xp=item["xp"], period=item["period"],
+                    is_active=True, sort_order=item["order"],
+                ))
+        survey_count = (await conn.execute(text("SELECT COUNT(*) FROM surveys"))).scalar()
+        if survey_count == 0:
+            for item in DEFAULT_SURVEYS:
+                result = await conn.execute(Survey.__table__.insert().values(
+                    code=item["code"], title=item["title"], trigger_event=item["trigger"],
+                    status="active", is_critical=item["critical"], frequency_days=14,
+                ))
+                survey_id = result.inserted_primary_key[0]
+                await conn.execute(SurveyQuestion.__table__.insert().values(
+                    survey_id=survey_id, prompt=item["question"], question_type="single",
+                    options_json=json.dumps(item["options"], ensure_ascii=False), sort_order=10,
+                ))
+        achievement_count = (await conn.execute(text("SELECT COUNT(*) FROM achievements"))).scalar()
+        if achievement_count == 0:
+            for code, title, description, icon in (
+                ("first-result", "РџРµСЂРІС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚", "РџРѕР»СѓС‡РµРЅ РїРµСЂРІС‹Р№ РїРѕР»РµР·РЅС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚", "вњ¦"),
+                ("explorer", "РСЃСЃР»РµРґРѕРІР°С‚РµР»СЊ", "РћСЃРІРѕРµРЅС‹ С‚СЂРё СЂР°Р·РЅС‹С… СЃС†РµРЅР°СЂРёСЏ", "в—‡"),
+                ("project-master", "РњР°СЃС‚РµСЂ РїСЂРѕС†РµСЃСЃРѕРІ", "Р—Р°РІРµСЂС€С‘РЅ РјРЅРѕРіРѕС€Р°РіРѕРІС‹Р№ РїСЂРѕРµРєС‚", "в—†"),
+            ):
+                await conn.execute(Achievement.__table__.insert().values(
+                    code=code, title=title, description=description, icon=icon,
+                    criteria_json="{}", is_active=True,
+                ))
+        baseline_exists = (await conn.execute(text("SELECT COUNT(*) FROM app_settings WHERE key = 'analytics_v2_baseline'"))).scalar()
+        if not baseline_exists:
+            await conn.execute(AppSetting.__table__.insert().values(
+                key="analytics_v2_baseline", value=datetime.now(timezone.utc).isoformat(),
+            ))
+
+    from app.api.generations import media_cleanup_loop
+    from app.core.retention import cleanup_expired_history, retention_cleanup_loop
+    await cleanup_expired_history()
+    cleanup_task = asyncio.create_task(media_cleanup_loop())
+    retention_task = asyncio.create_task(retention_cleanup_loop())
+    catalogue_task = asyncio.create_task(catalogue_sync_loop())
+    try:
+        yield
+    finally:
+        cleanup_task.cancel()
+        retention_task.cancel()
+        catalogue_task.cancel()
+        try:
+            await cleanup_task
+        except asyncio.CancelledError:
+            pass
+        try:
+            await retention_task
+        except asyncio.CancelledError:
+            pass
+        try:
+            await catalogue_task
+        except asyncio.CancelledError:
+            pass
 
 
 app = FastAPI(
@@ -185,6 +279,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.middleware("http")(admin_security_middleware)
+
+
+@app.middleware("http")
+async def enforce_allowed_origin(request: Request, call_next):
+    """Require an allowlisted Origin for mutations, except provider callbacks."""
+    if request.method not in {"GET", "HEAD", "OPTIONS"} and request.url.path != "/api/billing/webhook":
+        origin = request.headers.get("origin")
+        if not origin or origin.rstrip("/") not in settings.allowed_origins:
+            return JSONResponse({"detail": "Origin is not allowed"}, status_code=403)
+    return await call_next(request)
+
 # Routers
 app.include_router(auth.router)
 app.include_router(billing.router)
@@ -192,13 +298,12 @@ app.include_router(chat.router)
 app.include_router(admin.router)
 app.include_router(public.router)
 app.include_router(tickets.router)
-
-# Serve uploaded files
-uploads_dir = Path("uploads")
-uploads_dir.mkdir(exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
-
+app.include_router(generations.router)
+app.include_router(feedback.router)
+app.include_router(workspace.router)
+app.include_router(growth.router)
 
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "app": settings.app_name}
+
