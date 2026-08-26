@@ -3,8 +3,9 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import QuickActions from './QuickActions';
 import ChatPlaceholder from './ChatPlaceholder';
-import { apiCall, checkFacts, uploadFile, punctuateText, ensembleChat, sendFeedback, prepareRegenerateMessages, type FactCheckResult, type ContentPart, type ChatMessage } from '@/lib/api';
-import { categories, allModels, DEFAULT_MODEL_ID, getCategoryByModelId, isVisionCapable, filterVisionModels, loadModelsFromApi, subscribeToModelsUpdates } from '@/lib/models-data';
+import TaskHub from './TaskHub';
+import { checkFacts, uploadFile, punctuateText, ensembleChat, sendFeedback, getGeneration, estimateTask, recordProductEvent, type GenerationInfo, type FactCheckResult, type ContentPart, type ChatMessage, type TaskEstimate, type TaskRunContext, type TaskTemplate } from '@/lib/api';
+import { categories, allModels, DEFAULT_MODEL_ID, isVisionCapable, filterVisionModels, loadModelsFromApi, subscribeToModelsUpdates, type ModelItem } from '@/lib/models-data';
 
 // Read a File as a base64 data URL
 function readFileAsDataURL(file: File): Promise<string> {
@@ -22,6 +23,7 @@ function DownloadableImage({ src: imageUrl, alt, className, style }: { src: stri
     e.stopPropagation();
     e.preventDefault();
     if (!imageUrl) return;
+    void recordProductEvent({ event_name: 'result_downloaded', metadata: { result_kind: 'image' } });
     try {
       const res = await fetch(imageUrl);
       const blob = await res.blob();
@@ -41,7 +43,7 @@ function DownloadableImage({ src: imageUrl, alt, className, style }: { src: stri
   return (
     <div className="chat__image-wrapper">
       <img src={imageUrl} alt={alt || 'image'} className={className} style={style} />
-      <button className="chat__image-download-btn" onClick={handleDownload} title="Скачать">
+      <button className="chat__image-download-btn" onClick={handleDownload} title="РЎРєР°С‡Р°С‚СЊ">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
           <polyline points="7 10 12 15 17 10" />
@@ -52,14 +54,108 @@ function DownloadableImage({ src: imageUrl, alt, className, style }: { src: stri
   );
 }
 
+function GenerationCard({ initial }: { initial: GenerationInfo }) {
+  const [generation, setGeneration] = useState(initial);
+  const [lightbox, setLightbox] = useState<string | null>(null);
+  const closeLightboxRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!lightbox) return;
+    closeLightboxRef.current?.focus();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setLightbox(null);
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [lightbox]);
+
+  useEffect(() => {
+    if (!['pending', 'processing'].includes(generation.status)) return;
+    let active = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const poll = async () => {
+      try {
+        const fresh = await getGeneration(generation.id);
+        if (!active) return;
+        setGeneration(fresh);
+        if (['pending', 'processing'].includes(fresh.status)) timer = setTimeout(poll, 5000);
+      } catch {
+        if (active) timer = setTimeout(poll, 10000);
+      }
+    };
+    timer = setTimeout(poll, 2000);
+    return () => { active = false; if (timer) clearTimeout(timer); };
+  }, [generation.id, generation.status]);
+
+  const statusLabel: Record<GenerationInfo['status'], string> = {
+    pending: 'Р’ РѕС‡РµСЂРµРґРё', processing: 'РЎРѕР·РґР°С‘Рј', completed: 'Р“РѕС‚РѕРІРѕ',
+    failed: 'РћС€РёР±РєР°', expired: 'РЎСЂРѕРє С…СЂР°РЅРµРЅРёСЏ РёСЃС‚С‘Рє',
+  };
+
+  return (
+    <section className={`chat__generation-card chat__generation-card--${generation.status}`} aria-live="polite">
+      <header className="chat__generation-header">
+        <div>
+          <strong>{generation.kind === 'image' ? 'РР·РѕР±СЂР°Р¶РµРЅРёРµ' : 'Р’РёРґРµРѕ'}</strong>
+          <span>РЎРіРµРЅРµСЂРёСЂРѕРІР°РЅРѕ С‡РµСЂРµР· {generation.effective_model_name}</span>
+        </div>
+        <span className="chat__generation-status">{statusLabel[generation.status]}</span>
+      </header>
+      {['pending', 'processing'].includes(generation.status) && (
+        <div className="chat__generation-loading"><span />Р“РµРЅРµСЂР°С†РёСЏ РјРѕР¶РµС‚ Р·Р°РЅСЏС‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ РјРёРЅСѓС‚</div>
+      )}
+      {generation.status === 'failed' && <div className="chat__generation-error">{generation.error || 'РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚'}</div>}
+      {generation.status === 'expired' && <div className="chat__generation-error">Р¤Р°Р№Р» СѓРґР°Р»С‘РЅ РїРѕСЃР»Рµ 30 РґРЅРµР№ С…СЂР°РЅРµРЅРёСЏ.</div>}
+      {generation.status === 'completed' && (
+        <div className="chat__generation-assets">
+          {generation.assets.map(asset => asset.type === 'image' ? (
+            <div className="chat__generation-asset" key={asset.id}>
+              <button className="chat__generation-preview" onClick={() => setLightbox(asset.url)} aria-label="РћС‚РєСЂС‹С‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ">
+                <img src={asset.url} alt="РЎРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ" />
+              </button>
+              <a className="chat__generation-download" href={asset.url} download onClick={() => void recordProductEvent({event_name:'result_downloaded',model:generation.effective_model,metadata:{result_kind:'image'}})}>РЎРєР°С‡Р°С‚СЊ</a>
+            </div>
+          ) : (
+            <div className="chat__generation-asset" key={asset.id}>
+              <video src={asset.url} controls playsInline preload="metadata" />
+              <a className="chat__generation-download" href={asset.url} download onClick={() => void recordProductEvent({event_name:'result_downloaded',model:generation.effective_model,metadata:{result_kind:'video'}})}>РЎРєР°С‡Р°С‚СЊ РІРёРґРµРѕ</a>
+            </div>
+          ))}
+        </div>
+      )}
+      <footer className="chat__generation-meta">
+        {Object.values(generation.parameters).filter(value => value !== false).map(String).join(' В· ')}
+        {generation.credits_spent > 0 ? ` В· ${generation.credits_spent} РєСЂРµРґРёС‚РѕРІ` : ''}
+      </footer>
+      {lightbox && (
+        <div className="chat__lightbox" role="dialog" aria-modal="true" onClick={() => setLightbox(null)}>
+          <button ref={closeLightboxRef} onClick={() => setLightbox(null)} aria-label="Р—Р°РєСЂС‹С‚СЊ">Г—</button>
+          <img src={lightbox} alt="РЎРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РєСЂСѓРїРЅС‹Рј РїР»Р°РЅРѕРј" onClick={event => event.stopPropagation()} />
+        </div>
+      )}
+    </section>
+  );
+}
+
 // Extract plain text from a message content (string or content array)
 function getMessageText(content: string | { type: string; [key: string]: any }[]): string {
   if (typeof content === 'string') return content;
   if (Array.isArray(content)) {
     const textPart = content.find(p => p.type === 'text');
-    return textPart?.text || '[изображение]';
+    return textPart?.text || '[РёР·РѕР±СЂР°Р¶РµРЅРёРµ]';
   }
   return '';
+}
+
+function capabilityTags(model: ModelItem): string[] {
+  const tags: string[] = [];
+  if (model.outputModalities?.includes('text')) tags.push('РўРµРєСЃС‚');
+  if (model.inputModalities?.includes('image')) tags.push('Р¤РѕС‚Рѕ-РІС…РѕРґ');
+  if (model.outputModalities?.includes('image')) tags.push('РљР°СЂС‚РёРЅРєРё');
+  if (model.inputModalities?.includes('video')) tags.push('Р’РёРґРµРѕ-РІС…РѕРґ');
+  if (model.outputModalities?.includes('video')) tags.push('Р’РёРґРµРѕ');
+  if (model.inputModalities?.includes('file')) tags.push('PDF');
+  return tags.length ? tags : ['РўРµРєСЃС‚'];
 }
 
 // Renders message content: text + images for content arrays
@@ -75,12 +171,7 @@ function RenderContent({ content, role }: { content: string | { type: string; [k
     ? content.filter(p => p.type === 'image_url' && p.image_url?.url).map(p => p.image_url.url)
     : [];
 
-  // [LOG] Track image content
-  if (typeof content === 'string' && content.includes('![generated]')) {
-    console.debug('[RenderContent] content includes ![generated]:', content.slice(0, 200));
-  }
-
-  // Parse ![generated](url) from markdown text — extract as real image URLs
+  // Parse ![generated](url) from markdown text вЂ” extract as real image URLs
   const generatedImages: string[] = [];
   let cleanContent = textContent;
   if (typeof textContent === 'string') {
@@ -88,7 +179,6 @@ function RenderContent({ content, role }: { content: string | { type: string; [k
     let match;
     while ((match = genRegex.exec(textContent)) !== null) {
       generatedImages.push(match[1]);
-      console.debug('[RenderContent] extracted generated image URL:', match[1].slice(0, 100));
     }
     // Remove ![generated] markers so ReactMarkdown doesn't try to render them again
     cleanContent = textContent.replace(genRegex, '').trim();
@@ -116,7 +206,6 @@ function RenderContent({ content, role }: { content: string | { type: string; [k
                 );
               },
               img({ src, alt }) {
-                console.debug('[RenderContent] ReactMarkdown rendering img:', src ? src.slice(0, 80) : 'no src');
                 return <DownloadableImage src={String(src || '')} alt={alt || ''} className="chat__message-image" style={{ maxWidth: '100%', maxHeight: 300, borderRadius: 8, marginTop: 4, objectFit: 'contain' }} />;
               },
               a({ href, children }) {
@@ -151,7 +240,7 @@ function RenderContent({ content, role }: { content: string | { type: string; [k
     );
   }
 
-  // User message — plain text
+  // User message вЂ” plain text
   if (typeof content === 'string') {
     return <div className="chat__message-content chat__message-content--user">{content}</div>;
   }
@@ -183,11 +272,11 @@ interface ChatSectionProps {
   isMobile: boolean;
   sidebarOpen: boolean;
   isLoggedIn: boolean;
-  onSendMessage: (text: string, files?: FileItem[]) => void;
+  onSendMessage: (text: string, files?: FileItem[], context?: TaskRunContext) => void;
   onOpenAuth: () => void;
   onToggleSidebar: () => void;
   onUpdateModel: (modelId: string) => void;
-  messages: { role: string; content: string | { type: string; [key: string]: any }[] }[];
+  messages: ChatMessage[];
   sending?: boolean;
   thinkingText?: string;
   chatActive?: boolean;
@@ -197,6 +286,8 @@ interface ChatSectionProps {
   onActivateChat?: () => void;
   onRegenerate?: () => void;
   currentSessionId?: string | null;
+  userCredits?: number;
+  onOpenPricing?: () => void;
 }
 
 interface FileItem {
@@ -205,16 +296,25 @@ interface FileItem {
   size: number;
   url: string;
   dataUrl?: string;
+  type?: string;
+  extractedText?: string;
   uploading?: boolean;
   error?: string;
 }
 
-export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendMessage, onOpenAuth, onToggleSidebar, onUpdateModel, messages = [], sending = false, thinkingText = '', chatActive = false, onDeleteChat, onShareChat, onEnsembleResult, onActivateChat, onRegenerate, currentSessionId }: ChatSectionProps) {
+export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLoggedIn, onSendMessage, onOpenAuth, onToggleSidebar, onUpdateModel, messages = [], sending = false, thinkingText = '', chatActive = false, onDeleteChat, onShareChat: _onShareChat, onEnsembleResult, onActivateChat, onRegenerate, currentSessionId, userCredits, onOpenPricing }: ChatSectionProps) {
   const [modelSelectOpen, setModelSelectOpen] = useState(false);
   const [modelSearch, setModelSearch] = useState('');
-  const [selectedModel, setSelectedModel] = useState(
+  const [capabilityFilter, setCapabilityFilter] = useState('all');
+  const [selectedModel, setSelectedModel] = useState<ModelItem | null>(
     allModels.find(m => m.id === DEFAULT_MODEL_ID) || allModels[0]
   );
+  const [autoModel, setAutoModel] = useState(true);
+  const [activeTemplate, setActiveTemplate] = useState<TaskTemplate | null>(null);
+  const [estimate, setEstimate] = useState<TaskEstimate | null>(null);
+  const [estimateLoading, setEstimateLoading] = useState(false);
+  const [mediaPreferences, setMediaPreferences] = useState<Record<string, unknown>>({});
+  const currentModel: ModelItem = selectedModel ?? { id: '', name: 'Р—Р°РіСЂСѓР·РєР° РјРѕРґРµР»РµР№вЂ¦', price: 0 };
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [likedMessages, setLikedMessages] = useState<Set<number>>(new Set());
   const [dislikedMessages, setDislikedMessages] = useState<Set<number>>(new Set());
@@ -230,6 +330,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
   const searchInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const estimateTrackedRef = useRef<Set<number>>(new Set());
   const [headerModalOpen, setHeaderModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [userStarted, setUserStarted] = useState(false);
@@ -238,20 +339,79 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
   const [factCheckLoading, setFactCheckLoading] = useState<number | null>(null);
   const [ensembleLoading, setEnsembleLoading] = useState(false);
   const [ensembleError, setEnsembleError] = useState<string | null>(null);
-  const [modelsReady, setModelsReady] = useState(false);
+  const [uiError, setUiError] = useState<string | null>(null);
   const [, forceUpdate] = useState(0);
+
+  const taskContext = useCallback((): TaskRunContext | undefined => activeTemplate ? ({
+    templateId: activeTemplate.id,
+    taskType: activeTemplate.task_type,
+    mediaPreferences,
+  }) : undefined, [activeTemplate, mediaPreferences]);
+
+  const handleSelectTemplate = useCallback((template: TaskTemplate) => {
+    setActiveTemplate(template);
+    setMediaPreferences(template.default_parameters || {});
+    setAutoModel(true);
+    onUpdateModel('auto');
+    setUserStarted(true);
+  }, [onUpdateModel]);
+
+  useEffect(() => {
+    if (!activeTemplate) {
+      setEstimate(null);
+      return;
+    }
+    let active = true;
+    const timer = setTimeout(() => {
+      setEstimateLoading(true);
+      estimateTask({
+        template_id: activeTemplate.id,
+        task_type: activeTemplate.task_type,
+        model: autoModel ? 'auto' : currentModel.id,
+        prompt: message,
+        media_preferences: mediaPreferences,
+      }).then(value => {
+        if (active) {
+          setEstimate(value);
+          if (!estimateTrackedRef.current.has(activeTemplate.id)) {
+            estimateTrackedRef.current.add(activeTemplate.id);
+            void recordProductEvent({
+              event_name: 'estimate_viewed', template_id: activeTemplate.id,
+              task_type: activeTemplate.task_type, model: value.effective_model,
+              metadata: { credits: value.exact ? value.credits_min : `${value.credits_min}-${value.credits_max}` },
+            });
+          }
+        }
+      }).catch(() => {
+        if (active) setEstimate(null);
+      }).finally(() => {
+        if (active) setEstimateLoading(false);
+      });
+    }, 250);
+    return () => { active = false; clearTimeout(timer); };
+  }, [activeTemplate, autoModel, currentModel.id, mediaPreferences, message]);
+
+  useEffect(() => {
+    const closeOverlays = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setModelSelectOpen(false);
+      setHeaderModalOpen(false);
+      setShareModalOpen(false);
+      setVisionAlert(null);
+    };
+    document.addEventListener('keydown', closeOverlays);
+    return () => document.removeEventListener('keydown', closeOverlays);
+  }, []);
 
   // Load models from API on mount (async update)
   useEffect(() => {
     loadModelsFromApi().then(() => {
-      setModelsReady(true);
-      // Sync selectedModel if current model exists in updated list
-      if (selectedModel) {
-        const updated = allModels.find(m => m.id === selectedModel.id);
-        if (updated) setSelectedModel(updated);
-      }
+      const updated = allModels.find(m => m.id === selectedModel?.id)
+        || allModels.find(m => m.id === DEFAULT_MODEL_ID)
+        || allModels[0];
+      if (updated) setSelectedModel(updated);
     });
-  }, []);
+  }, [selectedModel?.id]);
 
   // Auto-poll models every 60s and react to admin price changes
   useEffect(() => {
@@ -277,15 +437,23 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
     const selected = e.target.files;
     if (!selected || selected.length === 0) return;
 
-    // Check for image files when model doesn't support vision
+    setUiError(null);
+    // Check multimodal input compatibility before uploading large files.
     const isImageFile = (f: File) => f.type.startsWith('image/');
+    const isVideoFile = (f: File) => f.type.startsWith('video/');
     const hasImages = Array.from(selected).some(isImageFile);
-    if (hasImages && !isVisionCapable(selectedModel.id)) {
+    const hasVideos = Array.from(selected).some(isVideoFile);
+    if (hasImages && !autoModel && !isVisionCapable(currentModel.id)) {
       const visionModels = filterVisionModels();
       setVisionAlert({
-        modelName: selectedModel.name,
+        modelName: currentModel.name,
         visionModels: visionModels.slice(0, 5),
       });
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+    if (hasVideos && !currentModel.inputModalities?.includes('video')) {
+      setUiError(`РњРѕРґРµР»СЊ В«${currentModel.name}В» РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ Р°РЅР°Р»РёР· РІРёРґРµРѕ. Р’С‹Р±РµСЂРёС‚Рµ РјРѕРґРµР»СЊ СЃ С‚РµРіРѕРј В«Р’РёРґРµРѕ-РІС…РѕРґВ».`);
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -300,9 +468,9 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
 
       try {
         const dataUrl = await readFileAsDataURL(file);
-        const result = await uploadFile(file);
+        const result = await uploadFile(file, currentSessionId);
         const idx = newFiles.length - 1;
-        newFiles[idx] = { ...result, uploading: false, dataUrl };
+        newFiles[idx] = { ...result, uploading: false, dataUrl, extractedText: result.extracted_text };
       } catch (err: any) {
         const idx = newFiles.length - 1;
         newFiles[idx] = { ...newFiles[idx], uploading: false, error: err.message };
@@ -316,12 +484,6 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
 
   const removeFile = (fileId: string) => {
     setFiles(prev => prev.filter(f => f.id !== fileId));
-  };
-
-  const formatSize = (bytes: number): string => {
-    if (bytes < 1024) return `${bytes} Б`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} КБ`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`;
   };
 
   // Close model select on click outside
@@ -350,25 +512,32 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
   }, [messages]);
 
   // Filter categories by search query
-  const filteredCategories = modelSearch.trim()
-    ? categories
-        .map(cat => ({
-          ...cat,
-          models: cat.models.filter(m =>
-            m.name.toLowerCase().includes(modelSearch.toLowerCase())
-          ),
-        }))
-        .filter(cat => cat.models.length > 0)
-    : categories;
+  const filteredCategories = categories
+    .map(cat => ({
+      ...cat,
+      models: cat.models.filter(m =>
+        m.name.toLowerCase().includes(modelSearch.toLowerCase()) &&
+        (capabilityFilter === 'all' || m.inputModalities?.includes(capabilityFilter) || m.outputModalities?.includes(capabilityFilter))
+      ),
+    }))
+    .filter(cat => cat.models.length > 0);
 
   const handleSelectModel = (model: typeof allModels[0]) => {
     setSelectedModel(model);
+    setAutoModel(false);
     onUpdateModel(model.id);
     setModelSelectOpen(false);
     setModelSearch('');
   };
 
-  // ──────────────── Voice Input ────────────────
+  const handleSelectAuto = () => {
+    setAutoModel(true);
+    onUpdateModel('auto');
+    setModelSelectOpen(false);
+    setModelSearch('');
+  };
+
+  // в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Voice Input в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 
   const startVoiceInput = useCallback(() => {
     if (!isLoggedIn) {
@@ -378,12 +547,12 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
 
     const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognitionAPI) {
-      alert('Голосовой ввод не поддерживается в этом браузере. Используйте Chrome или Edge.');
+      setUiError('Р“РѕР»РѕСЃРѕРІРѕР№ РІРІРѕРґ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ РІ СЌС‚РѕРј Р±СЂР°СѓР·РµСЂРµ. РСЃРїРѕР»СЊР·СѓР№С‚Рµ Chrome РёР»Рё Edge.');
       return;
     }
 
     if (isRecording) {
-      // Stop recording — clear ref so onend doesn't auto-restart
+      // Stop recording вЂ” clear ref so onend doesn't auto-restart
       recognitionRef.current?.stop();
       recognitionRef.current = null;
       setIsRecording(false);
@@ -396,7 +565,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
     // continuous=false + manual restart in onend avoids Chrome duplicate-result bug
     recognition.continuous = false;
 
-    // Accumulated final transcript — persists across manual restarts
+    // Accumulated final transcript вЂ” persists across manual restarts
     let accumulatedFinal = '';
     // Client-side silence detection: stop if no new results for 2 seconds
     // (Chrome's SpeechRecognition may not fire onend reliably on its own)
@@ -425,13 +594,12 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
     };
 
     recognition.onerror = (event: any) => {
-      console.error('[Voice] Error:', event.error);
       if (event.error === 'not-allowed') {
-        alert('Доступ к микрофону запрещён. Разрешите доступ в настройках браузера.');
+        setUiError('Р”РѕСЃС‚СѓРї Рє РјРёРєСЂРѕС„РѕРЅСѓ Р·Р°РїСЂРµС‰С‘РЅ. Р Р°Р·СЂРµС€РёС‚Рµ РґРѕСЃС‚СѓРї РІ РЅР°СЃС‚СЂРѕР№РєР°С… Р±СЂР°СѓР·РµСЂР°.');
       } else if (event.error === 'no-speech') {
-        // Silent — user just didn't speak
+        // Silent вЂ” user just didn't speak
       } else {
-        alert(`Ошибка распознавания: ${event.error}`);
+        setUiError(`РћС€РёР±РєР° СЂР°СЃРїРѕР·РЅР°РІР°РЅРёСЏ: ${event.error}`);
       }
       setIsRecording(false);
     };
@@ -450,7 +618,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
       setIsRecording(false);
 
       if (rawText && isNaturalEnd) {
-        // Natural silence — punctuate the transcript and auto-send
+        // Natural silence вЂ” punctuate the transcript and auto-send
         punctuateText(rawText).then(result => {
           setMessage(result);
           // Small delay so the punctuated text is briefly visible, then auto-send
@@ -472,7 +640,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
     setIsRecording(true);
   }, [isLoggedIn, onOpenAuth, isRecording]);
 
-  // ──────────────── Fact Check ────────────────
+  // в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Fact Check в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
 
   const handleFactCheck = async (idx: number, msg: { role: string; content: string | any[] }) => {
     if (factCheckResults[idx] || factCheckLoading !== null) return;
@@ -485,7 +653,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
         : '';
       const responseText = typeof msg.content === 'string' ? msg.content : msg.content.map(p => p.text || '').join(' ');
 
-      const result = await checkFacts(selectedModel.id, prompt, responseText);
+      const result = await checkFacts(currentModel.id, prompt, responseText);
       setFactCheckResults(prev => ({ ...prev, [idx]: result }));
     } catch (e: any) {
       setFactCheckResults(prev => ({
@@ -532,25 +700,36 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
       clearTimeout(timeoutId);
       onEnsembleResult(text, currentFiles, result);
     } catch (e: any) {
-      console.error('[Ensemble] Error:', e);
       if (e.name === 'AbortError') {
-        setEnsembleError('Таймаут: модели не ответили за 60 секунд. Попробуйте ещё раз.');
+        setEnsembleError('РўР°Р№РјР°СѓС‚: РјРѕРґРµР»Рё РЅРµ РѕС‚РІРµС‚РёР»Рё Р·Р° 60 СЃРµРєСѓРЅРґ. РџРѕРїСЂРѕР±СѓР№С‚Рµ РµС‰С‘ СЂР°Р·.');
       } else {
-        setEnsembleError(e.message || 'Ошибка при запросе Ensemble');
+        setEnsembleError(e.message || 'РћС€РёР±РєР° РїСЂРё Р·Р°РїСЂРѕСЃРµ Ensemble');
       }
     } finally {
       setEnsembleLoading(false);
     }
   }, [message, files, ensembleLoading, isLoggedIn, onEnsembleResult, onActivateChat]);
 
+  if (!selectedModel) {
+    return (
+      <main className="chat">
+        <div className="chat__placeholder">
+          <h1 className="chat__title">Р РµС€РёС‚Рµ Р·Р°РґР°С‡Сѓ СЃ AI вЂ” Р±РµР· СЃР»РѕР¶РЅС‹С… РЅР°СЃС‚СЂРѕРµРє</h1>
+          <p>Р Р°Р±РѕС‚Р°Р№С‚Рµ СЃ С‚РµРєСЃС‚РѕРј, РґРѕРєСѓРјРµРЅС‚Р°РјРё, РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё Рё РІРёРґРµРѕ РІ РѕРґРЅРѕРј РёРЅС‚РµСЂС„РµР№СЃРµ.</p>
+          <span aria-live="polite">Р—Р°РіСЂСѓР·РєР° РґРѕСЃС‚СѓРїРЅС‹С… РјРѕРґРµР»РµР№вЂ¦</span>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className={`chat ${chatActive || (isLoggedIn && messages.length > 0) ? 'chat--active' : ''}`}>
-      {/* Mobile header — always rendered, visibility via CSS */}
+      {/* Mobile header вЂ” always rendered, visibility via CSS */}
       <div className="chat__mobile-header">
         <button
           className="chat__mobile-menu-btn"
           onClick={onToggleSidebar}
-          aria-label={sidebarOpen ? 'Закрыть меню' : 'Открыть меню'}
+          aria-label={sidebarOpen ? 'Р—Р°РєСЂС‹С‚СЊ РјРµРЅСЋ' : 'РћС‚РєСЂС‹С‚СЊ РјРµРЅСЋ'}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="3" width="18" height="18" rx="3" />
@@ -558,26 +737,28 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
           </svg>
         </button>
         <span className="chat__mobile-logo">AI-Sphere</span>
-        <button className="chat__mobile-menu-btn" aria-label="Меню" onClick={() => setHeaderModalOpen(true)}>
+        <div className="chat__mobile-actions">
+        {isLoggedIn && <button className="chat__mobile-balance" onClick={onOpenPricing} aria-label="РџРѕРїРѕР»РЅРёС‚СЊ Р±Р°Р»Р°РЅСЃ">{(userCredits || 0).toLocaleString('ru-RU')} РєСЂ. пј‹</button>}
+        <button className="chat__mobile-menu-btn" aria-label="РњРµРЅСЋ" onClick={() => setHeaderModalOpen(true)}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="12" cy="5" r="2" />
             <circle cx="12" cy="12" r="2" />
             <circle cx="12" cy="19" r="2" />
           </svg>
         </button>
+        </div>
       </div>
 
       {!chatActive && messages.length === 0 ? (
         <div className="chat__welcome">
-          <h1 className="chat__title">AI-Sphere — нейросети в одном чате без VPN</h1>
+          <h1 className="chat__title">Р РµС€РёС‚Рµ Р·Р°РґР°С‡Сѓ СЃ AI вЂ” Р±РµР· РІС‹Р±РѕСЂР° СЃР»РѕР¶РЅС‹С… РЅР°СЃС‚СЂРѕРµРє</h1>
           <p className="chat__subtitle">
-            ChatGPT, Claude, Gemini, DeepSeek и другие модели. Работа с документами, изображениями и кодом. Без VPN, с оплатой в рублях.
+            РўРµРєСЃС‚, РґРѕРєСѓРјРµРЅС‚С‹, РёР·РѕР±СЂР°Р¶РµРЅРёСЏ Рё РІРёРґРµРѕ РІ РѕРґРЅРѕРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРµ. AIвЂ‘Sphere СЃР°Рј РїРѕРґР±РµСЂС‘С‚ РґРѕСЃС‚СѓРїРЅСѓСЋ РјРѕРґРµР»СЊ Рё Р·Р°СЂР°РЅРµРµ РїРѕРєР°Р¶РµС‚ СЃС‚РѕРёРјРѕСЃС‚СЊ.
           </p>
         </div>
       ) : (
         <div className="chat__messages" ref={messagesContainerRef}>
           {messages.map((msg, i) => {
-            const prevMsg = i > 0 ? messages[i - 1] : null;
             return msg.role === 'user' ? (
    <div key={i} className="chat__message chat__message--user">
      <RenderContent content={msg.content} role="user" />
@@ -589,8 +770,8 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
            setCopiedIndex(i);
            setTimeout(() => setCopiedIndex(null), 2000);
          }}
-         aria-label="Копировать"
-         title="Копировать"
+         aria-label="РљРѕРїРёСЂРѕРІР°С‚СЊ"
+         title="РљРѕРїРёСЂРѕРІР°С‚СЊ"
        >
          {copiedIndex === i ? (
            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -608,9 +789,10 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
  ) : (
               <div key={i} className="chat__message chat__message--assistant">
                 <div className="chat__message-header">
-                  <span className="chat__message-model-name">{selectedModel.name}</span>
+                  <span className="chat__message-model-name">{msg.effective_model_name || msg.effective_model || currentModel.name}</span>
                 </div>
                 <RenderContent content={msg.content} role="assistant" />
+                {msg.generation && <GenerationCard initial={msg.generation} />}
                 <div className="chat__message-actions">
                   <button
                     className={`chat__action-btn${copiedIndex === i ? ' chat__action-btn--active' : ''}`}
@@ -619,8 +801,8 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                       setCopiedIndex(i);
                       setTimeout(() => setCopiedIndex(null), 2000);
                     }}
-                    aria-label="Копировать"
-                    title="Копировать"
+                    aria-label="РљРѕРїРёСЂРѕРІР°С‚СЊ"
+                    title="РљРѕРїРёСЂРѕРІР°С‚СЊ"
                   >
                     {copiedIndex === i ? (
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -645,12 +827,12 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                           session_id: currentSessionId,
                           message_index: i,
                           feedback_type: 'like',
-                          model: selectedModel.id,
+                          model: currentModel.id,
                         }).catch(() => {});
                       }
                     }}
-                    aria-label="Нравится"
-                    title="Нравится"
+                    aria-label="РќСЂР°РІРёС‚СЃСЏ"
+                    title="РќСЂР°РІРёС‚СЃСЏ"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
@@ -668,12 +850,12 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                           session_id: currentSessionId,
                           message_index: i,
                           feedback_type: 'dislike',
-                          model: selectedModel.id,
+                          model: currentModel.id,
                         }).catch(() => {});
                       }
                     }}
-                    aria-label="Не нравится"
-                    title="Не нравится"
+                    aria-label="РќРµ РЅСЂР°РІРёС‚СЃСЏ"
+                    title="РќРµ РЅСЂР°РІРёС‚СЃСЏ"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3" />
@@ -683,8 +865,8 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                     className="chat__action-btn"
                     onClick={() => onRegenerate?.()}
                     disabled={sending}
-                    aria-label="Перегенерировать"
-                    title="Перегенерировать"
+                    aria-label="РџРµСЂРµРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ"
+                    title="РџРµСЂРµРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="23 4 23 10 17 10" />
@@ -696,8 +878,8 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                   {factCheckResults[i] ? (
                     <div className="chat__factcheck-result">
                       <div className="chat__factcheck-header">
-                        <span className="chat__factcheck-icon">🔍</span>
-                        <span className="chat__factcheck-label">Факт-чек</span>
+                        <span className="chat__factcheck-icon">рџ”Ќ</span>
+                        <span className="chat__factcheck-label">Р¤Р°РєС‚-С‡РµРє</span>
                         <span className={`chat__factcheck-score ${factCheckResults[i].confidence >= 80 ? 'chat__factcheck-score--high' : factCheckResults[i].confidence >= 50 ? 'chat__factcheck-score--mid' : 'chat__factcheck-score--low'}`}>
                           {factCheckResults[i].confidence}%
                         </span>
@@ -706,8 +888,8 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                         <div className="chat__factcheck-errors">
                           {factCheckResults[i].errors.map((e, ei) => (
                             <div key={ei} className="chat__factcheck-claim chat__factcheck-claim--error">
-                              <div className="chat__factcheck-claim-text">✗ {e.claim}</div>
-                              {e.correction && <div className="chat__factcheck-correction">→ {e.correction}</div>}
+                              <div className="chat__factcheck-claim-text">вњ— {e.claim}</div>
+                              {e.correction && <div className="chat__factcheck-correction">в†’ {e.correction}</div>}
                             </div>
                           ))}
                         </div>
@@ -716,7 +898,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                         <div className="chat__factcheck-verified">
                           {factCheckResults[i].verified_claims.filter(c => c.status === 'correct').map((c, ci) => (
                             <div key={ci} className="chat__factcheck-claim chat__factcheck-claim--ok">
-                              <div className="chat__factcheck-claim-text">✓ {c.claim}</div>
+                              <div className="chat__factcheck-claim-text">вњ“ {c.claim}</div>
                             </div>
                           ))}
                         </div>
@@ -732,9 +914,9 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                       disabled={factCheckLoading !== null}
                     >
                       {factCheckLoading === i ? (
-                        <><span className="chat__factcheck-spinner" /> Проверка...</>
+                        <><span className="chat__factcheck-spinner" /> РџСЂРѕРІРµСЂРєР°...</>
                       ) : (
-                        '🔍 Проверить факты'
+                        'рџ”Ќ РџСЂРѕРІРµСЂРёС‚СЊ С„Р°РєС‚С‹'
                       )}
                     </button>
                   )}
@@ -746,7 +928,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
           {sending && (
             <div className="chat__message chat__message--assistant">
               <div className="chat__message-header">
-                <span className="chat__message-model-name">{selectedModel.name}</span>
+                <span className="chat__message-model-name">{currentModel.name}</span>
               </div>
               <div className="chat__message-content chat__message-content--assistant">
                 {thinkingText ? (
@@ -772,6 +954,57 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
         </div>
       )}
 
+      {!chatActive && messages.length === 0 && (
+        <TaskHub selected={activeTemplate} onSelect={handleSelectTemplate} />
+      )}
+
+      {activeTemplate && (
+        <div className="task-context" aria-live="polite">
+          <div className="task-context__top">
+            <strong>{activeTemplate.title}</strong>
+            <span>{activeTemplate.required_input}</span>
+            <button
+              type="button"
+              className="task-context__close"
+              aria-label="РЎР±СЂРѕСЃРёС‚СЊ СЃС†РµРЅР°СЂРёР№"
+              onClick={() => { setActiveTemplate(null); setEstimate(null); setMediaPreferences({}); }}
+            >Г—</button>
+          </div>
+          <div className="task-context__details">
+            <span><b>РџСЂРёРјРµСЂ:</b> {activeTemplate.example_input}</span>
+            <span><b>Р РµР·СѓР»СЊС‚Р°С‚:</b> {activeTemplate.example_output}</span>
+          </div>
+          {activeTemplate.category === 'image' && activeTemplate.task_type === 'create_image' && (
+            <div className="task-context__controls">
+              <label>Р¤РѕСЂРјР°С‚
+                <select value={String(mediaPreferences.aspect_ratio || '1:1')} onChange={event => setMediaPreferences(prev => ({ ...prev, aspect_ratio: event.target.value }))}>
+                  <option value="1:1">1:1</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="4:3">4:3</option>
+                </select>
+              </label>
+              <label>Р Р°Р·СЂРµС€РµРЅРёРµ
+                <select value={String(mediaPreferences.resolution || '1K')} onChange={event => setMediaPreferences(prev => ({ ...prev, resolution: event.target.value }))}>
+                  <option value="1K">1K</option><option value="2K">2K</option>
+                </select>
+              </label>
+            </div>
+          )}
+          {activeTemplate.category === 'video' && (
+            <div className="task-context__controls">
+              <label>Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ
+                <select value={String(mediaPreferences.duration || 5)} onChange={event => setMediaPreferences(prev => ({ ...prev, duration: Number(event.target.value) }))}>
+                  <option value="5">5 СЃРµРєСѓРЅРґ</option><option value="10">10 СЃРµРєСѓРЅРґ</option>
+                </select>
+              </label>
+              <label>Р¤РѕСЂРјР°С‚
+                <select value={String(mediaPreferences.aspect_ratio || '16:9')} onChange={event => setMediaPreferences(prev => ({ ...prev, aspect_ratio: event.target.value }))}>
+                  <option value="16:9">16:9</option><option value="9:16">9:16</option><option value="1:1">1:1</option>
+                </select>
+              </label>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Chat Input */}
       <div className="chat__input-area">
         <div className="chat__input-wrapper">
@@ -782,6 +1015,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
             className="chat__file-input"
             onChange={handleFileSelect}
             aria-hidden="true"
+            accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/mpeg,video/quicktime,video/webm,.pdf,.txt,.csv,.docx,.xlsx"
           />
 
           <div className={`chat__input-box${files.length > 0 ? ' has-files' : ''}`}>
@@ -791,6 +1025,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                 <div
                   key={file.id}
                   className={`chat__file-chip ${file.uploading ? 'chat__file-chip--uploading' : ''} ${file.error ? 'chat__file-chip--error' : ''}`}
+                  title={file.error || file.name}
                 >
                   {file.dataUrl?.startsWith('data:image/') ? (
                     <img className="chat__file-chip-thumb" src={file.dataUrl} alt="" />
@@ -804,9 +1039,9 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                   <button
                     className="chat__file-chip-remove"
                     onClick={() => removeFile(file.id)}
-                    aria-label="Удалить файл"
+                    aria-label="РЈРґР°Р»РёС‚СЊ С„Р°Р№Р»"
                   >
-                    ✕
+                    вњ•
                   </button>
                 </div>
               ))}
@@ -815,10 +1050,16 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
 
           <textarea
             className="chat__input"
-            placeholder="Загрузите документ или опишите задачу..."
+            placeholder="Р—Р°РіСЂСѓР·РёС‚Рµ РґРѕРєСѓРјРµРЅС‚ РёР»Рё РѕРїРёС€РёС‚Рµ Р·Р°РґР°С‡Сѓ..."
             rows={3}
             value={message}
-            onChange={e => setMessage(e.target.value)}
+            onChange={e => {
+              if (!message && e.target.value) void recordProductEvent({
+                event_name: 'input_started', template_id: activeTemplate?.id || null,
+                task_type: activeTemplate?.task_type || 'text', model: currentModel.id,
+              });
+              setMessage(e.target.value);
+            }}
             onFocus={() => setUserStarted(true)}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey && (message.trim() || files.length > 0)) {
@@ -828,7 +1069,8 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                   recognitionRef.current = null;
                   setIsRecording(false);
                 }
-                onSendMessage(message, files);
+                if (sending || uploading) return;
+                onSendMessage(message, files.filter(file => !file.error && !file.uploading), taskContext());
                 setMessage('');
                 setFiles([]);
               }
@@ -840,7 +1082,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
               <button
                 className="chat__input-icon"
                 onClick={handleAttachClick}
-                aria-label="Прикрепить файл"
+                aria-label="РџСЂРёРєСЂРµРїРёС‚СЊ С„Р°Р№Р»"
                 disabled={uploading}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -852,11 +1094,11 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
               <button
                 className="chat__input-model"
                 onClick={() => setModelSelectOpen(prev => !prev)}
-                aria-label="Выбрать модель"
+                aria-label="Р’С‹Р±СЂР°С‚СЊ РјРѕРґРµР»СЊ"
               >
                 <span className="chat__model-dot" />
-                {selectedModel.name}
-                <span className="chat__model-arrow">▼</span>
+                {autoModel ? 'AIвЂ‘Sphere СЂРµРєРѕРјРµРЅРґСѓРµС‚' : currentModel.name}
+                <span className="chat__model-arrow">в–ј</span>
               </button>
               {modelSelectOpen && (
                 <div className="chat__model-select chat__model-select--grouped">
@@ -866,30 +1108,60 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                       ref={searchInputRef}
                       type="text"
                       className="chat__model-search-input"
-                      placeholder="Поиск моделей..."
+                      placeholder="РџРѕРёСЃРє РјРѕРґРµР»РµР№..."
                       value={modelSearch}
                       onChange={e => setModelSearch(e.target.value)}
                     />
+                    <div className="chat__model-filters" aria-label="Р¤РёР»СЊС‚СЂ РІРѕР·РјРѕР¶РЅРѕСЃС‚РµР№">
+                      {[
+                        ['all', 'Р’СЃРµ'], ['text', 'РўРµРєСЃС‚'], ['image', 'Р¤РѕС‚Рѕ'], ['video', 'Р’РёРґРµРѕ'], ['file', 'PDF'],
+                      ].map(([value, label]) => (
+                        <button
+                          key={value}
+                          type="button"
+                          className={capabilityFilter === value ? 'is-active' : ''}
+                          onClick={() => setCapabilityFilter(value)}
+                        >{label}</button>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Grouped list */}
                   <div className="chat__model-groups">
+                    <div className="chat__model-group">
+                      <div className="chat__model-group-title">РђРІС‚РѕРІС‹Р±РѕСЂ</div>
+                      <button
+                        type="button"
+                        className={`chat__model-option ${autoModel ? 'chat__model-option--active' : ''}`}
+                        onClick={handleSelectAuto}
+                      >
+                        <span className="chat__model-option-name">
+                          <span>AIвЂ‘Sphere СЂРµРєРѕРјРµРЅРґСѓРµС‚</span>
+                          <span className="chat__model-tags"><small>С†РµРЅР° + РєР°С‡РµСЃС‚РІРѕ + РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ</small></span>
+                        </span>
+                        <span className="chat__model-price">Р°РІС‚Рѕ</span>
+                      </button>
+                    </div>
                     {filteredCategories.map(cat => (
                       <div key={cat.name} className="chat__model-group">
                         <div className="chat__model-group-title">{cat.name}</div>
                         {cat.models.map(m => (
                           <button
                             key={m.id}
-                            className={`chat__model-option ${m.id === selectedModel.id ? 'chat__model-option--active' : ''}`}
+                            className={`chat__model-option ${m.id === currentModel.id ? 'chat__model-option--active' : ''}`}
                             onClick={() => handleSelectModel(m)}
                           >
-                            <span className="chat__model-option-name">{m.name}</span>
+                            <span className="chat__model-option-name">
+                              <span>{m.name}</span>
+                              <span className="chat__model-tags">{capabilityTags(m).map(tag => <small key={tag}>{tag}</small>)}</span>
+                            </span>
+                            <span className="chat__model-price">{m.price} РєСЂ.</span>
                           </button>
                         ))}
                       </div>
                     ))}
                     {filteredCategories.length === 0 && (
-                      <div className="chat__model-empty">Ничего не найдено</div>
+                      <div className="chat__model-empty">РќРёС‡РµРіРѕ РЅРµ РЅР°Р№РґРµРЅРѕ</div>
                     )}
                   </div>
                 </div>
@@ -901,7 +1173,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
               <button
                 className={`chat__input-icon${isRecording ? ' chat__input-icon--recording' : ''}`}
                 onClick={startVoiceInput}
-                aria-label={isRecording ? 'Остановить запись' : 'Голосовой ввод'}
+                aria-label={isRecording ? 'РћСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РїРёСЃСЊ' : 'Р“РѕР»РѕСЃРѕРІРѕР№ РІРІРѕРґ'}
               >
                 {isRecording ? (
                   <svg className="chat__mic-icon" width="18" height="24" viewBox="0 0 24 28" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -927,19 +1199,27 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                   recognitionRef.current = null;
                   setIsRecording(false);
                 }
-                onSendMessage(message, files);
+                if (sending || uploading) return;
+                onSendMessage(message, files.filter(file => !file.error && !file.uploading), taskContext());
                 setMessage('');
                 setFiles([]);
               }}
-                disabled={!message.trim() && files.length === 0}
-                aria-label="Отправить"
+                disabled={sending || uploading || (!message.trim() && files.length === 0)}
+                aria-label="РћС‚РїСЂР°РІРёС‚СЊ"
               >
-                ↑
+                в†‘
               </button>
             </div>
           </div>
         </div>
         </div>
+
+        {uiError && (
+          <div className="chat__inline-error" role="alert">
+            {uiError}
+            <button type="button" onClick={() => setUiError(null)} aria-label="Р—Р°РєСЂС‹С‚СЊ">Г—</button>
+          </div>
+        )}
 
         {isLoggedIn && message.trim() && (
         <div className="chat__ensemble-row">
@@ -949,9 +1229,9 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
             disabled={ensembleLoading || !message.trim()}
           >
             {ensembleLoading ? (
-              <><span className="chat__ensemble-spinner" /> Опрашиваем 3 модели...</>
+              <><span className="chat__ensemble-spinner" /> РћРїСЂР°С€РёРІР°РµРј 3 РјРѕРґРµР»Рё...</>
             ) : (
-              '🧠 Уточнить у 3 моделей'
+              'рџ§  РЈС‚РѕС‡РЅРёС‚СЊ Сѓ 3 РјРѕРґРµР»РµР№'
             )}
           </button>
         </div>
@@ -959,13 +1239,20 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
 
         {ensembleError && (
         <div className="chat__ensemble-error">
-          ⚠️ {ensembleError}
-          <button className="chat__ensemble-error-close" onClick={() => setEnsembleError(null)}>✕</button>
+          вљ пёЏ {ensembleError}
+          <button className="chat__ensemble-error-close" onClick={() => setEnsembleError(null)}>вњ•</button>
         </div>
         )}
 
-        <div className="chat__cost-hint">
-          Примерная стоимость: от 1 до 5 кредитов
+        <div className="chat__cost-hint chat__cost-hint--live">
+          {estimateLoading ? 'Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј СЃС‚РѕРёРјРѕСЃС‚СЊвЂ¦' : estimate ? (
+            <><span>{estimate.exact ? 'РЎС‚РѕРёРјРѕСЃС‚СЊ:' : 'РџСЂРёРјРµСЂРЅР°СЏ СЃС‚РѕРёРјРѕСЃС‚СЊ:'}</span><strong>{estimate.exact ? `${estimate.credits_min}` : `${estimate.credits_min}вЂ“${estimate.credits_max}`} РєСЂРµРґРёС‚РѕРІ</strong><span>В· {estimate.effective_model_name}</span></>
+          ) : (
+            <span>Р”Р»СЏ С‚РµРєСЃС‚Р° СЃС‚РѕРёРјРѕСЃС‚СЊ Р·Р°РІРёСЃРёС‚ РѕС‚ РґР»РёРЅС‹ РѕС‚РІРµС‚Р°</span>
+          )}
+        </div>
+        <div className="chat__cost-hint chat__cost-hint--legacy">
+          РџСЂРёРјРµСЂРЅР°СЏ СЃС‚РѕРёРјРѕСЃС‚СЊ: РѕС‚ 1 РґРѕ 5 РєСЂРµРґРёС‚РѕРІ
         </div>
       </div>
 
@@ -980,7 +1267,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
       {headerModalOpen && (
         <div className="modal-overlay" onClick={() => setHeaderModalOpen(false)}>
           <div className="header-modal" onClick={e => e.stopPropagation()}>
-            <div className="header-modal__title">Действия с чатом</div>
+            <div className="header-modal__title">Р”РµР№СЃС‚РІРёСЏ СЃ С‡Р°С‚РѕРј</div>
 
             <button
               className="header-modal__btn"
@@ -993,7 +1280,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
               </svg>
-              Поделиться чатом
+              РџРѕРґРµР»РёС‚СЊСЃСЏ С‡Р°С‚РѕРј
             </button>
 
             <button
@@ -1005,11 +1292,11 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                 <polyline points="3 6 5 6 21 6" />
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
               </svg>
-              Удалить чат
+              РЈРґР°Р»РёС‚СЊ С‡Р°С‚
             </button>
 
             <button className="header-modal__close" onClick={() => setHeaderModalOpen(false)}>
-              Отмена
+              РћС‚РјРµРЅР°
             </button>
           </div>
         </div>
@@ -1019,14 +1306,14 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
       {shareModalOpen && (
         <div className="modal-overlay" onClick={() => setShareModalOpen(false)}>
           <div className="share-modal" onClick={e => e.stopPropagation()}>
-            <div className="share-modal__title">Поделиться чатом</div>
+            <div className="share-modal__title">РџРѕРґРµР»РёС‚СЊСЃСЏ С‡Р°С‚РѕРј</div>
 
             <div className="share-modal__grid">
               <button
                 className="share-modal__btn"
                 onClick={() => {
                   const url = window.location.href;
-                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
+                  const text = messages.map(m => `${m.role === 'user' ? 'РЇ' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
                   window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
                   setShareModalOpen(false);
                 }}
@@ -1041,7 +1328,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                 className="share-modal__btn"
                 onClick={() => {
                   const url = window.location.href;
-                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
+                  const text = messages.map(m => `${m.role === 'user' ? 'РЇ' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
                   window.open(`https://wa.me/?text=${encodeURIComponent(text + '\n' + url)}`, '_blank');
                   setShareModalOpen(false);
                 }}
@@ -1057,7 +1344,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                 onClick={() => {
                   const url = window.location.href;
                   const title = 'AI-Sphere Chat';
-                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
+                  const text = messages.map(m => `${m.role === 'user' ? 'РЇ' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
                   window.open(`https://vk.com/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&description=${encodeURIComponent(text)}`, '_blank');
                   setShareModalOpen(false);
                 }}
@@ -1073,7 +1360,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                 onClick={() => {
                   const url = window.location.href;
                   navigator.clipboard.writeText(url).then(() => {
-                    alert('Ссылка скопирована в буфер обмена');
+                    setUiError('РЎСЃС‹Р»РєР° СЃРєРѕРїРёСЂРѕРІР°РЅР° РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР°');
                   }).catch(() => {});
                   setShareModalOpen(false);
                 }}
@@ -1082,27 +1369,27 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
-                Копировать ссылку
+                РљРѕРїРёСЂРѕРІР°С‚СЊ СЃСЃС‹Р»РєСѓ
               </button>
             </div>
 
             <button className="share-modal__close" onClick={() => setShareModalOpen(false)}>
-              Отмена
+              РћС‚РјРµРЅР°
             </button>
           </div>
         </div>
       )}
 
-      {/* Vision alert — model doesn't support images */}
+      {/* Vision alert вЂ” model doesn't support images */}
       {visionAlert && (
         <div className="modal-overlay" onClick={() => setVisionAlert(null)}>
           <div className="vision-alert" onClick={e => e.stopPropagation()}>
-            <div className="vision-alert__icon">🖼️</div>
-            <div className="vision-alert__title">Для изображений нужна другая модель</div>
+            <div className="vision-alert__icon">рџ–јпёЏ</div>
+            <div className="vision-alert__title">Р”Р»СЏ РёР·РѕР±СЂР°Р¶РµРЅРёР№ РЅСѓР¶РЅР° РґСЂСѓРіР°СЏ РјРѕРґРµР»СЊ</div>
             <div className="vision-alert__text">
-              <strong>{visionAlert.modelName}</strong> не поддерживает изображения.
-              Текстовые файлы, PDF и документы прикрепляются без ограничений.
-              Выберите одну из моделей с поддержкой vision:
+              <strong>{visionAlert.modelName}</strong> РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.
+              РўРµРєСЃС‚РѕРІС‹Рµ С„Р°Р№Р»С‹, PDF Рё РґРѕРєСѓРјРµРЅС‚С‹ РїСЂРёРєСЂРµРїР»СЏСЋС‚СЃСЏ Р±РµР· РѕРіСЂР°РЅРёС‡РµРЅРёР№.
+              Р’С‹Р±РµСЂРёС‚Рµ РѕРґРЅСѓ РёР· РјРѕРґРµР»РµР№ СЃ РїРѕРґРґРµСЂР¶РєРѕР№ vision:
             </div>
             <div className="vision-alert__models">
               {visionAlert.visionModels.map(m => (
@@ -1120,7 +1407,7 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
               ))}
             </div>
             <button className="vision-alert__continue" onClick={() => setVisionAlert(null)}>
-              Продолжить без изображения
+              РџСЂРѕРґРѕР»Р¶РёС‚СЊ Р±РµР· РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
             </button>
           </div>
         </div>
@@ -1128,3 +1415,4 @@ export default function ChatSection({ isMobile, sidebarOpen, isLoggedIn, onSendM
     </main>
   );
 }
+
