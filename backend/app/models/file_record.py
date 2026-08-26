@@ -22,3 +22,5 @@ class FileRecord(Base, TimestampMixin):
     error_text: Mapped[str | None] = mapped_column(Text, default=None)
     is_blocked: Mapped[bool] = mapped_column(default=False)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True, default=None)
+
