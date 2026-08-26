@@ -1,160 +1,92 @@
 'use client';
 
-import { useState } from 'react';
-import { getTokenHeader } from '@/lib/api';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
+import {
+  createSupportTicket, fetchSupportTicket, fetchSupportTickets, replySupportTicket,
+  type SupportTicketDetail, type SupportTicketSummary,
+} from '@/lib/api';
 
 const CATEGORIES: Record<string, string> = {
-  general: 'Общий вопрос',
-  billing: 'Оплата и тарифы',
-  technical: 'Техническая проблема',
-  feature: 'Предложение',
-  bug: 'Ошибка',
-  other: 'Другое',
+  general: 'РћР±С‰РёР№ РІРѕРїСЂРѕСЃ', billing: 'РћРїР»Р°С‚Р° Рё С‚Р°СЂРёС„С‹', technical: 'РўРµС…РЅРёС‡РµСЃРєР°СЏ РїСЂРѕР±Р»РµРјР°',
+  feature: 'РџСЂРµРґР»РѕР¶РµРЅРёРµ', bug: 'РћС€РёР±РєР°', other: 'Р”СЂСѓРіРѕРµ',
+};
+const STATUS: Record<string, string> = {
+  new: 'РќРѕРІРѕРµ', in_progress: 'Р’ СЂР°Р±РѕС‚Рµ', waiting_user: 'Р–РґС‘С‚ РѕС‚РІРµС‚Р°', resolved: 'Р РµС€РµРЅРѕ', closed: 'Р—Р°РєСЂС‹С‚Рѕ',
 };
 
-interface TicketModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess?: () => void;
-}
+interface Props { isOpen: boolean; onClose: () => void; onSuccess?: () => void }
 
-export default function TicketModal({ isOpen, onClose, onSuccess }: TicketModalProps) {
+export default function TicketModal({ isOpen, onClose, onSuccess }: Props) {
+  const [tickets, setTickets] = useState<SupportTicketSummary[]>([]);
+  const [active, setActive] = useState<SupportTicketDetail | null>(null);
+  const [creating, setCreating] = useState(false);
   const [subject, setSubject] = useState('');
   const [category, setCategory] = useState('general');
   const [priority, setPriority] = useState('normal');
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
+  const load = useCallback(async () => {
+    try { setTickets(await fetchSupportTickets()); } catch (err: any) { setError(err.message); }
+  }, []);
+  useEffect(() => { if (isOpen) void load(); }, [isOpen, load]);
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!subject.trim() || !message.trim()) return;
-
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
+  const openTicket = async (id: number) => {
+    setError(''); setBusy(true);
+    try { setActive(await fetchSupportTicket(id)); } catch (err: any) { setError(err.message); }
+    finally { setBusy(false); }
+  };
+  const submitNew = async (event: FormEvent) => {
+    event.preventDefault(); setBusy(true); setError('');
     try {
-      const res = await fetch('/api/tickets', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...getTokenHeader(),
-        },
-        body: JSON.stringify({
-          subject: subject.trim(),
-          category,
-          priority,
-          message: message.trim(),
-        }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text.slice(0, 200) || 'Ошибка отправки');
-      }
-
-      setSuccess('Тикет отправлен! Мы ответим в ближайшее время.');
-      setSubject('');
-      setMessage('');
-      setCategory('general');
-      setPriority('normal');
-
-      if (onSuccess) setTimeout(onSuccess, 1500);
-    } catch (err: any) {
-      setError(err.message || 'Ошибка отправки');
-    } finally {
-      setLoading(false);
-    }
+      const result = await createSupportTicket({ subject: subject.trim(), category, priority, message: message.trim() });
+      setSubject(''); setMessage(''); setCreating(false); await load(); await openTicket(result.ticket_id); onSuccess?.();
+    } catch (err: any) { setError(err.message || 'РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РїСЂР°РІРёС‚СЊ РѕР±СЂР°С‰РµРЅРёРµ'); }
+    finally { setBusy(false); }
+  };
+  const submitReply = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!active || !message.trim()) return;
+    setBusy(true); setError('');
+    try { await replySupportTicket(active.id, message.trim()); setMessage(''); await openTicket(active.id); await load(); }
+    catch (err: any) { setError(err.message || 'РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РїСЂР°РІРёС‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ'); }
+    finally { setBusy(false); }
   };
 
   return (
-    <div className="modal-overlay" onClick={loading ? undefined : onClose}>
-      <div className="modal modal--ticket" onClick={(e) => e.stopPropagation()}>
-        <button className="modal__close" onClick={onClose} aria-label="Закрыть">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d="M5 5l10 10M15 5L5 15" />
-          </svg>
-        </button>
+    <div className="modal-overlay" onClick={busy ? undefined : onClose}>
+      <div className="modal modal--ticket" onClick={event => event.stopPropagation()} role="dialog" aria-modal="true">
+        <button className="modal__close" onClick={onClose} aria-label="Р—Р°РєСЂС‹С‚СЊ">Г—</button>
+        <h2 className="modal__title">РўРµС…РїРѕРґРґРµСЂР¶РєР°</h2>
+        {error && <div className="modal__error">{error}</div>}
 
-        <h2 className="modal__title">Техподдержка</h2>
-        <p className="modal__subtitle">Опишите вашу проблему — мы поможем</p>
-
-        <form onSubmit={handleSubmit} className="modal__form">
-          <div className="modal__field">
-            <label className="modal__label">Тема</label>
-            <input
-              className="modal__input"
-              type="text"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder="Кратко опишите вопрос"
-              maxLength={255}
-              required
-              disabled={loading}
-            />
+        {active ? <>
+          <button type="button" className="modal__btn modal__btn--secondary" onClick={() => { setActive(null); setMessage(''); }}>в†ђ Р’СЃРµ РѕР±СЂР°С‰РµРЅРёСЏ</button>
+          <h3>{active.subject}</h3><p>{STATUS[active.status] || active.status}</p>
+          <div aria-live="polite" style={{ maxHeight: 280, overflowY: 'auto', display: 'grid', gap: 8 }}>
+            {active.messages.map(item => <div key={item.id} className="modal__field"><p>{item.content}</p><small>{item.created_at ? new Date(item.created_at).toLocaleString('ru-RU') : ''}</small></div>)}
           </div>
-
-          <div className="modal__field-row">
-            <div className="modal__field">
-              <label className="modal__label">Категория</label>
-              <select
-                className="modal__select"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                disabled={loading}
-              >
-                {Object.entries(CATEGORIES).map(([k, v]) => (
-                  <option key={k} value={k}>{v}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="modal__field">
-              <label className="modal__label">Приоритет</label>
-              <select
-                className="modal__select"
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-                disabled={loading}
-              >
-                <option value="low">Низкий</option>
-                <option value="normal">Средний</option>
-                <option value="high">Высокий</option>
-                <option value="urgent">Срочно</option>
-              </select>
-            </div>
+          {!['resolved', 'closed'].includes(active.status) && <form onSubmit={submitReply} className="modal__form">
+            <textarea className="modal__textarea" value={message} onChange={e => setMessage(e.target.value)} rows={3} required placeholder="Р’Р°С€ РѕС‚РІРµС‚" />
+            <button className="modal__btn modal__btn--primary" disabled={busy || !message.trim()}>РћС‚РїСЂР°РІРёС‚СЊ</button>
+          </form>}
+        </> : creating ? <form onSubmit={submitNew} className="modal__form">
+          <input className="modal__input" value={subject} onChange={e => setSubject(e.target.value)} maxLength={255} required placeholder="РўРµРјР°" />
+          <div className="modal__field-row"><select className="modal__select" value={category} onChange={e => setCategory(e.target.value)}>{Object.entries(CATEGORIES).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select>
+          <select className="modal__select" value={priority} onChange={e => setPriority(e.target.value)}><option value="low">РќРёР·РєРёР№</option><option value="normal">РЎСЂРµРґРЅРёР№</option><option value="high">Р’С‹СЃРѕРєРёР№</option><option value="urgent">РЎСЂРѕС‡РЅС‹Р№</option></select></div>
+          <textarea className="modal__textarea" value={message} onChange={e => setMessage(e.target.value)} rows={5} required placeholder="РћРїРёС€РёС‚Рµ РїСЂРѕР±Р»РµРјСѓ" />
+          <div className="modal__actions"><button className="modal__btn modal__btn--primary" disabled={busy || !subject.trim() || !message.trim()}>РћС‚РїСЂР°РІРёС‚СЊ</button><button type="button" className="modal__btn modal__btn--secondary" onClick={() => setCreating(false)}>РќР°Р·Р°Рґ</button></div>
+        </form> : <>
+          <button className="modal__btn modal__btn--primary" onClick={() => setCreating(true)}>РќРѕРІРѕРµ РѕР±СЂР°С‰РµРЅРёРµ</button>
+          <div style={{ marginTop: 16, display: 'grid', gap: 8 }}>
+            {tickets.map(ticket => <button key={ticket.id} className="modal__btn modal__btn--secondary" onClick={() => void openTicket(ticket.id)}><strong>{ticket.subject}</strong> В· {STATUS[ticket.status] || ticket.status}</button>)}
+            {!tickets.length && !busy && <p>РћР±СЂР°С‰РµРЅРёР№ РїРѕРєР° РЅРµС‚.</p>}
           </div>
-
-          <div className="modal__field">
-            <label className="modal__label">Сообщение</label>
-            <textarea
-              className="modal__textarea"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Подробно опишите ситуацию"
-              rows={5}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          {error && <div className="modal__error">{error}</div>}
-          {success && <div className="modal__success">{success}</div>}
-
-          <div className="modal__actions">
-            <button type="submit" className="modal__btn modal__btn--primary" disabled={loading || !subject.trim() || !message.trim()}>
-              {loading ? 'Отправка...' : 'Отправить'}
-            </button>
-            <button type="button" className="modal__btn modal__btn--secondary" onClick={onClose} disabled={loading}>
-              Отмена
-            </button>
-          </div>
-        </form>
+        </>}
       </div>
     </div>
   );
 }
+
