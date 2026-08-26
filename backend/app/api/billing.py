@@ -1,13 +1,16 @@
 """Billing API: plans, top-up, webhook, balance, history."""
 
-import hashlib
 import hmac
 import json
 import uuid
+from datetime import date, datetime, timezone
+from decimal import Decimal, InvalidOperation
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import select, desc
+from pydantic import BaseModel, Field
+from sqlalchemy import select, desc, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -15,6 +18,12 @@ from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.user import User
 from app.models.transaction import Transaction
+from app.models.credit_plan import CreditPlan
+from app.models.payment_attempt import PaymentAttempt
+from app.models.promo import PromoCode, PromoRedemption
+from app.models.credit_op import CreditOperation
+from app.core.credits import moscow_today
+from app.core.product_events import record_server_event
 from app.schemas.billing import (
     PlanInfo,
     TopUpRequest,
@@ -27,12 +36,10 @@ router = APIRouter(prefix="/api/billing", tags=["billing"])
 
 PLATEGA_BASE = "https://app.platega.io"
 
-CREDIT_PLANS = [
-    {"id": "starter",  "name": "Стартовый",  "price": 50,   "credits": 500,   "bonus": 0},
-    {"id": "basic",    "name": "Базовый",    "price": 250,  "credits": 2500,  "bonus": 0},
-    {"id": "popular",  "name": "Популярный", "price": 1000, "credits": 10000, "bonus": 1500, "popular": True},
-    {"id": "premium",  "name": "Премиум",    "price": 2500, "credits": 25000, "bonus": 5000},
-]
+
+class PromoRedeemRequest(BaseModel):
+    code: str = Field(min_length=1, max_length=50)
+
 
 
 def _platega_configured() -> bool:
@@ -43,24 +50,24 @@ def _platega_configured() -> bool:
 def _platega_headers() -> dict[str, str]:
     """Return auth headers for Platega API."""
     return {
-        "Merchant": settings.platega_merchant_id,
-        "Secret": settings.platega_secret_key,
+        "X-MerchantId": settings.platega_merchant_id,
+        "X-Secret": settings.platega_secret_key,
         "Content-Type": "application/json",
     }
 
 
-def _verify_platega_signature(payload: bytes, signature: str) -> bool:
-    """Verify Platega webhook signature using HMAC-SHA256."""
-    expected = hmac.new(
-        settings.platega_secret_key.encode(),
-        payload,
-        hashlib.sha256,
-    ).hexdigest()
-    return hmac.compare_digest(expected, signature)
+def _verify_platega_callback(merchant_id: str, secret: str) -> bool:
+    """Authenticate callback headers exactly as required by Platega."""
+    return bool(
+        merchant_id
+        and secret
+        and hmac.compare_digest(merchant_id, settings.platega_merchant_id)
+        and hmac.compare_digest(secret, settings.platega_secret_key)
+    )
 
 
 async def _create_platega_payment(
-    amount_rub: int,
+    amount_rub: float,
     description: str,
     metadata: dict,
 ) -> tuple[str, str]:
@@ -70,15 +77,18 @@ async def _create_platega_payment(
     """
     async with httpx.AsyncClient() as client:
         resp = await client.post(
-            f"{PLATEGA_BASE}/api/v1/payment",
+            f"{PLATEGA_BASE}/v2/transaction/process",
             headers=_platega_headers(),
             json={
-                "amount": amount_rub,
-                "currency": "RUB",
+                "paymentDetails": {"amount": amount_rub, "currency": "RUB"},
                 "description": description,
-                "metadata": metadata,
-                "return_url": settings.platega_return_url,
-                "fail_url": settings.platega_fail_url or settings.platega_return_url,
+                "return": settings.platega_return_url,
+                "failedUrl": settings.platega_fail_url or settings.platega_return_url,
+                "payload": metadata["attempt_id"],
+                "metadata": {
+                    "userId": metadata["user_id"],
+                    "userName": metadata["email"],
+                },
             },
             timeout=15,
         )
@@ -90,26 +100,37 @@ async def _create_platega_payment(
         )
 
     data = resp.json()
-    payment_id = data.get("id", "")
+    payment_id = data.get("transactionId", "")
     payment_url = data.get("url", "")
-    if not payment_url:
-        raise HTTPException(status_code=502, detail="Platega не вернул ссылку на оплату")
+    if not payment_id or not payment_url:
+        raise HTTPException(status_code=502, detail="Platega РЅРµ РІРµСЂРЅСѓР» РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР»Рё СЃСЃС‹Р»РєСѓ РЅР° РѕРїР»Р°С‚Сѓ")
     return payment_id, payment_url
 
 
+def _plan_is_available(plan: CreditPlan) -> bool:
+    today = date.today()
+    return bool(
+        plan.is_active
+        and (plan.start_date is None or plan.start_date <= today)
+        and (plan.end_date is None or plan.end_date >= today)
+    )
+
+
 @router.get("/plans", response_model=list[PlanInfo])
-async def get_plans():
+async def get_plans(db: AsyncSession = Depends(get_db)):
     """Return available credit plans."""
+    result = await db.execute(select(CreditPlan).order_by(CreditPlan.sort_order, CreditPlan.id))
     return [
         PlanInfo(
-            id=p["id"],
-            name=p["name"],
-            price=p["price"] * 100,  # rub → kopecks
-            credits=p["credits"],
-            bonus=p["bonus"],
-            popular=p.get("popular", False),
+            id=str(plan.id),
+            name=plan.name,
+            price=plan.price_rub,
+            credits=plan.credits,
+            bonus=plan.bonus_credits,
+            popular=plan.sort_order == 3,
         )
-        for p in CREDIT_PLANS
+        for plan in result.scalars().all()
+        if _plan_is_available(plan)
     ]
 
 
@@ -119,43 +140,114 @@ async def get_balance(user: User = Depends(get_current_user)):
     return BalanceResponse(credits=user.credits)
 
 
+@router.post("/redeem-promo")
+async def redeem_promo(
+    payload: PromoRedeemRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Atomically redeem an active promo once per user."""
+    code = payload.code.strip().upper()
+    promo = (await db.execute(select(PromoCode).where(PromoCode.code == code))).scalar_one_or_none()
+    if promo is None or not promo.is_active:
+        raise HTTPException(404, "РџСЂРѕРјРѕРєРѕРґ РЅРµ РЅР°Р№РґРµРЅ РёР»Рё РЅРµР°РєС‚РёРІРµРЅ")
+    if promo.expires_at and promo.expires_at < moscow_today():
+        raise HTTPException(410, "РЎСЂРѕРє РґРµР№СЃС‚РІРёСЏ РїСЂРѕРјРѕРєРѕРґР° РёСЃС‚С‘Рє")
+    if promo.credits <= 0:
+        raise HTTPException(409, "РџСЂРѕРјРѕРєРѕРґ РЅР°СЃС‚СЂРѕРµРЅ РЅРµРєРѕСЂСЂРµРєС‚РЅРѕ")
+    already = (await db.execute(select(PromoRedemption.id).where(
+        PromoRedemption.promo_id == promo.id, PromoRedemption.user_id == user.id,
+    ))).scalar_one_or_none()
+    if already:
+        raise HTTPException(409, "РџСЂРѕРјРѕРєРѕРґ СѓР¶Рµ Р°РєС‚РёРІРёСЂРѕРІР°РЅ")
+    if promo.max_uses > 0:
+        claimed = await db.execute(
+            update(PromoCode)
+            .where(PromoCode.id == promo.id, PromoCode.used_count < PromoCode.max_uses)
+            .values(used_count=PromoCode.used_count + 1)
+            .execution_options(synchronize_session=False)
+        )
+        if claimed.rowcount != 1:
+            await db.rollback()
+            raise HTTPException(409, "Р›РёРјРёС‚ Р°РєС‚РёРІР°С†РёР№ РїСЂРѕРјРѕРєРѕРґР° РёСЃС‡РµСЂРїР°РЅ")
+    else:
+        await db.execute(update(PromoCode).where(PromoCode.id == promo.id).values(used_count=PromoCode.used_count + 1))
+    before = user.credits
+    try:
+        db.add(PromoRedemption(promo_id=promo.id, user_id=user.id, credits=promo.credits))
+        await db.execute(update(User).where(User.id == user.id).values(credits_promo=User.credits_promo + promo.credits))
+        db.add(CreditOperation(
+            user_id=user.id, op_type="promo", credit_type="promo", amount=promo.credits,
+            balance_before=before, balance_after=before + promo.credits,
+            source=code, related_id=f"promo:{promo.id}", comment="РђРєС‚РёРІР°С†РёСЏ РїСЂРѕРјРѕРєРѕРґР°",
+        ))
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        raise HTTPException(409, "РџСЂРѕРјРѕРєРѕРґ СѓР¶Рµ Р°РєС‚РёРІРёСЂРѕРІР°РЅ")
+    return {"ok": True, "credits_added": promo.credits, "total_credits": before + promo.credits}
+
+
 @router.post("/top-up", response_model=TopUpResponse)
 async def top_up(
     req: TopUpRequest,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Create payment request — Platega with email, or fallback if not configured."""
-    plan = next((p for p in CREDIT_PLANS if p["id"] == req.plan_id), None)
-    if plan is None:
-        raise HTTPException(status_code=400, detail="Неизвестный тариф")
+    """Create payment request вЂ” Platega with email, or fallback if not configured."""
+    try:
+        plan_id = int(req.plan_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚Р°СЂРёС„")
+    plan = await db.get(CreditPlan, plan_id)
+    if plan is None or not _plan_is_available(plan):
+        raise HTTPException(status_code=400, detail="РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚Р°СЂРёС„")
 
-    rub_amount = plan["price"]
-    credits = plan["credits"] + plan["bonus"]
+    if plan.is_new_users_only and user.total_paid_rub > 0:
+        raise HTTPException(status_code=400, detail="РўР°СЂРёС„ РґРѕСЃС‚СѓРїРµРЅ С‚РѕР»СЊРєРѕ РЅРѕРІС‹Рј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј")
+    if plan.purchase_limit and plan.purchase_count >= plan.purchase_limit:
+        raise HTTPException(status_code=409, detail="Р›РёРјРёС‚ РїРѕРєСѓРїРѕРє С‚Р°СЂРёС„Р° РёСЃС‡РµСЂРїР°РЅ")
 
-    # Bonus for large top-ups
-    if rub_amount >= 1000:
-        credits += int(credits * 0.10)
+    amount_kopecks = plan.price_rub
+    amount_rub = amount_kopecks / 100
+    credits = plan.credits + plan.bonus_credits
 
-    # If Platega not configured, return fallback
     if not _platega_configured():
-        return TopUpResponse(
-            payment_id="fallback",
-            payment_url=settings.frontend_url + "/billing?plan=" + req.plan_id,
-        )
+        raise HTTPException(status_code=503, detail="РџР»Р°С‚С‘Р¶РЅС‹Р№ СЃРµСЂРІРёСЃ РІСЂРµРјРµРЅРЅРѕ РЅРµРґРѕСЃС‚СѓРїРµРЅ")
 
-    # Create payment via Platega with email in payload
-    payment_id, payment_url = await _create_platega_payment(
-        amount_rub=rub_amount,
-        description=f"AI-Sphere: {plan['name']} ({credits} кредитов)",
-        metadata={
-            "user_id": str(user.id),
-            "email": user.email,
-            "plan_id": plan["id"],
-            "credits": str(credits),
-            "rub_amount": str(rub_amount),
-        },
+    attempt = PaymentAttempt(
+        id=str(uuid.uuid4()), user_id=user.id, plan_id=plan.id,
+        amount_kopecks=amount_kopecks, currency="RUB", credits=credits, status="pending",
     )
+    db.add(attempt)
+    await record_server_event(
+        db, user, "checkout_started", task_type="billing",
+        metadata={"plan_id": str(plan.id)},
+    )
+    await db.commit()
+
+    try:
+        payment_id, payment_url = await _create_platega_payment(
+            amount_rub=amount_rub,
+            description=f"AI-Sphere: {plan.name} ({credits} РєСЂРµРґРёС‚РѕРІ)",
+            metadata={
+                "attempt_id": attempt.id,
+                "user_id": str(user.id),
+                "email": user.email,
+            },
+        )
+    except Exception as exc:
+        attempt.status = "failed"
+        attempt.failure_reason = f"provider_create: {type(exc).__name__}"[:500]
+        attempt.processed_at = datetime.now(timezone.utc)
+        await record_server_event(
+            db, user, "payment_failed", task_type="billing",
+            metadata={"plan_id": str(plan.id), "error_code": "provider_create"},
+        )
+        await db.commit()
+        raise
+    attempt.provider_payment_id = payment_id
+    await db.commit()
 
     return TopUpResponse(
         payment_id=payment_id,
@@ -168,59 +260,90 @@ async def billing_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     """Handle Platega payment notifications."""
     body_bytes = await request.body()
 
-    # Verify signature if provided
-    signature = request.headers.get("X-Signature") or request.headers.get("X-Platega-Signature", "")
-    if signature and settings.platega_secret_key:
-        if not _verify_platega_signature(body_bytes, signature):
-            raise HTTPException(status_code=400, detail="Invalid signature")
+    if not settings.platega_secret_key:
+        raise HTTPException(status_code=503, detail="Webhook secret is not configured")
+    merchant_id = request.headers.get("X-MerchantId", "")
+    callback_secret = request.headers.get("X-Secret", "")
+    if not _verify_platega_callback(merchant_id, callback_secret):
+        raise HTTPException(status_code=401, detail="Invalid callback credentials")
 
     try:
         data = json.loads(body_bytes)
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON")
 
-    # Platega may send different event types
-    status_val = data.get("status", data.get("event", ""))
-    if status_val not in ("succeeded", "paid", "completed", "payment.succeeded"):
-        return {"ok": True}
+    status_val = str(data.get("status", "")).upper()
+    if status_val not in {"CONFIRMED", "CANCELED", "CHARGEBACKED"}:
+        raise HTTPException(status_code=400, detail="Unknown payment status")
 
-    payment_id = data.get("id", data.get("payment_id", ""))
+    payment_id = data.get("id", "")
     if not payment_id:
+        raise HTTPException(status_code=400, detail="Missing payment id")
+
+    attempt = (await db.execute(select(PaymentAttempt).where(PaymentAttempt.provider_payment_id == str(payment_id)))).scalar_one_or_none()
+    if attempt is None:
+        raise HTTPException(status_code=404, detail="Unknown payment")
+
+    raw_amount = data.get("amount")
+    currency = str(data.get("currency", "")).upper()
+    try:
+        kopecks_decimal = Decimal(str(raw_amount)) * 100
+        if kopecks_decimal != kopecks_decimal.to_integral_value():
+            raise InvalidOperation
+        webhook_kopecks = int(kopecks_decimal)
+    except (InvalidOperation, TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="Invalid amount")
+    if webhook_kopecks != attempt.amount_kopecks or currency != attempt.currency:
+        raise HTTPException(status_code=400, detail="Payment amount or currency mismatch")
+
+    if attempt.status == "succeeded" and status_val == "CONFIRMED":
         return {"ok": True}
+    if attempt.status != "pending":
+        raise HTTPException(status_code=409, detail="Payment is not pending")
 
-    # Duplicate check
-    result = await db.execute(select(Transaction).where(Transaction.payment_id == payment_id))
-    if result.scalar_one_or_none():
-        return {"ok": True}
-
-    # Extract metadata — try top-level first, then nested
-    metadata = data.get("metadata", data.get("object", {}).get("metadata", {}))
-    user_id = int(metadata.get("user_id", 0))
-    email = metadata.get("email", "")
-    credits_to_add = int(metadata.get("credits", 0))
-    rub_amount = int(float(metadata.get("rub_amount", 0)) * 100)
-
-    if not user_id or not credits_to_add:
-        return {"ok": True}
-
-    user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
-    if not user and email:
-        # Fallback: find user by email
-        user = (await db.execute(select(User).where(User.email == email))).scalar_one_or_none()
-
-    if user:
-        user.credits += credits_to_add
-        user.total_spent_rub = (user.total_spent_rub or 0) + rub_amount
-        tx = Transaction(
-            user_id=user.id,
-            amount=credits_to_add,
-            rub_amount=rub_amount,
-            type="topup",
-            description=f"Пополнение: {credits_to_add} кредитов",
-            payment_id=payment_id,
+    if status_val != "CONFIRMED":
+        attempt.status = "failed"
+        attempt.failure_reason = status_val.lower()
+        attempt.processed_at = datetime.now(timezone.utc)
+        failed_user = await db.get(User, attempt.user_id)
+        await record_server_event(
+            db, failed_user, "payment_failed", task_type="billing",
+            metadata={"plan_id": str(attempt.plan_id), "error_code": status_val.lower()},
         )
-        db.add(tx)
         await db.commit()
+        return {"ok": True}
+
+    claimed = await db.execute(
+        update(PaymentAttempt)
+        .where(PaymentAttempt.id == attempt.id, PaymentAttempt.status == "pending")
+        .values(status="processing")
+    )
+    if claimed.rowcount != 1:
+        await db.rollback()
+        return {"ok": True}
+
+    await db.execute(
+        update(User).where(User.id == attempt.user_id).values(
+            credits_paid=User.credits_paid + attempt.credits,
+            total_paid_rub=User.total_paid_rub + attempt.amount_kopecks,
+        )
+    )
+    plan = await db.get(CreditPlan, attempt.plan_id)
+    if plan:
+        plan.purchase_count += 1
+        plan.total_revenue_rub += attempt.amount_kopecks
+    db.add(Transaction(
+        user_id=attempt.user_id, amount=attempt.credits, rub_amount=attempt.amount_kopecks,
+        type="topup", description=f"РџРѕРїРѕР»РЅРµРЅРёРµ: {attempt.credits} РєСЂРµРґРёС‚РѕРІ", payment_id=str(payment_id),
+    ))
+    attempt.status = "succeeded"
+    attempt.processed_at = datetime.now(timezone.utc)
+    payment_user = await db.get(User, attempt.user_id)
+    await record_server_event(
+        db, payment_user, "payment_succeeded", task_type="billing",
+        metadata={"plan_id": str(attempt.plan_id)},
+    )
+    await db.commit()
 
     return {"ok": True}
 
@@ -250,3 +373,4 @@ async def get_history(
         )
         for tx in txs
     ]
+
