@@ -155,5 +155,5 @@ export const voprosy_nejroseti: SeoPageContent = {
     { title: 'Вопросы нейросети', url: '/voprosy-nejroseti' },
   ],
 
-  relatedPages: ['nejroset-online', 'chat-gpt-online', 'gpt-besplatno', 'deepseek-chat', 'gpt-4-chat'],
+  relatedPages: ['nejroset-online', 'chat-gpt-online', 'gpt-besplatno', 'deepseek-chat', 'gpt-4-chat', 'nejroset-kalkulyator'],
 };
