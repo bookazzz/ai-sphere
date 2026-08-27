@@ -158,5 +158,5 @@ export const nejroset_online: SeoPageContent = {
     { title: 'Нейросеть онлайн', url: '/nejroset-online' },
   ],
 
-  relatedPages: ['chat-gpt-online', 'gpt-besplatno', 'deepseek-chat', 'gpt-4-chat', 'nejroset-sozdat'],
+  relatedPages: ['chat-gpt-online', 'gpt-besplatno', 'deepseek-chat', 'gpt-4-chat', 'nejroset-sozdat', 'nejroset-dlya-dokumentov'],
 };
