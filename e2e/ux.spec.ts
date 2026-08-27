@@ -29,8 +29,8 @@ async function mockCommon(page: import('@playwright/test').Page, loggedIn = fals
     : route.fulfill({ status: 401, json: { detail: 'Unauthorized' } }));
   await page.route('**/api/chat/sessions', route => route.fulfill({ json: [] }));
   await page.route('**/api/public/task-templates*', route => route.fulfill({ json: [
-    { id: 1, slug: 'explain', title: 'РћР±СЉСЏСЃРЅРёС‚СЊ С‚РµРјСѓ', description: 'РџРѕРЅСЏС‚РЅРѕ Рё РїРѕ С€Р°РіР°Рј', category: 'text', task_type: 'explain', prompt_template: '{input}', example_input: 'РљРІР°РЅС‚РѕРІР°СЏ С„РёР·РёРєР°', example_output: 'РџСЂРѕСЃС‚РѕРµ РѕР±СЉСЏСЃРЅРµРЅРёРµ', required_input: 'Р’РІРµРґРёС‚Рµ С‚РµРјСѓ', preview_url: '', default_parameters: {}, preferred_model: '', fallback_models: [], estimated_credits_label: '1вЂ“5 РєСЂРµРґРёС‚РѕРІ', is_featured: true, usage_count: 4 },
-    { id: 2, slug: 'create-image', title: 'РЎРѕР·РґР°С‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ', description: 'РљР°СЂС‚РёРЅРєР° РїРѕ РѕРїРёСЃР°РЅРёСЋ', category: 'image', task_type: 'create_image', prompt_template: '/image {input}', example_input: 'РџРѕСЃС‚РµСЂ РєРѕС„РµР№РЅРё', example_output: 'Р“РѕС‚РѕРІРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ', required_input: 'РћРїРёС€РёС‚Рµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ', preview_url: '', default_parameters: { aspect_ratio: '1:1', resolution: '1K' }, preferred_model: '', fallback_models: [], estimated_credits_label: 'С‚РѕС‡РЅР°СЏ С†РµРЅР°', is_featured: true, usage_count: 3 },
+    { id: 1, slug: 'explain', title: 'Объяснить тему', description: 'Понятно и по шагам', category: 'text', task_type: 'explain', prompt_template: '{input}', example_input: 'Квантовая физика', example_output: 'Простое объяснение', required_input: 'Введите тему', preview_url: '', default_parameters: {}, preferred_model: '', fallback_models: [], estimated_credits_label: '1–5 кредитов', is_featured: true, usage_count: 4 },
+    { id: 2, slug: 'create-image', title: 'Создать изображение', description: 'Картинка по описанию', category: 'image', task_type: 'create_image', prompt_template: '/image {input}', example_input: 'Постер кофейни', example_output: 'Готовое изображение', required_input: 'Опишите изображение', preview_url: '', default_parameters: { aspect_ratio: '1:1', resolution: '1K' }, preferred_model: '', fallback_models: [], estimated_credits_label: 'точная цена', is_featured: true, usage_count: 3 },
   ] }));
   await page.route('**/api/tasks/estimate', route => route.fulfill({ json: { task_type: 'create_image', kind: 'image', effective_model: 'test/cheap-image', effective_model_name: 'Cheap Image', credits_min: 4, credits_max: 4, exact: true, parameters: {}, fallback_models: [] } }));
   await page.route('**/api/events', route => route.fulfill({ status: 204, body: '' }));
@@ -39,15 +39,15 @@ async function mockCommon(page: import('@playwright/test').Page, loggedIn = fals
   await page.route('**/api/engagement/surveys*', route => route.fulfill({ json: [] }));
   await page.route('**/api/experiments/assignments*', route => route.fulfill({ json: { assignment: null } }));
   await page.route('**/api/progress', route => route.fulfill({ json: {
-    xp: 35, level: 'РќРѕРІРёС‡РѕРє', next_level: 'РСЃСЃР»РµРґРѕРІР°С‚РµР»СЊ', next_level_xp: 100,
+    xp: 35, level: 'Новичок', next_level: 'Исследователь', next_level_xp: 100,
     progress_pct: 35, monthly_bonus_credits: 4, monthly_bonus_limit: 20,
     rewards_blocked: false, missions: [], achievements: [],
   } }));
   await page.route('**/api/billing/plans', route => route.fulfill({ json: [
-    { id: '1', name: 'РЎС‚Р°СЂС‚', price: 9900, credits: 100, bonus: 0, popular: false },
-    { id: '2', name: 'РћРїС‚РёРјСѓРј', price: 29900, credits: 350, bonus: 20, popular: false },
-    { id: '3', name: 'Р РµРєРѕРјРµРЅРґСѓРµРјС‹Р№', price: 59900, credits: 800, bonus: 100, popular: true },
-    { id: '4', name: 'РњР°РєСЃРёРјСѓРј', price: 99900, credits: 1500, bonus: 300, popular: false },
+    { id: '1', name: 'Старт', price: 9900, credits: 100, bonus: 0, popular: false },
+    { id: '2', name: 'Оптимум', price: 29900, credits: 350, bonus: 20, popular: false },
+    { id: '3', name: 'Рекомендуемый', price: 59900, credits: 800, bonus: 100, popular: true },
+    { id: '4', name: 'Максимум', price: 99900, credits: 1500, bonus: 300, popular: false },
   ] }));
 }
 
@@ -97,11 +97,11 @@ test('layout never creates page-level horizontal overflow', async ({ page }) => 
 test('task-first flow shows modes, scenario context and exact estimate', async ({ page }) => {
   await mockCommon(page);
   await page.goto('/');
-  await page.getByRole('tab', { name: 'РР·РѕР±СЂР°Р¶РµРЅРёСЏ' }).click();
-  await page.locator('.task-card').filter({ hasText: 'РЎРѕР·РґР°С‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ' }).click();
-  await expect(page.locator('.task-context')).toContainText('РћРїРёС€РёС‚Рµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ');
-  await expect(page.locator('.chat__cost-hint--live')).toContainText('4 РєСЂРµРґРёС‚РѕРІ');
-  await expect(page.getByRole('button', { name: 'Р’С‹Р±СЂР°С‚СЊ РјРѕРґРµР»СЊ' })).toContainText('AIвЂ‘Sphere СЂРµРєРѕРјРµРЅРґСѓРµС‚');
+  await page.getByRole('tab', { name: 'Изображения' }).click();
+  await page.locator('.task-card').filter({ hasText: 'Создать изображение' }).click();
+  await expect(page.locator('.task-context')).toContainText('Опишите изображение');
+  await expect(page.locator('.chat__cost-hint--live')).toContainText('4 кредитов');
+  await expect(page.getByRole('button', { name: 'Выбрать модель' })).toContainText('AI‑Sphere рекомендует');
 });
 
 test('mobile balance action opens four credit packages without sidebar', async ({ page }) => {
@@ -113,7 +113,7 @@ test('mobile balance action opens four credit packages without sidebar', async (
   await expect(page.locator('aside.sidebar')).not.toHaveClass(/sidebar--mobile-open/);
   await page.locator('.chat__mobile-balance').click();
   await expect(page.locator('.pricing-modal__card')).toHaveCount(4);
-  await expect(page.locator('.pricing-modal__trust')).toContainText('Р‘РµР· РїРѕРґРїРёСЃРєРё');
+  await expect(page.locator('.pricing-modal__trust')).toContainText('Без подписки');
   await page.locator('.pricing-modal__btn').first().click();
   await expect(page).toHaveURL(/payment-test/);
 });
@@ -132,20 +132,20 @@ test.skip('legacy password authentication flow (removed)', async ({ page }) => {
   });
   await page.route('**/api/chat/dispatch', async route => {
     dispatchBody = route.request().postDataJSON();
-    await route.fulfill({ status: 200, contentType: 'text/event-stream', body: 'data: {"type":"content","content":"Р“РѕС‚РѕРІРѕ"}\n\ndata: {"type":"done","credits_spent":1}\n\ndata: [DONE]\n\n' });
+    await route.fulfill({ status: 200, contentType: 'text/event-stream', body: 'data: {"type":"content","content":"Готово"}\n\ndata: {"type":"done","credits_spent":1}\n\ndata: [DONE]\n\n' });
   });
   await page.goto('/');
-  await page.locator('.task-card').filter({ hasText: 'РћР±СЉСЏСЃРЅРёС‚СЊ С‚РµРјСѓ' }).click();
-  await page.locator('textarea.chat__input').fill('РџРѕС‡РµРјСѓ РЅРµР±Рѕ СЃРёРЅРµРµ?');
+  await page.locator('.task-card').filter({ hasText: 'Объяснить тему' }).click();
+  await page.locator('textarea.chat__input').fill('Почему небо синее?');
   await page.locator('.chat__input-icon--submit').click();
   await page.locator('input[type="email"]').fill('ux@example.com');
   await page.locator('input[type="password"]').fill('safe-password');
-  await page.getByRole('button', { name: 'Р’РѕР№С‚Рё', exact: true }).last().click();
+  await page.getByRole('button', { name: 'Войти', exact: true }).last().click();
   await expect.poll(() => dispatchBody).not.toBeNull();
-  await expect(page.getByText('Р“РѕС‚РѕРІРѕ')).toBeVisible();
+  await expect(page.getByText('Готово')).toBeVisible();
   expect(dispatchBody.template_id).toBe(1);
   expect(dispatchBody.task_type).toBe('explain');
-  expect(dispatchBody.messages.at(-1).content).toBe('РџРѕС‡РµРјСѓ РЅРµР±Рѕ СЃРёРЅРµРµ?');
+  expect(dispatchBody.messages.at(-1).content).toBe('Почему небо синее?');
 });
 
 test('authentication offers OAuth providers and no password registration', async ({ page }) => {
@@ -159,11 +159,11 @@ test('authentication offers OAuth providers and no password registration', async
 });
 
 test('voice input punctuates the transcript before dispatch', async ({ page }) => {
-  await mockSpeechRecognition(page, 'РїСЂРёРІРµС‚ СЂР°СЃСЃРєР°Р¶Рё РєР°Рє СЂР°Р±РѕС‚Р°РµС‚ РЅРµР№СЂРѕСЃРµС‚СЊ');
+  await mockSpeechRecognition(page, 'привет расскажи как работает нейросеть');
   await mockCommon(page, true);
   let dispatchBody: any = null;
   await page.route('**/api/chat/voice/punctuate', route => route.fulfill({ json: {
-    result: 'РџСЂРёРІРµС‚! Р Р°СЃСЃРєР°Р¶Рё, РєР°Рє СЂР°Р±РѕС‚Р°РµС‚ РЅРµР№СЂРѕСЃРµС‚СЊ.', applied: true,
+    result: 'Привет! Расскажи, как работает нейросеть.', applied: true,
   } }));
   await page.route('**/api/chat/dispatch', async route => {
     dispatchBody = route.request().postDataJSON();
@@ -171,13 +171,13 @@ test('voice input punctuates the transcript before dispatch', async ({ page }) =
   });
 
   await page.goto('/');
-  await page.getByRole('button', { name: 'Р“РѕР»РѕСЃРѕРІРѕР№ РІРІРѕРґ' }).click();
+  await page.getByRole('button', { name: 'Голосовой ввод' }).click();
   await expect.poll(() => dispatchBody).not.toBeNull();
-  expect(dispatchBody.messages.at(-1).content).toBe('РџСЂРёРІРµС‚! Р Р°СЃСЃРєР°Р¶Рё, РєР°Рє СЂР°Р±РѕС‚Р°РµС‚ РЅРµР№СЂРѕСЃРµС‚СЊ.');
+  expect(dispatchBody.messages.at(-1).content).toBe('Привет! Расскажи, как работает нейросеть.');
 });
 
 test('voice input sends the raw transcript when punctuation is unavailable', async ({ page }) => {
-  await mockSpeechRecognition(page, 'РїСЂРѕРІРµСЂРєР° РіРѕР»РѕСЃРѕРІРѕРіРѕ РІРІРѕРґР°');
+  await mockSpeechRecognition(page, 'проверка голосового ввода');
   await mockCommon(page, true);
   let dispatchBody: any = null;
   await page.route('**/api/chat/voice/punctuate', route => route.fulfill({
@@ -189,17 +189,17 @@ test('voice input sends the raw transcript when punctuation is unavailable', asy
   });
 
   await page.goto('/');
-  await page.getByRole('button', { name: 'Р“РѕР»РѕСЃРѕРІРѕР№ РІРІРѕРґ' }).click();
+  await page.getByRole('button', { name: 'Голосовой ввод' }).click();
   await expect.poll(() => dispatchBody).not.toBeNull();
-  expect(dispatchBody.messages.at(-1).content).toBe('РїСЂРѕРІРµСЂРєР° РіРѕР»РѕСЃРѕРІРѕРіРѕ РІРІРѕРґР°');
+  expect(dispatchBody.messages.at(-1).content).toBe('проверка голосового ввода');
 });
 
 test('model picker exposes capability tags and remains keyboard accessible', async ({ page }) => {
   await mockCommon(page);
   await page.goto('/');
-  await page.getByRole('button', { name: 'Р’С‹Р±СЂР°С‚СЊ РјРѕРґРµР»СЊ' }).click();
-  await expect(page.getByText('РљР°СЂС‚РёРЅРєРё', { exact: true })).toBeVisible();
-  await expect(page.getByText('Р’РёРґРµРѕ-РІС…РѕРґ', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Выбрать модель' }).click();
+  await expect(page.getByText('Картинки', { exact: true })).toBeVisible();
+  await expect(page.getByText('Видео-вход', { exact: true })).toBeVisible();
   await page.keyboard.press('Tab');
   const accessibility = await new AxeBuilder({ page }).exclude('script').analyze();
   expect(accessibility.violations.filter(item => ['critical', 'serious'].includes(item.impact || ''))).toEqual([]);
@@ -220,10 +220,10 @@ test('automatic image route renders a media card without changing selected LLM',
   }));
   await page.route('**/api/generations/job-1/assets/0', route => route.fulfill({ body: png, contentType: 'image/png' }));
   await page.goto('/');
-  await page.locator('textarea.chat__input').fill('РЎРіРµРЅРµСЂРёСЂСѓР№ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РєРѕС‚Р°');
-  await page.getByRole('button', { name: 'РћС‚РїСЂР°РІРёС‚СЊ' }).click();
-  await expect(page.getByText('РЎРіРµРЅРµСЂРёСЂРѕРІР°РЅРѕ С‡РµСЂРµР· Cheap Image')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Р’С‹Р±СЂР°С‚СЊ РјРѕРґРµР»СЊ' })).toContainText('AIвЂ‘Sphere СЂРµРєРѕРјРµРЅРґСѓРµС‚');
+  await page.locator('textarea.chat__input').fill('Сгенерируй изображение кота');
+  await page.getByRole('button', { name: 'Отправить' }).click();
+  await expect(page.getByText('Сгенерировано через Cheap Image')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Выбрать модель' })).toContainText('AI‑Sphere рекомендует');
   await expect(page.locator('.chat__generation-card')).toHaveScreenshot('image-generation-card.png');
 });
 
@@ -241,29 +241,29 @@ test('product admin overview is usable on desktop and mobile', async ({ page }) 
       first_payment_users: 14, repeat_payment_users: 4,
       retention_d1_pct: 31, retention_d7_pct: 18, retention_d30_pct: 9,
     },
-    alerts: [{ severity: 'warning', title: 'РћРїР»Р°С‚С‹ С‚СЂРµР±СѓСЋС‚ РІРЅРёРјР°РЅРёСЏ', value: '6 РѕС‚РєР°Р·РѕРІ', target: 'blockers/payment' }],
+    alerts: [{ severity: 'warning', title: 'Оплаты требуют внимания', value: '6 отказов', target: 'blockers/payment' }],
   } }));
   await page.route('**/api/admin/growth/funnel*', route => route.fulfill({ json: { stages: [
-    { event: 'landing_view', stage: 'Р’РёР·РёС‚', users: 240, conversion_pct: 100, dropped: 0 },
-    { event: 'task_started', stage: 'РќР°С‡Р°Р»Рѕ Р·Р°РґР°С‡Рё', users: 126, conversion_pct: 52.5, dropped: 114 },
-    { event: 'result_success', stage: 'РЈСЃРїРµС€РЅС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚', users: 88, conversion_pct: 69.8, dropped: 38 },
+    { event: 'landing_view', stage: 'Визит', users: 240, conversion_pct: 100, dropped: 0 },
+    { event: 'task_started', stage: 'Начало задачи', users: 126, conversion_pct: 52.5, dropped: 114 },
+    { event: 'result_success', stage: 'Успешный результат', users: 88, conversion_pct: 69.8, dropped: 38 },
   ] } }));
 
   for (const width of [320, 390, 768, 1280, 1920]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/admin');
-    await expect(page.getByRole('heading', { name: 'РћР±Р·РѕСЂ РїСЂРѕРµРєС‚Р°' })).toBeVisible();
-    await expect(page.getByText('РђРєС‚РёРІР°С†РёСЏ Р·Р° 24 С‡Р°СЃР°')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Обзор проекта' })).toBeVisible();
+    await expect(page.getByText('Активация за 24 часа')).toBeVisible();
     await expect(page.getByText('48.2%')).toBeVisible();
-    await expect(page.getByText('1. Р’РёР·РёС‚')).toBeVisible();
+    await expect(page.getByText('1. Визит')).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow, `admin overflow at ${width}px`).toBeLessThanOrEqual(1);
     if (width <= 768) {
-      const menuButton = page.getByRole('button', { name: 'РњРµРЅСЋ', exact: true });
+      const menuButton = page.getByRole('button', { name: 'Меню', exact: true });
       await expect(menuButton).toBeVisible();
       await menuButton.click();
-      await expect(page.getByRole('button', { name: /Р§С‚Рѕ РјРµС€Р°РµС‚/ })).toBeVisible();
-      await page.getByRole('button', { name: 'Р—Р°РєСЂС‹С‚СЊ РјРµРЅСЋ' }).click();
+      await expect(page.getByRole('button', { name: /Что мешает/ })).toBeVisible();
+      await page.getByRole('button', { name: 'Закрыть меню' }).click();
       await expect(page.locator('.admin-sidebar')).not.toHaveClass(/admin-sidebar--open/);
     }
     if (width === 1280) {
@@ -293,18 +293,18 @@ test('admin model economics stays inside the viewport on mobile and tablet', asy
   })) }));
   await page.route('**/api/admin/models/economics', route => route.fulfill({ json: {
     guard_passed: true, actual_period_days: 30, actual: [], tasks: [], models: [], plans: [],
-    assumptions: { target_margin_pct: 80, guard_plan_name: 'РџСЂРµРјРёСѓРј', cheapest_credit_rub: .083333,
+    assumptions: { target_margin_pct: 80, guard_plan_name: 'Премиум', cheapest_credit_rub: .083333,
       usd_rub_rate: 95, fx_safety_factor: 1.1, payment_fee_pct: 5, openrouter_funding_fee_pct: 5.5 },
   } }));
 
   for (const width of [320, 390, 768]) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto('/admin');
-    await page.getByRole('button', { name: 'РњРµРЅСЋ', exact: true }).click();
-    await page.getByRole('button', { name: /РњРѕРґРµР»Рё$/ }).click();
-    await expect(page.getByRole('heading', { name: 'РњРѕРґРµР»Рё' })).toBeVisible();
-    await expect(page.getByRole('columnheader', { name: 'OpenRouter $ / 1M С‚РѕРєРµРЅРѕРІ' })).toBeVisible();
-    await expect(page.getByLabel('Input С†РµРЅР° DeepSeek V4 Flash', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Меню', exact: true }).click();
+    await page.getByRole('button', { name: /Модели$/ }).click();
+    await expect(page.getByRole('heading', { name: 'Модели' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'OpenRouter $ / 1M токенов' })).toBeVisible();
+    await expect(page.getByLabel('Input цена DeepSeek V4 Flash', { exact: true })).toBeVisible();
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow, `models page overflow at ${width}px`).toBeLessThanOrEqual(1);
     const tableScroll = await page.locator('.admin__table-wrapper').last().evaluate(element => ({
@@ -318,7 +318,7 @@ test('admin model economics stays inside the viewport on mobile and tablet', asy
 
     if (width === 320) {
       await page.locator('.admin-content').evaluate(element => { element.scrollTop = element.scrollHeight; });
-      const backToModels = page.getByRole('button', { name: 'Рљ РЅР°С‡Р°Р»Сѓ С‚Р°Р±Р»РёС†С‹ РјРѕРґРµР»РµР№' });
+      const backToModels = page.getByRole('button', { name: 'К началу таблицы моделей' });
       await expect(backToModels).toBeVisible();
       await backToModels.click();
       await expect.poll(() => page.locator('.admin-content').evaluate(element => element.scrollTop)).toBeLessThan(900);
@@ -337,8 +337,8 @@ test('admin can replace automatic task routing with a preferred model', async ({
     funnel: {}, analytics: {}, features: {},
   } }));
   const template = {
-    id: 1, slug: 'explain', title: 'РћР±СЉСЏСЃРЅРёС‚СЊ С‚РµРјСѓ', description: '', category: 'text', task_type: 'explain',
-    prompt_template: '{input}', example_input: '', example_output: '', required_input: 'РўРµРјР°', preview_url: '',
+    id: 1, slug: 'explain', title: 'Объяснить тему', description: '', category: 'text', task_type: 'explain',
+    prompt_template: '{input}', example_input: '', example_output: '', required_input: 'Тема', preview_url: '',
     default_parameters: {}, preferred_model: '', fallback_models: [], estimated_credits_label: '',
     is_featured: true, is_active: true, sort_order: 10, usage_count: 2,
   };
@@ -358,13 +358,12 @@ test('admin can replace automatic task routing with a preferred model', async ({
 
   await page.setViewportSize({ width: 1280, height: 850 });
   await page.goto('/admin');
-  await page.getByRole('button', { name: /РЎС†РµРЅР°СЂРёРё Рё СЃРµСЂРІРёСЃС‹$/ }).click();
-  const preferred = page.getByLabel('РћСЃРЅРѕРІРЅР°СЏ РјРѕРґРµР»СЊ РґР»СЏ РћР±СЉСЏСЃРЅРёС‚СЊ С‚РµРјСѓ');
+  await page.getByRole('button', { name: /Сценарии и сервисы$/ }).click();
+  const preferred = page.getByLabel('Основная модель для Объяснить тему');
   await expect(preferred).toHaveValue('');
   await preferred.selectOption('openai/gpt-5-mini');
   await expect.poll(() => savedPreferred).toBe('openai/gpt-5-mini');
   await expect(preferred).toHaveValue('openai/gpt-5-mini');
-  await page.getByRole('button', { name: 'Р РµРґР°РєС‚РёСЂРѕРІР°С‚СЊ' }).click();
-  await expect(page.getByLabel('РћСЃРЅРѕРІРЅР°СЏ РјРѕРґРµР»СЊ СЃС†РµРЅР°СЂРёСЏ')).toHaveValue('openai/gpt-5-mini');
+  await page.getByRole('button', { name: 'Редактировать' }).click();
+  await expect(page.getByLabel('Основная модель сценария')).toHaveValue('openai/gpt-5-mini');
 });
-

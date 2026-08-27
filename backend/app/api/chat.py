@@ -44,10 +44,10 @@ logger = logging.getLogger("ai-sphere.chat")
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
-VOICE_PUNCTUATION_PROMPT = """Р Р°СЃСЃС‚Р°РІСЊ Р·РЅР°РєРё РїСЂРµРїРёРЅР°РЅРёСЏ Рё Р·Р°РіР»Р°РІРЅС‹Рµ Р±СѓРєРІС‹ РІ СЂР°СЃС€РёС„СЂРѕРІРєРµ СЂРµС‡Рё.
-РќРµР»СЊР·СЏ РґРѕР±Р°РІР»СЏС‚СЊ, СѓРґР°Р»СЏС‚СЊ, Р·Р°РјРµРЅСЏС‚СЊ РёР»Рё РїРµСЂРµСЃС‚Р°РІР»СЏС‚СЊ СЃР»РѕРІР° Рё С‡РёСЃР»Р°.
-РќРµ РёСЃРїСЂР°РІР»СЏР№ РіСЂР°РјРјР°С‚РёРєСѓ, РѕРіРѕРІРѕСЂРєРё Рё СЃР»РѕРІР°-РїР°СЂР°Р·РёС‚С‹.
-Р’РµСЂРЅРё С‚РѕР»СЊРєРѕ РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹Р№ С‚РµРєСЃС‚ Р±РµР· РїРѕСЏСЃРЅРµРЅРёР№ Рё Markdown."""
+VOICE_PUNCTUATION_PROMPT = """Расставь знаки препинания и заглавные буквы в расшифровке речи.
+Нельзя добавлять, удалять, заменять или переставлять слова и числа.
+Не исправляй грамматику, оговорки и слова-паразиты.
+Верни только обработанный текст без пояснений и Markdown."""
 
 
 def _spoken_tokens(value: str) -> list[str]:
@@ -97,7 +97,7 @@ def _voice_fallback(source: str, started_at: float, model: str, reason: str) -> 
     )
     return VoicePunctuateResponse(result=source, applied=False)
 
-# в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ File upload в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+# ──────────────── File upload ────────────────
 
 UPLOAD_DIR = settings.uploads_dir
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
@@ -170,18 +170,18 @@ async def upload_file(
     content = await file.read()
 
     if len(content) > MAX_FILE_SIZE:
-        raise HTTPException(status_code=413, detail="Р¤Р°Р№Р» СЃР»РёС€РєРѕРј Р±РѕР»СЊС€РѕР№. РњР°РєСЃРёРјСѓРј 20 РњР‘")
+        raise HTTPException(status_code=413, detail="Файл слишком большой. Максимум 20 МБ")
 
     # Basic extension-based type detection
     ext = Path(file.filename or "file").suffix.lower()
     if ext not in ALLOWED_EXTENSIONS or (file.content_type and file.content_type not in ALLOWED_TYPES):
-        raise HTTPException(status_code=415, detail="РќРµРїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Р№ С„РѕСЂРјР°С‚ С„Р°Р№Р»Р°")
+        raise HTTPException(status_code=415, detail="Неподдерживаемый формат файла")
     if not _signature_matches(content, ext):
-        raise HTTPException(status_code=415, detail="РЎРѕРґРµСЂР¶РёРјРѕРµ С„Р°Р№Р»Р° РЅРµ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РµРіРѕ С„РѕСЂРјР°С‚Сѓ")
+        raise HTTPException(status_code=415, detail="Содержимое файла не соответствует его формату")
     if session_id:
         session = await db.get(ChatSessionModel, session_id)
         if session is not None and session.user_id != user.id:
-            raise HTTPException(status_code=403, detail="Р§Р°С‚ РїСЂРёРЅР°РґР»РµР¶РёС‚ РґСЂСѓРіРѕРјСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ")
+            raise HTTPException(status_code=403, detail="Чат принадлежит другому пользователю")
     file_id = str(uuid.uuid4())
     saved_name = f"{file_id}{ext}"
     save_path = UPLOAD_DIR / saved_name
@@ -190,7 +190,7 @@ async def upload_file(
         extracted_text = _extract_document_text(content, ext)
     except Exception as exc:
         logger.warning("Document extraction failed for %s: %s", file.filename, exc)
-        raise HTTPException(status_code=422, detail="РќРµ СѓРґР°Р»РѕСЃСЊ Р±РµР·РѕРїР°СЃРЅРѕ РїСЂРѕС‡РёС‚Р°С‚СЊ РґРѕРєСѓРјРµРЅС‚") from exc
+        raise HTTPException(status_code=422, detail="Не удалось безопасно прочитать документ") from exc
 
     save_path.write_bytes(content)
     record = FileRecord(
@@ -229,15 +229,15 @@ async def download_file(
         FileRecord.deleted_at.is_(None), FileRecord.is_blocked == False,
     ))).scalar_one_or_none()
     if record is None:
-        raise HTTPException(404, "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Файл не найден")
     now = datetime.now(timezone.utc)
     expiry = record.expires_at
     if expiry and (expiry if expiry.tzinfo else expiry.replace(tzinfo=timezone.utc)) <= now:
-        raise HTTPException(410, "РЎСЂРѕРє С…СЂР°РЅРµРЅРёСЏ С„Р°Р№Р»Р° РёСЃС‚С‘Рє")
+        raise HTTPException(410, "Срок хранения файла истёк")
     target = Path(record.storage_path).resolve()
     root = settings.uploads_dir.resolve()
     if root not in target.parents or not target.is_file():
-        raise HTTPException(404, "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Файл не найден")
     return FileResponse(target, media_type=record.mime_type, filename=record.original_name)
 
 
@@ -380,7 +380,7 @@ def _prepare_message(msg, input_modalities: list[str]) -> dict:
             allowed_types.add("video_url")
         content = [part for part in content if isinstance(part, dict) and part.get("type") in allowed_types]
         if not content:
-            content = "(РІР»РѕР¶РµРЅРёРµ РЅРµРґРѕСЃС‚СѓРїРЅРѕ РІС‹Р±СЂР°РЅРЅРѕР№ РјРѕРґРµР»Рё)"
+            content = "(вложение недоступно выбранной модели)"
     return {"role": msg.role, "content": content}
 
 
@@ -408,7 +408,7 @@ async def chat_completion(
     fallback_map = {item.or_model_id: item for item in fallback_records}
     candidate_models = [model] + [fallback_map[item] for item in fallback_ids if item in fallback_map]
 
-    # Check if model supports vision вЂ” only check the last user message
+    # Check if model supports vision — only check the last user message
     for m in reversed(req.messages):
         if m.role == "user":
             if isinstance(m.content, list):
@@ -419,31 +419,31 @@ async def chat_completion(
                 if has_images and model_info.image_generation_only:
                     raise HTTPException(
                         status_code=400,
-                        detail=f"РњРѕРґРµР»СЊ В«{model_info.name}В» СЃРѕР·РґР°С‘С‚ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РёР· С‚РµРєСЃС‚Р°, РЅРѕ РЅРµ СѓРјРµРµС‚ СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ Р·Р°РіСЂСѓР¶РµРЅРЅС‹Рµ С„РѕС‚Рѕ. "
-                               f"РСЃРїРѕР»СЊР·СѓР№С‚Рµ GPT-4o, Claude, Gemini 2.5 Flash РёР»Рё РґСЂСѓРіСѓСЋ РјРѕРґРµР»СЊ СЃ РїРѕРЅРёРјР°РЅРёРµРј РёР·РѕР±СЂР°Р¶РµРЅРёР№."
+                        detail=f"Модель «{model_info.name}» создаёт изображения из текста, но не умеет редактировать загруженные фото. "
+                               f"Используйте GPT-4o, Claude, Gemini 2.5 Flash или другую модель с пониманием изображений."
                     )
                 if has_images and "image" not in model_info.input_modalities:
                     raise HTTPException(
                         status_code=400,
-                        detail=f"РњРѕРґРµР»СЊ В«{model_info.name}В» РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ. "
-                               f"Р’С‹Р±РµСЂРёС‚Рµ РјРѕРґРµР»СЊ СЃ РїРѕРґРґРµСЂР¶РєРѕР№ vision: GPT-4o, Claude, Gemini, Llama Vision РёР»Рё РґСЂСѓРіСѓСЋ."
+                        detail=f"Модель «{model_info.name}» не поддерживает изображения. "
+                               f"Выберите модель с поддержкой vision: GPT-4o, Claude, Gemini, Llama Vision или другую."
                     )
                 has_videos = any(
                     isinstance(part, dict) and part.get("type") == "video_url"
                     for part in m.content
                 )
                 if has_videos and "video" not in model_info.input_modalities:
-                    raise HTTPException(status_code=400, detail=f"РњРѕРґРµР»СЊ В«{model_info.name}В» РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ Р°РЅР°Р»РёР· РІРёРґРµРѕ")
+                    raise HTTPException(status_code=400, detail=f"Модель «{model_info.name}» не поддерживает анализ видео")
             break  # only check the latest user message
 
-    # Block guests вЂ” auth required
+    # Block guests — auth required
     if not user:
-        raise HTTPException(status_code=401, detail="РўСЂРµР±СѓРµС‚СЃСЏ Р°РІС‚РѕСЂРёР·Р°С†РёСЏ РґР»СЏ РѕС‚РїСЂР°РІРєРё СЃРѕРѕР±С‰РµРЅРёР№")
+        raise HTTPException(status_code=401, detail="Требуется авторизация для отправки сообщений")
     await enforce_free_program_budget(db, user)
 
     # Credit check for authenticated users
     if user and user.credits <= 0 and (model_info.price_per_1k_input > 0 or model_info.fixed_price > 0):
-        raise HTTPException(status_code=402, detail="РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РєСЂРµРґРёС‚РѕРІ. РџРѕРїРѕР»РЅРёС‚Рµ Р±Р°Р»Р°РЅСЃ.")
+        raise HTTPException(status_code=402, detail="Недостаточно кредитов. Пополните баланс.")
 
     # Estimate cost (for list content, count text parts only)
     estimated_input_tokens = 0
@@ -461,9 +461,9 @@ async def chat_completion(
         estimated_cost = (estimated_input_tokens * model_info.price_per_1k_input / 1000) + (estimated_output_tokens * model_info.price_per_1k_output / 1000)
 
     if user and user.credits < estimated_cost and (model_info.price_per_1k_input > 0 or model_info.fixed_price > 0):
-        raise HTTPException(status_code=402, detail="РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РєСЂРµРґРёС‚РѕРІ РґР»СЏ СЌС‚РѕРіРѕ Р·Р°РїСЂРѕСЃР°")
+        raise HTTPException(status_code=402, detail="Недостаточно кредитов для этого запроса")
 
-    # в”Ђв”Ђ Web search (Р°РєС‚СѓР°Р»СЊРЅС‹Рµ РґР°РЅРЅС‹Рµ РёР· РёРЅС‚РµСЂРЅРµС‚Р°) в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+    # ── Web search (актуальные данные из интернета) ─────────────────
     search_context = ""
     last_query = ""
     try:
@@ -479,7 +479,7 @@ async def chat_completion(
     except Exception as exc:
         logger.warning("Web search error: %s", exc)
 
-    # Р¤РёР»СЊС‚СЂ СЂРµР»РµРІР°РЅС‚РЅРѕСЃС‚Рё
+    # Фильтр релевантности
     if search_context and isinstance(last_query, str) and len(last_query) > 10:
         topic_words = {w.lower() for w in last_query.split() if len(w) > 3}
         items = search_context.split("\n**")
@@ -501,18 +501,18 @@ async def chat_completion(
 
     # System prompt with model identity
     system_prompt = (
-        f"РўС‹ вЂ” {model_info.name}, РР-Р°СЃСЃРёСЃС‚РµРЅС‚ РѕС‚ {model_info.provider}. "
-        f"РўРІРѕС‘ РёРјСЏ вЂ” {model_info.name}, С‚РµР±СЏ СЃРѕР·РґР°Р»Р° РєРѕРјРїР°РЅРёСЏ {model_info.provider}. "
-        f"РўС‹ РќР• ChatGPT, РќР• GPT, РќР• OpenAI Рё РќР• Р°СЃСЃРёСЃС‚РµРЅС‚ РѕС‚ OpenAI. "
-        "РќРёРєРѕРіРґР° РЅРµ РЅР°Р·С‹РІР°Р№ СЃРµР±СЏ ChatGPT, GPT РёР»Рё Р°СЃСЃРёСЃС‚РµРЅС‚РѕРј OpenAI. "
-        "РћС‚РІРµС‡Р°Р№ РЅР° СЏР·С‹РєРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ. Р‘СѓРґСЊ РїРѕР»РµР·РЅС‹Рј, С‚РѕС‡РЅС‹Рј Рё РІРµР¶Р»РёРІС‹Рј. "
-        f"РЎРµРіРѕРґРЅСЏ {date.today().strftime('%d.%m.%Y')}. РЈС‡РёС‚С‹РІР°Р№ Р°РєС‚СѓР°Р»СЊРЅСѓСЋ РґР°С‚Сѓ РІ РѕС‚РІРµС‚Р°С…."
+        f"Ты — {model_info.name}, ИИ-ассистент от {model_info.provider}. "
+        f"Твоё имя — {model_info.name}, тебя создала компания {model_info.provider}. "
+        f"Ты НЕ ChatGPT, НЕ GPT, НЕ OpenAI и НЕ ассистент от OpenAI. "
+        "Никогда не называй себя ChatGPT, GPT или ассистентом OpenAI. "
+        "Отвечай на языке пользователя. Будь полезным, точным и вежливым. "
+        f"Сегодня {date.today().strftime('%d.%m.%Y')}. Учитывай актуальную дату в ответах."
     )
     if search_context:
         system_prompt += (
-            "\n\nР’РѕС‚ Р°РєС‚СѓР°Р»СЊРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ РёР· РёРЅС‚РµСЂРЅРµС‚Р° (РёСЃРїРѕР»СЊР·СѓР№ РµС‘, РµСЃР»Рё РѕРЅР° РѕС‚РЅРѕСЃРёС‚СЃСЏ Рє РІРѕРїСЂРѕСЃСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ):\n"
+            "\n\nВот актуальная информация из интернета (используй её, если она относится к вопросу пользователя):\n"
             f"{search_context}\n"
-            "Р•СЃР»Рё СЃСЂРµРґРё СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ РїРѕРёСЃРєР° РЅРµС‚ СЂРµР»РµРІР°РЅС‚РЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё вЂ” РѕС‚РІРµС‡Р°Р№ РёР· СЃРІРѕРёС… Р·РЅР°РЅРёР№, РЅРµ РІС‹РґСѓРјС‹РІР°Р№."
+            "Если среди результатов поиска нет релевантной информации — отвечай из своих знаний, не выдумывай."
         )
 
     base_body = {
@@ -533,7 +533,7 @@ async def chat_completion(
     )
     await db.commit()
 
-    # в”Ђв”Ђ Streaming path (skip for image models вЂ” images don't stream) в”Ђв”Ђ
+    # ── Streaming path (skip for image models — images don't stream) ──
     if req.stream and model_info.fixed_price == 0:
         async def event_stream():
             full_content = ""
@@ -542,7 +542,7 @@ async def chat_completion(
             provider_error = ""
             succeeded = False
             if not settings.openrouter_api_key:
-                provider_error = "AI-СЃРµСЂРІРёСЃ РІСЂРµРјРµРЅРЅРѕ РЅРµ РЅР°СЃС‚СЂРѕРµРЅ. РџРѕРїСЂРѕР±СѓР№С‚Рµ РїРѕР·Р¶Рµ РёР»Рё РѕР±СЂР°С‚РёС‚РµСЃСЊ РІ РїРѕРґРґРµСЂР¶РєСѓ."
+                provider_error = "AI-сервис временно не настроен. Попробуйте позже или обратитесь в поддержку."
             else:
                 async with httpx.AsyncClient(timeout=120.0, proxy=proxy) as client:
                     for candidate in candidate_models:
@@ -595,7 +595,7 @@ async def chat_completion(
                                     break
                                 succeeded = False
                                 candidate.error_count += 1
-                                candidate.last_provider_error = "OpenRouter РІРµСЂРЅСѓР» РїСѓСЃС‚РѕР№ РѕС‚РІРµС‚"
+                                candidate.last_provider_error = "OpenRouter вернул пустой ответ"
                         except httpx.HTTPError as exc:
                             provider_error = str(exc)[:500]
                             candidate.error_count += 1
@@ -615,7 +615,7 @@ async def chat_completion(
                     metadata={"error_code": "provider_unavailable"},
                 )
                 await db.commit()
-                friendly = "AI-СЃРµСЂРІРёСЃ СЃРµР№С‡Р°СЃ РЅРµ РѕС‚РІРµС‡Р°РµС‚. РњС‹ РЅРµ СЃРїРёСЃР°Р»Рё РєСЂРµРґРёС‚С‹ вЂ” РїРѕРІС‚РѕСЂРёС‚Рµ Р·Р°РїСЂРѕСЃ С‡РµСЂРµР· РјРёРЅСѓС‚Сѓ."
+                friendly = "AI-сервис сейчас не отвечает. Мы не списали кредиты — повторите запрос через минуту."
                 if not settings.openrouter_api_key:
                     friendly = provider_error
                 yield f"data: {json.dumps({'type': 'error', 'content': friendly}, ensure_ascii=False)}\n\n"
@@ -641,7 +641,7 @@ async def chat_completion(
                             input_tokens * effective_info.price_per_1k_input / 1000
                             + output_tokens * effective_info.price_per_1k_output / 1000
                         ))
-                    if credits_spent > 0 and not await _charge_credits(db, user.id, credits_spent, f"Р§Р°С‚: {effective_model.or_model_id}"):
+                    if credits_spent > 0 and not await _charge_credits(db, user.id, credits_spent, f"Чат: {effective_model.or_model_id}"):
                         logger.warning("Concurrent credit charge rejected for user=%s", user.id)
                         credits_spent = 0
 
@@ -658,7 +658,7 @@ async def chat_completion(
 
         return StreamingResponse(event_stream(), media_type="text/event-stream")
 
-    # в”Ђв”Ђ Non-streaming path returns SSE too (for fixed_price models) в”Ђв”Ђ
+    # ── Non-streaming path returns SSE too (for fixed_price models) ──
     async def non_streaming_as_sse():
         if not settings.openrouter_api_key:
             await record_server_event(
@@ -667,7 +667,7 @@ async def chat_completion(
                 metadata={"error_code": "provider_not_configured"},
             )
             await db.commit()
-            yield f"data: {json.dumps({'type': 'error', 'content': 'AI-СЃРµСЂРІРёСЃ РІСЂРµРјРµРЅРЅРѕ РЅРµ РЅР°СЃС‚СЂРѕРµРЅ. РџРѕРїСЂРѕР±СѓР№С‚Рµ РїРѕР·Р¶Рµ РёР»Рё РѕР±СЂР°С‚РёС‚РµСЃСЊ РІ РїРѕРґРґРµСЂР¶РєСѓ.'}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'content': 'AI-сервис временно не настроен. Попробуйте позже или обратитесь в поддержку.'}, ensure_ascii=False)}\n\n"
             yield "data: [DONE]\n\n"
             return
         try:
@@ -693,7 +693,7 @@ async def chat_completion(
                 metadata={"error_code": "provider_network"},
             )
             await db.commit()
-            yield f"data: {json.dumps({'type': 'error', 'content': 'AI-СЃРµСЂРІРёСЃ СЃРµР№С‡Р°СЃ РЅРµ РѕС‚РІРµС‡Р°РµС‚. РљСЂРµРґРёС‚С‹ РЅРµ СЃРїРёСЃР°РЅС‹.'}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'content': 'AI-сервис сейчас не отвечает. Кредиты не списаны.'}, ensure_ascii=False)}\n\n"
             yield "data: [DONE]\n\n"
             return
 
@@ -704,7 +704,7 @@ async def chat_completion(
                 metadata={"error_code": f"provider_{response.status_code}"},
             )
             await db.commit()
-            yield f"data: {json.dumps({'type': 'error', 'content': 'AI-СЃРµСЂРІРёСЃ РѕС‚РєР»РѕРЅРёР» Р·Р°РїСЂРѕСЃ. РљСЂРµРґРёС‚С‹ РЅРµ СЃРїРёСЃР°РЅС‹ вЂ” РїРѕРїСЂРѕР±СѓР№С‚Рµ РґСЂСѓРіСѓСЋ РјРѕРґРµР»СЊ.'}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'content': 'AI-сервис отклонил запрос. Кредиты не списаны — попробуйте другую модель.'}, ensure_ascii=False)}\n\n"
             yield "data: [DONE]\n\n"
             return
 
@@ -712,7 +712,7 @@ async def chat_completion(
         choice = data["choices"][0]
         msg = choice["message"]
         content = msg.get("content") or msg.get("text", "") or ""
-        # Handle image generation models (Gemini, etc.) вЂ” images come in separate field
+        # Handle image generation models (Gemini, etc.) — images come in separate field
         images = msg.get("images")
         if images and isinstance(images, list) and len(images) > 0:
             img_url = images[0].get("image_url", {}).get("url", "") if isinstance(images[0], dict) else ""
@@ -722,7 +722,7 @@ async def chat_completion(
                 else:
                     content = img_url
         if not content:
-            content = f"[{model_info.name} РЅРµ РІРµСЂРЅСѓР» РѕС‚РІРµС‚]"
+            content = f"[{model_info.name} не вернул ответ]"
 
         # Deduct credits
         credits_spent = 0
@@ -742,7 +742,7 @@ async def chat_completion(
                         + output_tokens * model_info.price_per_1k_output / 1000
                     ))
             if credits_spent > 0:
-                if not await _charge_credits(db, user.id, credits_spent, f"Р§Р°С‚: {req.model}"):
+                if not await _charge_credits(db, user.id, credits_spent, f"Чат: {req.model}"):
                     credits_spent = 0
 
         result_kind = "document" if "document" in (req.task_type or "") else "text"
@@ -760,7 +760,7 @@ async def chat_completion(
     return StreamingResponse(non_streaming_as_sse(), media_type="text/event-stream")
 
 
-# в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Session sync (cross-device history) в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+# ──────────────── Session sync (cross-device history) ────────────────
 
 
 @router.get("/sessions")
@@ -923,26 +923,26 @@ async def save_message_feedback(
 
 FACTCHECK_MODEL = "openai/gpt-4o-mini"
 
-FACTCHECK_SYSTEM_PROMPT = """РўС‹ вЂ” С„Р°РєС‚-С‡РµРєРµСЂ. РџСЂРѕРІРµСЂСЏРµС€СЊ С„Р°РєС‚С‹ РІ РѕС‚РІРµС‚Р°С… РР-Р°СЃСЃРёСЃС‚РµРЅС‚Р°.
+FACTCHECK_SYSTEM_PROMPT = """Ты — факт-чекер. Проверяешь факты в ответах ИИ-ассистента.
 
-РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ Р·Р°РґР°Р» РІРѕРїСЂРѕСЃ, РР-Р°СЃСЃРёСЃС‚РµРЅС‚ РґР°Р» РѕС‚РІРµС‚. РџСЂРѕРІРµСЂСЊ С„Р°РєС‚С‹ РІ РѕС‚РІРµС‚Рµ.
+Пользователь задал вопрос, ИИ-ассистент дал ответ. Проверь факты в ответе.
 
-РџСЂР°РІРёР»Р°:
-1. РќР°Р№РґРё С„Р°РєС‚РёС‡РµСЃРєРёРµ РѕС€РёР±РєРё, РЅРµС‚РѕС‡РЅРѕСЃС‚Рё, СѓСЃС‚Р°СЂРµРІС€РёРµ РґР°РЅРЅС‹Рµ
-2. РћС‚РјРµС‚СЊ РїРѕРґС‚РІРµСЂР¶РґС‘РЅРЅС‹Рµ С„Р°РєС‚С‹
-3. РЈРєР°Р¶Рё РЅРµСѓРІРµСЂРµРЅРЅС‹Рµ СѓС‚РІРµСЂР¶РґРµРЅРёСЏ, РєРѕС‚РѕСЂС‹Рµ С‚СЂРµР±СѓСЋС‚ РїСЂРѕРІРµСЂРєРё
-4. РћС†РµРЅРё РѕР±С‰СѓСЋ РґРѕСЃС‚РѕРІРµСЂРЅРѕСЃС‚СЊ РѕС‚РІРµС‚Р° РІ РїСЂРѕС†РµРЅС‚Р°С… (confidence)
+Правила:
+1. Найди фактические ошибки, неточности, устаревшие данные
+2. Отметь подтверждённые факты
+3. Укажи неуверенные утверждения, которые требуют проверки
+4. Оцени общую достоверность ответа в процентах (confidence)
 
-РћС‚РІРµС‚СЊ РўРћР›Р¬РљРћ JSON Р±РµР· РїРѕСЏСЃРЅРµРЅРёР№:
+Ответь ТОЛЬКО JSON без пояснений:
 {
   "errors": [
-    {"claim": "СѓС‚РІРµСЂР¶РґРµРЅРёРµ СЃ РѕС€РёР±РєРѕР№", "status": "incorrect", "correction": "РєР°Рє РїСЂР°РІРёР»СЊРЅРѕ"}
+    {"claim": "утверждение с ошибкой", "status": "incorrect", "correction": "как правильно"}
   ],
   "confidence": 85,
   "verified_claims": [
-    {"claim": "РїРѕРґС‚РІРµСЂР¶РґС‘РЅРЅС‹Р№ С„Р°РєС‚", "status": "correct", "correction": null}
+    {"claim": "подтверждённый факт", "status": "correct", "correction": null}
   ],
-  "details": "РєСЂР°С‚РєРѕРµ СЂРµР·СЋРјРµ РїСЂРѕРІРµСЂРєРё РЅР° СЂСѓСЃСЃРєРѕРј"
+  "details": "краткое резюме проверки на русском"
 }"""
 
 
@@ -955,7 +955,7 @@ async def factcheck(
     """Check facts in an AI response using another model. Cost: 1 credit."""
     # Credit check
     if user.credits < 1:
-        raise HTTPException(status_code=402, detail="РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РєСЂРµРґРёС‚РѕРІ. РџРѕРїРѕР»РЅРёС‚Рµ Р±Р°Р»Р°РЅСЃ.")
+        raise HTTPException(status_code=402, detail="Недостаточно кредитов. Пополните баланс.")
 
     headers = {
         "Authorization": f"Bearer {settings.openrouter_api_key}",
@@ -968,7 +968,7 @@ async def factcheck(
         "model": FACTCHECK_MODEL,
         "messages": [
             {"role": "system", "content": FACTCHECK_SYSTEM_PROMPT},
-            {"role": "user", "content": f"Р’РѕРїСЂРѕСЃ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ: {req.prompt}\n\nРћС‚РІРµС‚ РР:\n{req.response}"},
+            {"role": "user", "content": f"Вопрос пользователя: {req.prompt}\n\nОтвет ИИ:\n{req.response}"},
         ],
         "max_tokens": 2048,
         "temperature": 0.1,
@@ -988,7 +988,7 @@ async def factcheck(
                 errors=[],
                 confidence=50,
                 verified_claims=[],
-                details=f"РћС€РёР±РєР° РїСЂРѕРІРµСЂРєРё: {response.status_code}",
+                details=f"Ошибка проверки: {response.status_code}",
             )
 
         data = response.json()
@@ -1002,13 +1002,13 @@ async def factcheck(
                 errors=[FactCheckClaim(**e) for e in result.get("errors", [])],
                 confidence=result.get("confidence", 50),
                 verified_claims=[FactCheckClaim(**c) for c in result.get("verified_claims", [])],
-                details=result.get("details", "РџСЂРѕРІРµСЂРєР° РІС‹РїРѕР»РЅРµРЅР°."),
+                details=result.get("details", "Проверка выполнена."),
             )
         else:
-            fc_response = FactCheckResponse(details="РќРµ СѓРґР°Р»РѕСЃСЊ СЂР°СЃРїР°СЂСЃРёС‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚ РїСЂРѕРІРµСЂРєРё.")
+            fc_response = FactCheckResponse(details="Не удалось распарсить результат проверки.")
 
-        if not await _charge_credits(db, user.id, 1, f"Р¤Р°РєС‚-С‡РµРє: {req.model_id[:30]}"):
-            raise HTTPException(status_code=402, detail="РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РєСЂРµРґРёС‚РѕРІ")
+        if not await _charge_credits(db, user.id, 1, f"Факт-чек: {req.model_id[:30]}"):
+            raise HTTPException(status_code=402, detail="Недостаточно кредитов")
 
         return fc_response
     except HTTPException:
@@ -1018,6 +1018,5 @@ async def factcheck(
             errors=[],
             confidence=50,
             verified_claims=[],
-            details=f"РћС€РёР±РєР° РїСЂРѕРІРµСЂРєРё: {str(e)[:200]}",
+            details=f"Ошибка проверки: {str(e)[:200]}",
         )
-

@@ -3,6 +3,7 @@ import path from 'path';
 import matter from 'gray-matter';
 import type { NewsArticle, NewsArticleMeta, NewsCategory, NewsSection } from '@/types/news';
 import { NEWS_CATEGORIES } from '@/types/news';
+import { stripMarkdownH1 } from '@/lib/seo';
 
 const NEWS_DIR = path.join(process.cwd(), 'src', 'content', 'news');
 
@@ -37,7 +38,8 @@ function parseSections(content: string): NewsSection[] {
 /** Parse one .md file into a NewsArticle */
 function parseNewsFile(filePath: string, subdir: string = ''): NewsArticle | null {
   const raw = fs.readFileSync(filePath, 'utf-8');
-  const { data, content } = matter(raw);
+  const { data, content: markdownContent } = matter(raw);
+  const content = stripMarkdownH1(markdownContent);
 
   const meta = data as Partial<NewsArticleMeta & { summary?: string, isResearch?: boolean }>;
   if (!meta.slug || !meta.title) return null;
@@ -71,6 +73,7 @@ function parseNewsFile(filePath: string, subdir: string = ''): NewsArticle | nul
   return {
     slug: meta.slug,
     title: meta.title,
+    seoTitle: meta.seoTitle,
     description: meta.description || '',
     datePublished: meta.datePublished || '',
     dateModified: meta.dateModified,
@@ -78,6 +81,10 @@ function parseNewsFile(filePath: string, subdir: string = ''): NewsArticle | nul
     category: meta.category || 'general',
     tags: ensureArray(meta.tags),
     sourceUrls: ensureArray(meta.sourceUrls),
+    eventKey: meta.eventKey,
+    factCheckedAt: meta.factCheckedAt,
+    reviewStatus: meta.reviewStatus,
+    primaryKeyword: meta.primaryKeyword,
     primarySourceUrl: meta.primarySourceUrl || ensureArray(meta.sourceUrls)?.[0],
     relatedModels: ensureArray(meta.relatedModels),
     relatedCompanies: ensureArray(meta.relatedCompanies),
@@ -151,7 +158,7 @@ export function getNewsArticle(slug: string): NewsArticle | null {
 
 /** Get news by category */
 export function getNewsByCategory(category: NewsCategory): NewsArticle[] {
-  return getAllNews('ready').filter(a => a.category === category);
+  return getAllNews('ready').filter(a => a.index !== false && a.category === category);
 }
 
 /** Get all slugs for generateStaticParams */
@@ -163,7 +170,7 @@ export function getAllNewsSlugs(): string[] {
 export function getRecentNews(days: number = 2): NewsArticle[] {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - days);
-  return getAllNews().filter(a => {
+  return getAllNews('ready').filter(a => a.index !== false).filter(a => {
     const d = new Date(a.datePublished);
     return d >= cutoff;
   });
@@ -171,7 +178,7 @@ export function getRecentNews(days: number = 2): NewsArticle[] {
 
 /** Get active categories that have published news */
 export function getActiveNewsCategories(): NewsCategory[] {
-  const articles = getAllNews('ready');
+  const articles = getAllNews('ready').filter(a => a.index !== false);
   return NEWS_CATEGORIES.filter(c => articles.some(a => a.category === c));
 }
 
@@ -187,7 +194,7 @@ export function getRelatedNews(params: {
   limit?: number;
 }): NewsArticle[] {
   const { models = [], companies = [], categories = [], excludeSlug, limit = 5 } = params;
-  const all = getAllNews('ready');
+  const all = getAllNews('ready').filter(a => a.index !== false);
 
   const matched = all.filter(a => {
     if (excludeSlug && a.slug === excludeSlug) return false;

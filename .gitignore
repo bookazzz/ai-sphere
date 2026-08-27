@@ -64,3 +64,5 @@ next-env.d.ts
 *.swp
 *.swo
 *.db
+backend/data/uploads/
+datasets/seo/keys-cache/

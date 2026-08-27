@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AuthModal from '@/components/AuthModal';
+import { apiCall, getMe } from '@/lib/api';
 
 const faqItems = [
   {
@@ -10,7 +11,7 @@ const faqItems = [
   },
   {
     q: 'Можно ли пополнить баланс без комиссии?',
-    a: 'Да, пополнение через ЮKassa без скрытых комиссий. Доступны суммы: 50, 250, 1000 и 2500 рублей. Средства зачисляются мгновенно.',
+    a: 'Да, пополнение через Platega без подписки. Доступны суммы: 50, 250, 1000 и 2500 рублей. Кредиты зачисляются после подтверждения платежа.',
   },
   {
     q: 'Есть ли бесплатный лимит?',
@@ -22,24 +23,40 @@ const faqItems = [
   },
 ];
 
-const plans = [
-  { amount: 50, bonus: null, bonusCredits: 0 },
-  { amount: 250, bonus: null, bonusCredits: 0 },
-  { amount: 1000, bonus: '+15%', bonusCredits: 1500, isPopular: true },
-  { amount: 2500, bonus: '+20%', bonusCredits: 5000 },
-];
+interface CreditPlan {
+  id: string;
+  name: string;
+  price: number;
+  credits: number;
+  bonus: number;
+  popular: boolean;
+}
 
 export default function PricesClient() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authSuccessUser, setAuthSuccessUser] = useState<any>(null);
+  const [plans, setPlans] = useState<CreditPlan[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
-  const handleTopUp = () => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
+  useEffect(() => {
+    apiCall<CreditPlan[]>('/billing/plans').then(setPlans).catch(e => setError(e.message));
+  }, []);
+
+  const startPayment = async (planId: string) => {
+    setError('');
+    try {
+      await getMe();
+    } catch {
+      setSelectedPlan(planId);
       setShowAuthModal(true);
-    } else {
-      window.location.href = 'https://ai-sphere.ru/prices?topup=true';
+      return;
+    }
+    try {
+      const payment = await apiCall<{payment_url:string}>('/billing/top-up', {method:'POST', body:JSON.stringify({plan_id:planId})});
+      window.location.assign(payment.payment_url);
+    } catch (e:any) {
+      setError(e.message || 'Не удалось создать платёж');
     }
   };
 
@@ -51,28 +68,29 @@ export default function PricesClient() {
           <h2 className="plans__title">Выберите тариф</h2>
           <div className="plans__grid">
             {plans.map((plan) => (
-              <div className={'plans__card' + (plan.isPopular ? ' plans__card--popular' : '')} key={plan.amount}>
-                {plan.isPopular && <span className="plans__card-badge">Популярный</span>}
+              <div className={'plans__card' + (plan.popular ? ' plans__card--popular' : '')} key={plan.id}>
+                {plan.popular && <span className="plans__card-badge">Популярный</span>}
                 <div className="plans__card-header">
-                  <span className="plans__price">{plan.amount} ₽</span>
-                  {plan.bonus && (
-                    <span className="plans__bonus">{plan.bonus}</span>
+                  <span className="plans__price">{plan.price / 100} ₽</span>
+                  {plan.bonus > 0 && (
+                    <span className="plans__bonus">+{plan.bonus}</span>
                   )}
                 </div>
                 <div className="plans__card-body">
                   <p className="plans__credits">
-                    ~{plan.amount * 10} кредитов
+                    {plan.credits} кредитов
                   </p>
-                  {plan.bonus && (
+                  {plan.bonus > 0 && (
                     <p className="plans__bonus-text">
-                      +{plan.bonusCredits} бонусных кредитов
+                      +{plan.bonus} бонусных кредитов
                     </p>
                   )}
                 </div>
-                <button className="plans__btn" onClick={handleTopUp}>Пополнить</button>
+                <button className="plans__btn" onClick={()=>void startPayment(plan.id)}>Пополнить</button>
               </div>
             ))}
           </div>
+          {error && <p className="admin__error" style={{textAlign:'center',marginTop:16}}>{error}</p>}
         </div>
       </section>
 
@@ -108,10 +126,9 @@ export default function PricesClient() {
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
-        onLogin={(user: any) => {
-          setAuthSuccessUser(user);
+        onLogin={(_user: any) => {
           setShowAuthModal(false);
-          window.location.href = 'https://ai-sphere.ru/prices?topup=true';
+          if (selectedPlan) void startPayment(selectedPlan);
         }}
       />
     </>

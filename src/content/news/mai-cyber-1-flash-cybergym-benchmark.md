@@ -17,7 +17,6 @@ schema_version: "3.2"
 status: "ready"
 index: true
 ---
-# Модель MAI-Cyber-1-Flash от Microsoft AI возглавляет бенчмарк CyberGym
 
 **Кратко:** Модель MAI-Cyber-1-Flash, разработанная Microsoft AI, заняла первое место в бенчмарке CyberGym. Результат достигнут при работе модели в составе оркестратора.
 

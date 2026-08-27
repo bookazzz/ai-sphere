@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Новый метод выявления заблуждений студентов на основе диалогов с ИИ
+
 
 **Кратко:** Предложен метод автоматического выявления заблуждений студентов на основе диалогов с репетитором. Подход использует три этапа: генерацию гипотез с помощью тонко настроенной LLM, поиск наиболее вероятных кандидатов по эмбеддингам и переранжирование результатов другой LLM.
 

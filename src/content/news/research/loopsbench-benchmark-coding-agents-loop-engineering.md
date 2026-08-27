@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Новый бенчмарк LOOPSBENCH оценивает coding-агентов в долгосрочных задачах
+
 
 **Кратко:** Исследователи представили LOOPSBENCH — бенчмарк для оценки coding-агентов, ориентированный на длительные циклы разработки. Он включает 112 задач из реальных источников на 8 языках программирования. Лучший результат (25%) показал Opus-4.7 с Claude Code и внешним продолжением.
 

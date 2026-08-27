@@ -23,4 +23,3 @@ class FileRecord(Base, TimestampMixin):
     is_blocked: Mapped[bool] = mapped_column(default=False)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), index=True, default=None)
-

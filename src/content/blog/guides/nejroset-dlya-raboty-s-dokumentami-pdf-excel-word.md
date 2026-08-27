@@ -7,7 +7,7 @@ author: "AI-Sphere"
 category: "guides"
 tags: ["document-processing", "ai для pdf", "нейросеть для документов", "анализ pdf нейросетью"]
 status: "ready"
-index: true
+index: false
 ---
 
 ## Почему нейросеть для документов становится необходимостью в 2026 году?

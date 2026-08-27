@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# AI-учёный Faraday 27B превзошёл Claude Opus 4.8 и GPT-5.5 в воспроизведении исследований
+
 
 **Кратко:** Разработана масштабируемая среда Replica для оценки воспроизводимости научных работ и AI-агент Faraday размером 27 млрд параметров. Faraday превзошёл Claude Opus 4.8 и GPT-5.5 в задачах повторения результатов, демонстрируя более научно обоснованный подход.
 

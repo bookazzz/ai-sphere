@@ -18,8 +18,6 @@ status: "ready"
 index: true
 ---
 
-# Anthropic внедряет водяные знаки SynthID-Text от Google DeepMind в Claude
-
 **Кратко:** Компания Anthropic объявила об использовании технологии SynthID-Text от Google DeepMind для маркировки контента, созданного моделью Claude. Разработчики получат доступ к специализированному API для работы с водяными знаками.
 
 **Что произошло**

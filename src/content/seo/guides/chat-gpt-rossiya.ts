@@ -6,7 +6,7 @@ export const chat_gpt_rossiya: SeoPageContent = {
   title: 'ChatGPT в России — как пользоваться',
   description: 'ChatGPT в России — полное руководство по доступу, оплате и использованию ChatGPT. Без VPN, с оплатой картами РФ.',
   canonical: 'https://ai-sphere.ru/chat-gpt-rossiya',
-  index: true,
+  index: false,
   updatedAt: '2026-07-07',
   hero: {
     title: 'ChatGPT в России — как пользоваться',
@@ -52,7 +52,7 @@ export const chat_gpt_rossiya: SeoPageContent = {
   faq: [
     { question: 'Работает ли ChatGPT в России?', answer: 'Россия не входит в официальный список поддерживаемых OpenAI стран. AI-Sphere предоставляет доступ к ChatGPT без VPN, с оплатой в рублях.' },
     { question: 'Нужен ли VPN для ChatGPT?', answer: 'При использовании AI-Sphere VPN не требуется. Весь трафик идёт через российский сервер.' },
-    { question: 'Как оплатить ChatGPT из России?', answer: 'Через AI-Sphere — оплата картами РФ, от 99 ₽. Есть бесплатные запросы.' },
+    { question: 'Как оплатить ChatGPT из России?', answer: 'В AI-Sphere используются пакеты кредитов с оплатой в рублях. Актуальные пакеты, способы оплаты и условия показаны на странице тарифов.' },
     { question: 'Доступен ли GPT-4 в России?', answer: 'Да, через AI-Sphere доступны все версии ChatGPT, включая GPT-4o.' },
   ],
   cta: 'Попробовать ChatGPT в России',

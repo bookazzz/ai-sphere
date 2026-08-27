@@ -36,5 +36,6 @@ class CreditPlan(Base, TimestampMixin):
 
     @property
     def credit_price(self) -> float:
-        """Цена одного кредита в рублях."""
-        return round(self.price_rub / 100 / self.credits, 6)
+        """Effective rubles per spendable credit, including package bonuses."""
+        total = self.credits + self.bonus_credits
+        return round(self.price_rub / 100 / total, 6) if total > 0 else 0.0

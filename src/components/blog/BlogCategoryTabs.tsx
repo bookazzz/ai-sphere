@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import type { BlogCategory } from '@/types/blog-post';
 import { CATEGORY_LABELS } from '@/types/blog-post';
 
@@ -11,10 +10,9 @@ interface Props {
 }
 
 export default function BlogCategoryTabs({ categories, activeCategory }: Props) {
-  const pathname = usePathname();
 
   return (
-    <nav
+    <nav className="blog-tabs"
       style={{
         display: 'flex',
         gap: 8,
@@ -25,6 +23,7 @@ export default function BlogCategoryTabs({ categories, activeCategory }: Props) 
     >
       <Link
         href="/blog"
+        className={!activeCategory ? 'is-active' : ''}
         style={{
           padding: '10px 20px',
           borderRadius: 24,
@@ -44,6 +43,7 @@ export default function BlogCategoryTabs({ categories, activeCategory }: Props) 
           <Link
             key={cat}
             href={`/blog/${cat}`}
+            className={isActive ? 'is-active' : ''}
             style={{
               padding: '10px 20px',
               borderRadius: 24,

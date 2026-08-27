@@ -1,64 +1,50 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
-/**
- * Yandex Metrica — асинхронная загрузка без блокировки рендера.
- * Код метрики грузится после первого рендера, не влияет на LCP/FCP.
- */
+const FALLBACK_COUNTER_ID = '110850288';
+type YmFunction = ((...args: unknown[]) => void) & { a?: unknown[][]; l?: number };
+
 export default function YandexMetrica() {
-  const [counterId, setCounterId] = useState<string | null>(null);
-
   useEffect(() => {
-    fetch('/api/public/metrica')
-      .then(r => r.json())
-      .then(d => {
-        const id = d?.counter_id?.trim();
-        if (id && /^\d+$/.test(id)) {
-          setCounterId(id);
+    let cancelled = false;
+
+    const initialize = async () => {
+      let counterId = FALLBACK_COUNTER_ID;
+      try {
+        const apiBase = process.env.NODE_ENV === 'development' ? 'http://localhost:8000/api' : '/api';
+        const response = await fetch(`${apiBase}/public/settings`);
+        if (response.ok) {
+          const settings = await response.json();
+          if (/^\d{1,20}$/.test(settings.yandex_metrica_id || '')) counterId = settings.yandex_metrica_id;
         }
-      })
-      .catch(() => {
-        // метрика недоступна — не критично
+      } catch {
+        // Analytics must never prevent the application from loading.
+      }
+      if (cancelled || document.querySelector(`script[data-metrica-id="${counterId}"]`)) return;
+
+      const win = window as typeof window & { ym?: YmFunction };
+      if (!win.ym) {
+        const ym: YmFunction = (...args: unknown[]) => { (ym.a ||= []).push(args) };
+        ym.l = Date.now();
+        win.ym = ym;
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://mc.yandex.ru/metrika/tag.js';
+        script.dataset.metricaId = counterId;
+        document.head.appendChild(script);
+      }
+      win.ym?.(Number(counterId), 'init', {
+        clickmap: true,
+        trackLinks: true,
+        accurateTrackBounce: true,
+        webvisor: true,
       });
+    };
+
+    initialize();
+    return () => { cancelled = true };
   }, []);
 
-  useEffect(() => {
-    if (!counterId) return;
-
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.async = true;
-    script.innerHTML = `
-      (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-      m[i].l=1*new Date();
-      k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
-      (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-      ym(${counterId}, "init", {
-        clickmap:true,
-        trackLinks:true,
-        accurateTrackBounce:true,
-        webvisor:true
-      });
-    `;
-    document.head.appendChild(script);
-
-    // noscript fallback
-    const noscript = document.createElement('noscript');
-    const img = document.createElement('img');
-    img.src = `https://mc.yandex.ru/watch/${counterId}`;
-    img.style.position = 'absolute';
-    img.style.left = '-9999px';
-    img.alt = '';
-    noscript.appendChild(img);
-    document.body.appendChild(noscript);
-
-    return () => {
-      // cleanup при размонтировании
-      if (script.parentNode) script.parentNode.removeChild(script);
-      if (noscript.parentNode) noscript.parentNode.removeChild(noscript);
-    };
-  }, [counterId]);
-
-  return null; // ничего не рендерит
+  return null;
 }

@@ -2,7 +2,8 @@
 
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Body
+from fastapi import APIRouter, Depends, HTTPException, Body
+from pydantic import BaseModel, Field
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,6 +13,10 @@ from app.models.user import User
 from app.models.support_ticket import SupportTicket, TicketMessage
 
 router = APIRouter(prefix="/api/tickets", tags=["tickets"])
+
+
+class TicketMessageRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=10000)
 
 
 @router.post("")
@@ -136,7 +141,7 @@ async def get_ticket(
 @router.post("/{ticket_id}/messages")
 async def add_message(
     ticket_id: int,
-    message: str = Query(..., min_length=1),
+    payload: TicketMessageRequest,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
@@ -159,7 +164,7 @@ async def add_message(
     msg = TicketMessage(
         ticket_id=ticket_id,
         user_id=user.id,
-        content=message.strip(),
+        content=payload.message.strip(),
     )
     db.add(msg)
 

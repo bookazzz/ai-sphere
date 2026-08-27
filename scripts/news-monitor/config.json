@@ -1,5 +1,13 @@
 {
   "sources": {
+    "openai-official": {
+      "name": "OpenAI News",
+      "url": "https://openai.com/news/rss.xml",
+      "type": "rss",
+      "lang": "en",
+      "priority": 10,
+      "tier": "official"
+    },
     "google-news-ai": {
       "name": "Google News AI",
       "url": "https://news.google.com/rss/search?q=artificial+intelligence&hl=en-US&gl=US&ceid=US:en",

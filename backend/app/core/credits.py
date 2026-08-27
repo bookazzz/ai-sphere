@@ -52,7 +52,7 @@ async def apply_daily_credits(user: User, db: AsyncSession) -> User:
             balance_after=before_total + delta,
             source=today.isoformat(),
             related_id=f"daily:{today.isoformat()}",
-            comment="Р•Р¶РµРґРЅРµРІРЅС‹Р№ Р±Р°Р»Р°РЅСЃ Р±РµСЃРїР»Р°С‚РЅС‹С… РєСЂРµРґРёС‚РѕРІ",
+            comment="Ежедневный баланс бесплатных кредитов",
         ))
         await db.commit()
     await db.refresh(user)
@@ -90,4 +90,3 @@ async def restore_buckets(db: AsyncSession, user_id: int, allocation: dict[str, 
     if values:
         await db.execute(update(User).where(User.id == user_id).values(**values))
     return restored
-

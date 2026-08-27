@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { site } from '@/config/site';
 
 export const metadata: Metadata = {
-  title: 'Публичная оферта | AI-Sphere',
+  title: 'Публичная оферта сервиса нейросетей | AI-Sphere',
   description: 'Публичная оферта на оказание услуг AI-Sphere. Условия использования сервиса нейросетей.',
+  alternates: { canonical: `${site.url}/offer/` },
+  robots: { index: true, follow: true },
   openGraph: {
-    title: 'Публичная оферта | AI-Sphere',
+    title: 'Публичная оферта сервиса нейросетей | AI-Sphere',
     description: 'Публичная оферта на оказание услуг AI-Sphere. Условия использования сервиса нейросетей.',
+    url: `${site.url}/offer/`,
   },
 };
 
@@ -25,7 +29,7 @@ const sections = [
     title: '2. Предмет договора',
     items: [
       'Исполнитель предоставляет Пользователю доступ к сервису AI-Sphere — агрегатору нейросетей.',
-      'Услуги оказываются на условиях платной подписки или оплаты по факту использования (кредитная система).',
+      'Услуги оказываются по кредитной системе без подписки и автоматических списаний.',
       'Перечень доступных моделей и тарифов указан на сайте.',
     ],
   },
@@ -34,7 +38,7 @@ const sections = [
     items: [
       'Пользователь регистрируется на сайте и пополняет баланс.',
       'Стоимость каждого запроса списывается с баланса в кредитах.',
-      '1 кредит = 0,1 рубля.',
+      'Рублёвая стоимость одного кредита зависит от выбранного пакета и показывается до оплаты.',
       'Исполнитель оставляет за собой право изменять стоимость услуг с предварительным уведомлением на сайте.',
     ],
   },
@@ -75,10 +79,10 @@ export default function OfferPage() {
   return (
     <>
       <Header />
-      <main>
-        <section style={{ padding: '60px 20px', textAlign: 'center', background: 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%)' }}>
-          <div style={{ maxWidth: 800, margin: '0 auto' }}>
-            <h1 style={{ fontSize: 36, fontWeight: 700, marginBottom: 16, color: 'var(--text-primary)' }}>
+      <main className="legal-page">
+        <section className="legal-hero" style={{ padding: '60px 20px', textAlign: 'center', background: 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%)' }}>
+          <div className="legal-hero__inner" style={{ maxWidth: 800, margin: '0 auto' }}>
+            <h1 className="legal-hero__title" style={{ fontSize: 36, fontWeight: 700, marginBottom: 16, color: 'var(--text-primary)' }}>
               Публичная оферта
             </h1>
             <p style={{ fontSize: 16, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
@@ -87,8 +91,8 @@ export default function OfferPage() {
           </div>
         </section>
 
-        <section style={{ padding: '40px 20px 60px' }}>
-          <div style={{ maxWidth: 800, margin: '0 auto', fontSize: 16, color: 'var(--text-primary)', lineHeight: 1.8 }}>
+        <section className="legal-content" style={{ padding: '40px 20px 60px' }}>
+          <div className="legal-content__inner" style={{ maxWidth: 800, margin: '0 auto', fontSize: 16, color: 'var(--text-primary)', lineHeight: 1.8 }}>
             <p style={{ marginBottom: 24, fontSize: 14, color: 'var(--text-secondary)' }}>
               Настоящий документ является публичной офертой (ст. 437 ГК РФ) и содержит все существенные условия оказания услуг.
             </p>

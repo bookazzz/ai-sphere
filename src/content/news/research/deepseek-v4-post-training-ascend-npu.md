@@ -20,7 +20,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# DeepSeek-V4: Полный посттренинг на Ascend NPU SuperPOD с MFU 34,22%
+
 
 **Кратко:** Представлен метод полного посттренинга триллионных MoE-моделей на кластере Ascend NPU. Система достигает 34,22% Model FLOPs Utilization (MFU) — улучшение в 2,93 раза по сравнению с открытой базовой конфигурацией, сохраняя стабильность обучения.
 

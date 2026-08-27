@@ -26,12 +26,11 @@ class BalanceResponse(BaseModel):
 
 
 class TransactionInfo(BaseModel):
+    model_config = {"from_attributes": True}
+
     id: int
     amount: int
     rub_amount: int
     type: str
     description: str
     created_at: str
-
-    class Config:
-        from_attributes = True

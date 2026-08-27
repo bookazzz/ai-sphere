@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Paris: первая диффузионная модель, обученная децентрализованно
+
 
 **Кратко:** Исследователи представили Paris — первую публично доступную диффузионную модель, предобученную полностью через децентрализованные вычисления. Модель демонстрирует, что высококачественная генерация текста в изображение возможна без централизованной инфраструктуры. Paris открыта для исследований и коммерческого использования.
 

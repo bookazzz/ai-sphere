@@ -6,7 +6,7 @@ export const gpt_besplatno: SeoPageContent = {
   title: 'GPT бесплатно — чат с нейросетью без оплаты | AI-Sphere',
   description: 'GPT бесплатно: общайтесь с ИИ без подписки. Бесплатные запросы каждый день, доступ к DeepSeek и базовым моделям. Без VPN и карт.',
   h1: 'GPT бесплатно',
-  index: true,
+  index: false,
   contentStatus: 'ready',
   schemaType: 'softwareApplication',
   updatedAt: '2026-07-07',

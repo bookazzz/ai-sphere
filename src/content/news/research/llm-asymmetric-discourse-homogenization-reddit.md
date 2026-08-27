@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Исследование: LLM-модели асимметрично гомогенизируют политический дискурс на Reddit
+
 
 **Кратко:** Анализ 6 млн комментариев Reddit за 2019–2025 годы показал, что с конца 2022 года политический дискурс консервативных пользователей стал менее разнообразным, тогда как у прогрессивных пользователей значимых изменений не произошло. Эффект не связан с конкретным запуском ChatGPT, а нарастает постепенно по мере распространения языковых моделей.
 

@@ -18,8 +18,6 @@ status: "draft"
 index: true
 ---
 
-# Binance представила Agent OS — платформу для управления AI-агентами
-
 **Кратко:** Binance запустила платформу Agent OS, предназначенную для создания и управления AI-агентами. Платформа интегрируется с популярными инструментами, включая OpenAI ChatGPT и Codex, Anthropic Claude Code и Cursor.
 
 **Что произошло**

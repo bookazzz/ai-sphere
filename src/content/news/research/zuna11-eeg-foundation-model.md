@@ -20,7 +20,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# ZUNA1.1: открытая модель для гибкого восстановления сигналов ЭЭГ
+
 
 **Кратко:** Исследователи представили ZUNA1.1 — diffusion autoencoder с 380 миллионами параметров для восстановления сигналов электроэнцефалограммы (ЭЭГ). Модель способна обрабатывать последовательности переменной длины до 30 секунд, произвольное количество каналов в любых местах на скальпе, а также восстанавливать произвольные временные интервалы внутри каналов. Код опубликован под лицензией Apache 2.0.
 

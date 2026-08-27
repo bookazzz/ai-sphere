@@ -1,4 +1,3 @@
-import type { SeoPageContent } from '@/types/seo-page';
 
 // Реестр SEO-страниц для организации и сортировки
 export const seoPageSlugs: string[] = [

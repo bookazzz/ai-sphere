@@ -5,13 +5,13 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 const NAV_ITEMS = [
+  { href: '/popular', label: 'Популярное' },
+  { href: '/works', label: 'Мои работы' },
   { href: '/', label: 'Чат' },
   { href: '/prices', label: 'Цены' },
   { href: '/models', label: 'Нейросети' },
-  { href: '/about', label: 'О компании' },
-  { href: '/contacts', label: 'Контакты' },
-  { href: '/security', label: 'Безопасность' },
-  { href: '/faq', label: 'FAQ' },
+  { href: '/blog', label: 'Блог' },
+  { href: '/news', label: 'Новости' },
 ];
 
 export default function Header() {

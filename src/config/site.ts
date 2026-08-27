@@ -3,7 +3,7 @@ export const site = {
   url: 'https://ai-sphere.ru',
   locale: 'ru_RU',
   description: 'ИИ-чат с доступом к ChatGPT, Claude, Gemini, DeepSeek и другим моделям. Без VPN, с оплатой в рублях.',
-  ogImage: 'https://ai-sphere.ru/og-image.png',
+  ogImage: 'https://ai-sphere.ru/og/ai-sphere-platform.png',
 } as const;
 
 export const navigation = {
@@ -11,16 +11,14 @@ export const navigation = {
     { href: '/', label: 'Чат' },
     { href: '/prices', label: 'Тарифы' },
     { href: '/models', label: 'Модели' },
+    { href: '/nejroset-dlya-dokumentov', label: 'Работа с документами' },
   ],
   company: [
     { href: '/news', label: 'Новости' },
     { href: '/company/openai', label: 'OpenAI' },
     { href: '/company/anthropic', label: 'Anthropic' },
-    { href: '/about', label: 'О нас' },
+    { href: '/company/mistral-ai', label: 'Mistral AI' },
     { href: '/blog', label: 'Блог' },
-    { href: '/contacts', label: 'Контакты' },
-    { href: '/faq', label: 'FAQ' },
-    { href: '/security', label: 'Безопасность' },
   ],
   legal: [
     { href: '/offer', label: 'Пользовательское соглашение' },

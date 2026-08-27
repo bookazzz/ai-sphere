@@ -41,4 +41,3 @@ __all__ = [
     "RewardLedger", "Experiment", "ExperimentVariant", "ExperimentAssignment", "AnalyticsDaily",
     "SeoPage", "ReferralPartner", "ReferralTransaction", "PaymentAttempt", "GenerationJob",
 ]
-

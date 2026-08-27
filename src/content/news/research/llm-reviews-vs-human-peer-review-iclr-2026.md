@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# LLM-рецензии не совпадают с человеческими: сравнение GPT-5.4, Gemini 3.1 и Claude Opus 4.6 на ICLR 2026
+
 
 **Кратко:** Новое исследование на arXiv показывает, что три ведущие LLM — OpenAI GPT-5.4, Google Gemini 3.1 Pro Preview и Anthropic Claude Opus 4.6 — при рецензировании 300 докладов ICLR 2026 отличают принятые работы от отклонённых, но не различают уровень oral и poster. Все модели работали по одинаковым инструкциям и без знания итогового решения.
 

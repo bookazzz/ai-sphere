@@ -4,8 +4,14 @@ export const nejroset_dlya_koda: SeoPageContent = {
   slug: 'nejroset-dlya-koda',
   type: 'use-case',
   title: 'Нейросеть для кода — написать, проверить, объяснить | AI-Sphere',
+  seoTitle: 'Нейросеть для написания и проверки кода | AI-Sphere',
   description: 'Нейросеть для кода онлайн: напишите функцию, найдите ошибку, объясните код, проведите рефакторинг. Поддержка Python, JS, SQL и других языков.',
   h1: 'Нейросеть для написания кода',
+  primaryKeyword: 'нейросеть для кода',
+  secondaryKeywords: ['нейросеть для программирования', 'ии для написания кода'],
+  searchIntent: 'commercial',
+  image: '/og/text-documents.png',
+  imageAlt: 'Работа с программным кодом в AI-Sphere',
   index: true,
   contentStatus: 'ready',
   schemaType: 'webPage',
@@ -15,7 +21,7 @@ export const nejroset_dlya_koda: SeoPageContent = {
 
   hero: {
     title: 'Нейросеть для кода',
-    text: 'Пишите, проверяйте и улучшайте код с помощью ИИ. Поддержка всех популярных языков программирования. Без VPN и зарубежных карт.',
+    text: 'Пишите, проверяйте и улучшайте код с помощью ИИ. Возможности зависят от выбранной модели, а оплата доступна пакетами кредитов в рублях.',
     ctaText: 'Начать писать код',
     modelId: 'deepseek-chat',
   },

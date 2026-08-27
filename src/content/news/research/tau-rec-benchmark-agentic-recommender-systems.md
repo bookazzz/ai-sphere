@@ -20,7 +20,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Новый бенчмарк tau-Rec выявил «пропасть надежности» в агентных рекомендательных системах
+
 
 **Кратко:** Исследователи разработали бенчмарк tau-Rec для оценки агентных рекомендательных систем, который заменяет субъективные оценки LLM-судьи на проверяемые вознаграждения. Тестирование шести моделей, включая GPT-5.4 и Claude Sonnet 4.6, показало, что даже лучшая из них достигает лишь 57% точности при первом запросе, а при четвертом — падает до 35%.
 

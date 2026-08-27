@@ -63,7 +63,7 @@ class Settings(BaseSettings):
     # Frontend URL (for OAuth redirects after auth)
     frontend_url: str = Field("https://ai-sphere.ru", validation_alias=AliasChoices("AISPHERE_FRONTEND_URL", "FRONTEND_URL"))
 
-    # YooKassa (DEPRECATED вЂ” replaced by Platega)
+    # YooKassa (DEPRECATED — replaced by Platega)
     # yookassa_shop_id: str = ""
     # yookassa_secret_key: str = ""
     # yookassa_return_url: str = "https://ai-sphere.ru/billing"
@@ -168,4 +168,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-

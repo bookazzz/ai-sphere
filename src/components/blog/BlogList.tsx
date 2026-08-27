@@ -8,7 +8,7 @@ interface Props {
 export default function BlogList({ posts }: Props) {
   if (posts.length === 0) {
     return (
-      <div
+      <div className="blog-empty"
         style={{
           textAlign: 'center',
           padding: '60px 20px',
@@ -22,7 +22,7 @@ export default function BlogList({ posts }: Props) {
   }
 
   return (
-    <div
+    <div className="blog-grid"
       style={{
         display: 'grid',
         gap: 24,

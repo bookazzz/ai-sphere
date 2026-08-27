@@ -18,8 +18,6 @@ status: "ready"
 index: true
 ---
 
-# GLM-5.3 набрал 60 баллов в индексе Artificial Analysis Intelligence
-
 **Кратко:** Модель GLM-5.3 от компании Zhipu AI получила 60 баллов по версии Artificial Analysis Intelligence Index. Это один из самых высоких показателей среди современных языковых моделей.
 
 **Что произошло**

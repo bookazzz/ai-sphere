@@ -143,6 +143,9 @@
   font-weight: 500;
 }
 
+.pricing-modal__benefit { margin:0 0 10px; color:#565967; font-size:12px; line-height:1.45; }
+.pricing-modal__trust { display:grid; grid-template-columns:1fr 1fr; gap:7px 14px; margin-top:20px; padding:14px; border-radius:12px; color:#5e626f; background:#f7f7fa; font-size:11px; }
+
 .pricing-modal__btn {
   width: 100%;
   padding: 10px;
@@ -177,4 +180,5 @@
   .pricing-modal__price {
     font-size: 24px;
   }
+  .pricing-modal__trust { grid-template-columns:1fr; }
 }

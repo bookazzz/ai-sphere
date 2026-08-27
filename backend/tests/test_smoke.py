@@ -101,7 +101,7 @@ def test_tariff_aware_pricing_never_drops_below_eighty_percent_margin():
     context = PricingContext(
         credit_rub=2500 / 30000,
         plan_id=4,
-        plan_name="РџСЂРµРјРёСѓРј",
+        plan_name="Премиум",
         target_margin=0.80,
         payment_fee_rate=0.05,
         provider_funding_fee_rate=0.055,
@@ -152,12 +152,12 @@ def test_health_auth_and_model_contract():
 
 def test_voice_punctuation_contract_preserves_words_and_credits():
     assert _safe_punctuation_result(
-        "РїСЂРёРІРµС‚ СЂР°СЃСЃРєР°Р¶Рё РїСЂРѕ РјРѕРґРµР»СЊ 2026",
-        "РџСЂРёРІРµС‚! Р Р°СЃСЃРєР°Р¶Рё РїСЂРѕ РјРѕРґРµР»СЊ 2026.",
+        "привет расскажи про модель 2026",
+        "Привет! Расскажи про модель 2026.",
     )
     assert not _safe_punctuation_result(
-        "РїСЂРёРІРµС‚ СЂР°СЃСЃРєР°Р¶Рё РїСЂРѕ РјРѕРґРµР»СЊ 2026",
-        "РџСЂРёРІРµС‚! Р Р°СЃСЃРєР°Р¶Рё РїСЂРѕ РЅРѕРІСѓСЋ РјРѕРґРµР»СЊ 2026.",
+        "привет расскажи про модель 2026",
+        "Привет! Расскажи про новую модель 2026.",
     )
 
     class FakeResponse:
@@ -167,7 +167,7 @@ def test_voice_punctuation_contract_preserves_words_and_credits():
             return {"choices": [{"message": {"content": FakeClient.content}}]}
 
     class FakeClient:
-        content = "РџСЂРёРІРµС‚! Р Р°СЃСЃРєР°Р¶Рё, РїРѕР¶Р°Р»СѓР№СЃС‚Р°, РєР°Рє СЂР°Р±РѕС‚Р°РµС‚ РЅРµР№СЂРѕСЃРµС‚СЊ."
+        content = "Привет! Расскажи, пожалуйста, как работает нейросеть."
         init_kwargs = {}
         post_kwargs = {}
 
@@ -198,7 +198,7 @@ def test_voice_punctuation_contract_preserves_words_and_credits():
             patch("app.api.chat.httpx.AsyncClient", FakeClient),
         ):
             response = client.post("/api/chat/voice/punctuate", json={
-                "text": "РїСЂРёРІРµС‚ СЂР°СЃСЃРєР°Р¶Рё РїРѕР¶Р°Р»СѓР№СЃС‚Р° РєР°Рє СЂР°Р±РѕС‚Р°РµС‚ РЅРµР№СЂРѕСЃРµС‚СЊ",
+                "text": "привет расскажи пожалуйста как работает нейросеть",
             })
             assert response.status_code == 200
             assert response.json() == {
@@ -208,31 +208,31 @@ def test_voice_punctuation_contract_preserves_words_and_credits():
             assert FakeClient.init_kwargs["timeout"] == 4.0
             assert FakeClient.post_kwargs["json"]["temperature"] == 0
 
-            FakeClient.content = "РџСЂРёРІРµС‚! РћР±СЉСЏСЃРЅРё, РїРѕР¶Р°Р»СѓР№СЃС‚Р°, РєР°Рє СЂР°Р±РѕС‚Р°РµС‚ РЅРµР№СЂРѕСЃРµС‚СЊ."
+            FakeClient.content = "Привет! Объясни, пожалуйста, как работает нейросеть."
             unsafe = client.post("/api/chat/voice/punctuate", json={
-                "text": "РїСЂРёРІРµС‚ СЂР°СЃСЃРєР°Р¶Рё РїРѕР¶Р°Р»СѓР№СЃС‚Р° РєР°Рє СЂР°Р±РѕС‚Р°РµС‚ РЅРµР№СЂРѕСЃРµС‚СЊ",
+                "text": "привет расскажи пожалуйста как работает нейросеть",
             })
             assert unsafe.status_code == 200
             assert unsafe.json() == {
-                "result": "РїСЂРёРІРµС‚ СЂР°СЃСЃРєР°Р¶Рё РїРѕР¶Р°Р»СѓР№СЃС‚Р° РєР°Рє СЂР°Р±РѕС‚Р°РµС‚ РЅРµР№СЂРѕСЃРµС‚СЊ",
+                "result": "привет расскажи пожалуйста как работает нейросеть",
                 "applied": False,
             }
 
         with patch.object(settings, "openrouter_api_key", ""):
-            fallback = client.post("/api/chat/voice/punctuate", json={"text": "РёСЃС…РѕРґРЅС‹Р№ С‚РµРєСЃС‚"})
+            fallback = client.post("/api/chat/voice/punctuate", json={"text": "исходный текст"})
             assert fallback.status_code == 200
-            assert fallback.json() == {"result": "РёСЃС…РѕРґРЅС‹Р№ С‚РµРєСЃС‚", "applied": False}
+            assert fallback.json() == {"result": "исходный текст", "applied": False}
 
         assert client.get("/api/auth/me").json()["credits"] == credits_before
         assert client.post("/api/chat/voice/punctuate", json={"text": " "}).status_code == 422
-        assert client.post("/api/chat/voice/punctuate", json={"text": "СЏ" * 2001}).status_code == 422
+        assert client.post("/api/chat/voice/punctuate", json={"text": "я" * 2001}).status_code == 422
 
     with TestClient(
         app,
         headers={"Origin": "http://localhost:3000"},
         client=("voice-punctuation-anonymous", 50000),
     ) as anonymous:
-        assert anonymous.post("/api/chat/voice/punctuate", json={"text": "РїСЂРѕРІРµСЂРєР°"}).status_code == 401
+        assert anonymous.post("/api/chat/voice/punctuate", json={"text": "проверка"}).status_code == 401
 
 
 def test_voice_punctuation_rate_limit():
@@ -244,7 +244,7 @@ def test_voice_punctuation_rate_limit():
         authenticate(client, "voice-rate-limit@example.com")
         with patch.object(settings, "openrouter_api_key", ""):
             statuses = [
-                client.post("/api/chat/voice/punctuate", json={"text": "РїСЂРѕРІРµСЂРєР°"}).status_code
+                client.post("/api/chat/voice/punctuate", json={"text": "проверка"}).status_code
                 for _ in range(21)
             ]
         assert statuses[:20] == [200] * 20
@@ -258,7 +258,7 @@ def test_task_catalogue_estimate_events_and_auto_fallback_contract():
         assert {item["category"] for item in templates} == {"text", "document", "image", "video"}
         explain = next(item for item in templates if item["task_type"] == "explain")
         estimate = client.post("/api/tasks/estimate", json={
-            "template_id": explain["id"], "model": "auto", "prompt": "РџРѕС‡РµРјСѓ РЅРµР±Рѕ СЃРёРЅРµРµ?",
+            "template_id": explain["id"], "model": "auto", "prompt": "Почему небо синее?",
         })
         assert estimate.status_code == 200
         assert estimate.json()["credits_min"] >= 1
@@ -292,12 +292,12 @@ def test_vision_and_csrf_contracts():
         response = client.post("/api/chat/completions", json={
             "model": "deepseek/deepseek-v4-flash",
             "messages": [{"role": "user", "content": [
-                {"type": "text", "text": "Р§С‚Рѕ РЅР° С„РѕС‚Рѕ?"},
+                {"type": "text", "text": "Что на фото?"},
                 {"type": "image_url", "image_url": {"url": "data:image/png;base64,AA=="}},
             ]}],
         })
         assert response.status_code == 400
-        assert "РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ" in response.json()["detail"]
+        assert "не поддерживает изображения" in response.json()["detail"]
 
 
 def test_database_catalog_changes_are_immediately_public():
@@ -365,9 +365,9 @@ def test_admin_can_review_user_queries_chats_and_feedback():
     email = f"observer-{uuid.uuid4().hex}@example.com"
     session_id = str(uuid.uuid4())
     messages = [
-        {"role": "user", "content": "РЎРѕСЃС‚Р°РІСЊ РїР»Р°РЅ Р·Р°РїСѓСЃРєР° РЅРѕРІРѕРіРѕ РїСЂРѕРґСѓРєС‚Р°"},
+        {"role": "user", "content": "Составь план запуска нового продукта"},
         {
-            "role": "assistant", "content": "Р’РѕС‚ РїРѕС€Р°РіРѕРІС‹Р№ РїР»Р°РЅ.",
+            "role": "assistant", "content": "Вот пошаговый план.",
             "requested_model": "deepseek/deepseek-chat", "credits_spent": 2,
         },
     ]
@@ -381,14 +381,14 @@ def test_admin_can_review_user_queries_chats_and_feedback():
         user = asyncio.run(_ensure_user(email, "safe-password-123"))
         authenticate_existing(client, user)
         assert client.put("/api/chat/sessions", json={
-            "id": session_id, "title": "Р—Р°РїСѓСЃРє РїСЂРѕРґСѓРєС‚Р°", "messages": messages,
+            "id": session_id, "title": "Запуск продукта", "messages": messages,
         }).status_code == 200
         assert client.post("/api/chat/feedback", json={
             "session_id": session_id, "message_index": 1,
             "feedback_type": "like", "model": "deepseek/deepseek-chat",
         }).status_code == 200
         assert client.post("/api/feedback", json={
-            "type": "idea", "subject": "РЈР»СѓС‡С€РµРЅРёРµ", "message": "Р”РѕР±Р°РІСЊС‚Рµ СЌРєСЃРїРѕСЂС‚", "rating": 5,
+            "type": "idea", "subject": "Улучшение", "message": "Добавьте экспорт", "rating": 5,
         }).status_code == 200
 
         async def promote():
@@ -400,13 +400,13 @@ def test_admin_can_review_user_queries_chats_and_feedback():
 
         asyncio.run(promote())
 
-        queries = client.get("/api/admin/queries?search=Р·Р°РїСѓСЃРєР°").json()
+        queries = client.get("/api/admin/queries?search=запуска").json()
         assert queries["total"] == 1
         assert queries["queries"][0]["content"] == messages[0]["content"]
         assert queries["queries"][0]["user_email"] == email
         assert queries["queries"][0]["model"] == "deepseek/deepseek-chat"
 
-        chats = client.get("/api/admin/chats?search=РїСЂРѕРґСѓРєС‚Р°").json()
+        chats = client.get("/api/admin/chats?search=продукта").json()
         assert chats["total"] == 1
         assert chats["chats"][0]["message_count"] == 2
         assert chats["chats"][0]["credits_spent"] == 2
@@ -419,10 +419,10 @@ def test_admin_can_review_user_queries_chats_and_feedback():
         feedback = client.get("/api/admin/feedbacks?type=idea").json()
         item_id = next(item["id"] for item in feedback["feedbacks"] if item["user_email"] == email)
         assert client.patch(f"/api/admin/feedbacks/{item_id}?status=read").status_code == 200
-        assert client.post(f"/api/admin/feedbacks/{item_id}/reply?message=РЎРїР°СЃРёР±Рѕ").status_code == 200
+        assert client.post(f"/api/admin/feedbacks/{item_id}/reply?message=Спасибо").status_code == 200
         detail = client.get(f"/api/admin/feedbacks/{item_id}").json()
         assert detail["feedback"]["status"] == "replied"
-        assert detail["replies"][0]["message"] == "РЎРїР°СЃРёР±Рѕ"
+        assert detail["replies"][0]["message"] == "Спасибо"
 
         assert client.put("/api/admin/metrica?counter_id=12345678").status_code == 200
         assert client.get("/api/public/settings").json()["yandex_metrica_id"] == "12345678"
@@ -446,10 +446,10 @@ def test_admin_can_review_user_queries_chats_and_feedback():
                 victim = User(email=victim_email, hashed_password=hash_password("unused-password"))
                 db.add(victim)
                 await db.flush()
-                db.add(ChatSession(id=victim_session, user_id=victim.id, title="РЈРґР°Р»СЏРµРјС‹Р№ С‡Р°С‚", messages="[]"))
+                db.add(ChatSession(id=victim_session, user_id=victim.id, title="Удаляемый чат", messages="[]"))
                 db.add(UserQuery(
                     session_id=victim_session, user_id=victim.id, message_index=0,
-                    content="РЈРґР°Р»СЏРµРјС‹Р№ Р·Р°РїСЂРѕСЃ",
+                    content="Удаляемый запрос",
                 ))
                 await db.commit()
                 return victim.id
@@ -523,10 +523,10 @@ def test_webhook_rejects_unsigned_and_is_idempotent():
 
 
 def test_media_intent_and_cheapest_allowed_model():
-    assert classify_intent("РЎРіРµРЅРµСЂРёСЂСѓР№ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РєРѕС‚Р°") == "image"
-    assert classify_intent("РЎРѕР·РґР°Р№ РєРѕСЂРѕС‚РєРѕРµ РІРёРґРµРѕ СЃ РјРѕСЂРµРј") == "video"
-    assert classify_intent("Р Р°СЃСЃРєР°Р¶Рё, РєР°Рє РіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ РєР°СЂС‚РёРЅРєРё") == "text"
-    assert classify_intent("/video Р·Р°РєР°С‚") == "video"
+    assert classify_intent("Сгенерируй изображение кота") == "image"
+    assert classify_intent("Создай короткое видео с морем") == "video"
+    assert classify_intent("Расскажи, как генерировать картинки") == "text"
+    assert classify_intent("/video закат") == "video"
 
     async def choose():
         async with async_session() as db:
@@ -592,7 +592,7 @@ def test_image_dispatch_uses_image_api_and_private_asset(monkeypatch, tmp_path):
         authenticate(client, "plain@example.com", "correct horse battery staple")
         response = client.post("/api/chat/dispatch", json={
             "model": "deepseek/deepseek-v4-flash",
-            "messages": [{"role": "user", "content": "РЎРіРµРЅРµСЂРёСЂСѓР№ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РєРѕС‚Р°"}],
+            "messages": [{"role": "user", "content": "Сгенерируй изображение кота"}],
             "stream": True,
         })
         assert response.status_code == 200
@@ -818,4 +818,3 @@ def test_retention_removes_old_chat_content_but_not_financial_journal():
             db.expire_all()
             assert await db.get(ChatSession, session_id) is None
     asyncio.run(exercise())
-

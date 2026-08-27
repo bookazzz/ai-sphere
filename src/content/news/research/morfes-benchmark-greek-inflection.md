@@ -20,7 +20,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# MORFES: Новый бенчмарк для оценки словоизменения в новогреческом языке
+
 
 **Кратко:** Исследователи представили MORFES — бенчмарк для оценки способности языковых моделей работать со словоизменением в новогреческом языке. Набор данных включает 500 экспертно проверенных заданий и доступен на Hugging Face.
 

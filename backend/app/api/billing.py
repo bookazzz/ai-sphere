@@ -103,7 +103,7 @@ async def _create_platega_payment(
     payment_id = data.get("transactionId", "")
     payment_url = data.get("url", "")
     if not payment_id or not payment_url:
-        raise HTTPException(status_code=502, detail="Platega РЅРµ РІРµСЂРЅСѓР» РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РёР»Рё СЃСЃС‹Р»РєСѓ РЅР° РѕРїР»Р°С‚Сѓ")
+        raise HTTPException(status_code=502, detail="Platega не вернул идентификатор или ссылку на оплату")
     return payment_id, payment_url
 
 
@@ -150,16 +150,16 @@ async def redeem_promo(
     code = payload.code.strip().upper()
     promo = (await db.execute(select(PromoCode).where(PromoCode.code == code))).scalar_one_or_none()
     if promo is None or not promo.is_active:
-        raise HTTPException(404, "РџСЂРѕРјРѕРєРѕРґ РЅРµ РЅР°Р№РґРµРЅ РёР»Рё РЅРµР°РєС‚РёРІРµРЅ")
+        raise HTTPException(404, "Промокод не найден или неактивен")
     if promo.expires_at and promo.expires_at < moscow_today():
-        raise HTTPException(410, "РЎСЂРѕРє РґРµР№СЃС‚РІРёСЏ РїСЂРѕРјРѕРєРѕРґР° РёСЃС‚С‘Рє")
+        raise HTTPException(410, "Срок действия промокода истёк")
     if promo.credits <= 0:
-        raise HTTPException(409, "РџСЂРѕРјРѕРєРѕРґ РЅР°СЃС‚СЂРѕРµРЅ РЅРµРєРѕСЂСЂРµРєС‚РЅРѕ")
+        raise HTTPException(409, "Промокод настроен некорректно")
     already = (await db.execute(select(PromoRedemption.id).where(
         PromoRedemption.promo_id == promo.id, PromoRedemption.user_id == user.id,
     ))).scalar_one_or_none()
     if already:
-        raise HTTPException(409, "РџСЂРѕРјРѕРєРѕРґ СѓР¶Рµ Р°РєС‚РёРІРёСЂРѕРІР°РЅ")
+        raise HTTPException(409, "Промокод уже активирован")
     if promo.max_uses > 0:
         claimed = await db.execute(
             update(PromoCode)
@@ -169,7 +169,7 @@ async def redeem_promo(
         )
         if claimed.rowcount != 1:
             await db.rollback()
-            raise HTTPException(409, "Р›РёРјРёС‚ Р°РєС‚РёРІР°С†РёР№ РїСЂРѕРјРѕРєРѕРґР° РёСЃС‡РµСЂРїР°РЅ")
+            raise HTTPException(409, "Лимит активаций промокода исчерпан")
     else:
         await db.execute(update(PromoCode).where(PromoCode.id == promo.id).values(used_count=PromoCode.used_count + 1))
     before = user.credits
@@ -179,12 +179,12 @@ async def redeem_promo(
         db.add(CreditOperation(
             user_id=user.id, op_type="promo", credit_type="promo", amount=promo.credits,
             balance_before=before, balance_after=before + promo.credits,
-            source=code, related_id=f"promo:{promo.id}", comment="РђРєС‚РёРІР°С†РёСЏ РїСЂРѕРјРѕРєРѕРґР°",
+            source=code, related_id=f"promo:{promo.id}", comment="Активация промокода",
         ))
         await db.commit()
     except IntegrityError:
         await db.rollback()
-        raise HTTPException(409, "РџСЂРѕРјРѕРєРѕРґ СѓР¶Рµ Р°РєС‚РёРІРёСЂРѕРІР°РЅ")
+        raise HTTPException(409, "Промокод уже активирован")
     return {"ok": True, "credits_added": promo.credits, "total_credits": before + promo.credits}
 
 
@@ -194,26 +194,26 @@ async def top_up(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """Create payment request вЂ” Platega with email, or fallback if not configured."""
+    """Create payment request — Platega with email, or fallback if not configured."""
     try:
         plan_id = int(req.plan_id)
     except ValueError:
-        raise HTTPException(status_code=400, detail="РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚Р°СЂРёС„")
+        raise HTTPException(status_code=400, detail="Неизвестный тариф")
     plan = await db.get(CreditPlan, plan_id)
     if plan is None or not _plan_is_available(plan):
-        raise HTTPException(status_code=400, detail="РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚Р°СЂРёС„")
+        raise HTTPException(status_code=400, detail="Неизвестный тариф")
 
     if plan.is_new_users_only and user.total_paid_rub > 0:
-        raise HTTPException(status_code=400, detail="РўР°СЂРёС„ РґРѕСЃС‚СѓРїРµРЅ С‚РѕР»СЊРєРѕ РЅРѕРІС‹Рј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј")
+        raise HTTPException(status_code=400, detail="Тариф доступен только новым пользователям")
     if plan.purchase_limit and plan.purchase_count >= plan.purchase_limit:
-        raise HTTPException(status_code=409, detail="Р›РёРјРёС‚ РїРѕРєСѓРїРѕРє С‚Р°СЂРёС„Р° РёСЃС‡РµСЂРїР°РЅ")
+        raise HTTPException(status_code=409, detail="Лимит покупок тарифа исчерпан")
 
     amount_kopecks = plan.price_rub
     amount_rub = amount_kopecks / 100
     credits = plan.credits + plan.bonus_credits
 
     if not _platega_configured():
-        raise HTTPException(status_code=503, detail="РџР»Р°С‚С‘Р¶РЅС‹Р№ СЃРµСЂРІРёСЃ РІСЂРµРјРµРЅРЅРѕ РЅРµРґРѕСЃС‚СѓРїРµРЅ")
+        raise HTTPException(status_code=503, detail="Платёжный сервис временно недоступен")
 
     attempt = PaymentAttempt(
         id=str(uuid.uuid4()), user_id=user.id, plan_id=plan.id,
@@ -229,7 +229,7 @@ async def top_up(
     try:
         payment_id, payment_url = await _create_platega_payment(
             amount_rub=amount_rub,
-            description=f"AI-Sphere: {plan.name} ({credits} РєСЂРµРґРёС‚РѕРІ)",
+            description=f"AI-Sphere: {plan.name} ({credits} кредитов)",
             metadata={
                 "attempt_id": attempt.id,
                 "user_id": str(user.id),
@@ -334,7 +334,7 @@ async def billing_webhook(request: Request, db: AsyncSession = Depends(get_db)):
         plan.total_revenue_rub += attempt.amount_kopecks
     db.add(Transaction(
         user_id=attempt.user_id, amount=attempt.credits, rub_amount=attempt.amount_kopecks,
-        type="topup", description=f"РџРѕРїРѕР»РЅРµРЅРёРµ: {attempt.credits} РєСЂРµРґРёС‚РѕРІ", payment_id=str(payment_id),
+        type="topup", description=f"Пополнение: {attempt.credits} кредитов", payment_id=str(payment_id),
     ))
     attempt.status = "succeeded"
     attempt.processed_at = datetime.now(timezone.utc)
@@ -373,4 +373,3 @@ async def get_history(
         )
         for tx in txs
     ]
-

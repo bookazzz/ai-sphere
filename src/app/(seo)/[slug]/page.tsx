@@ -3,6 +3,7 @@ import { getAllSeoSlugs, getSeoContent } from '@/content/seo';
 import SeoPage from '@/components/seo/SeoPage';
 import { site } from '@/config/site';
 import { notFound } from 'next/navigation';
+import { absoluteUrl, seoDescription, seoTitle } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -17,30 +18,33 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const content = getSeoContent(slug);
   if (!content) return {};
 
-  const canonicalRaw = content.canonical || `${site.url}/${content.slug}`;
-  const canonical = canonicalRaw.endsWith('/') ? canonicalRaw : `${canonicalRaw}/`;
+  const canonical = absoluteUrl(content.canonical || `/${content.slug}`);
   const h1 = content.h1 || content.hero?.title || content.title;
+  const description = seoDescription(content.metaDescription || content.description);
+  const indexable = content.index !== false && content.contentStatus === 'ready';
 
   return {
-    title: `${h1} | AI-Sphere`,
-    description: content.description,
+    title: seoTitle(content.seoTitle || content.title || h1),
+    description,
     robots: {
-      index: content.index !== false,
-      follow: true,
+      index: indexable,
+      follow: indexable,
+      'max-image-preview': 'large',
     },
     alternates: {
       canonical,
     },
     openGraph: {
       title: content.ogTitle || h1,
-      description: content.description,
+      description,
       url: canonical,
       siteName: 'AI-Sphere',
       locale: 'ru_RU',
       type: 'website',
-    },
-    other: {
-      'og:image': 'https://ai-sphere.ru/og-image.png',
+      images: [{
+        url: content.image || site.ogImage,
+        alt: content.imageAlt || h1,
+      }],
     },
   };
 }

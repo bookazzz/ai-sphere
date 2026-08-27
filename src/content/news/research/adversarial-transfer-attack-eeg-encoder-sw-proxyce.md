@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Атака на приватные модели ЭЭГ через публичные энкодеры: представлен SW-ProxyCE
+
 
 **Кратко:** Исследователи разработали SW-ProxyCE — метод атаки, который позволяет переносить состязательные возмущения с публичного энкодера ЭЭГ на приватную модель-жертву без единого запроса к ней. Атака использует только открытый энкодер и небольшой размеченный набор данных.
 

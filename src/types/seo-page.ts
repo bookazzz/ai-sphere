@@ -170,6 +170,14 @@ export interface SeoPageContent {
   type: SeoPageType;
   title: string;
   description: string;
+  /** Отдельный заголовок сниппета. H1 не должен использоваться как title автоматически. */
+  seoTitle?: string;
+  metaDescription?: string;
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  searchIntent?: 'transactional' | 'commercial' | 'informational' | 'navigational';
+  image?: string;
+  imageAlt?: string;
 
   // ─── SEO & разметка ───
   /** H1 (если не указан, используется hero.title или title) */
@@ -202,7 +210,8 @@ export interface SeoPageContent {
   ogTitle?: string;
 
   /** Переопределение Schema.org-типа для JSON-LD (по умолчанию: model→Product, guide→Article и т.д.) */
-  schemaType?: 'webPage' | 'article' | 'softwareApplication' | 'product' | 'report' | 'howTo';
+  schemaType?: 'WebPage' | 'Article' | 'SoftwareApplication' | 'Product' | 'Report' | 'HowTo'
+    | 'webPage' | 'article' | 'softwareApplication' | 'product' | 'report' | 'howTo';
 
   /** Статус готовности контента:
    * draft  → noindex (черновик)

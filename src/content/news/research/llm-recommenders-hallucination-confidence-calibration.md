@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# LLM-рекомендатели не знают, когда галлюцинируют: новое исследование калибровки уверенности
+
 
 **Кратко:** Новое исследование на arXiv (2608.10008v1) впервые совместно аудирует частоту галлюцинаций и калибровку вербализованной уверенности у четырёх популярных LLM-рекомендателей. Выяснилось, что модели систематически недооценивают собственную уверенность, даже когда не галлюцинируют вовсе.
 

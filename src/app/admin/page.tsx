@@ -1,18 +1,20 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { apiCall, getMe, loginAdmin, logoutUser } from '@/lib/api';
 
 // ── Types ──
 
-type Section = 'dashboard'|'users'|'models'|'plans'|'payments'|'credits'|'logs'|'errors'|'promo'|'roles'
-  |'chats'|'files'|'tickets'|'notifications'|'fraud'|'analytics'
+type Section = 'workspace'|'dashboard'|'users'|'models'|'plans'|'payments'|'credits'|'logs'|'errors'|'promo'|'roles'
+  |'chats'|'queries'|'files'|'tickets'|'notifications'|'fraud'|'analytics'
   |'seo'|'referrals'|'forecast'|'cohorts'|'ltv'|'feedback'|'model-feedback'|'metrica'
-  |'funnel'|'segments'|'abandoned'|'model-analytics'|'problems'|'surveys'|'triggers'|'categories';
+  |'funnel'|'segments'|'abandoned'|'model-analytics'|'problems'|'surveys'|'triggers'|'categories'
+  |'growth-overview'|'blockers'|'journeys'|'campaigns'|'gamification'|'experiments'|'growth-surveys';
 
 interface Stats { period: string; revenue: number; revenue_growth: number; or_cost: number; registrations: number; requests: number; errors: number; total_users: number; active_now: number; paying_users: number; total_revenue: number; }
 interface Warning { type: string; severity: string; message: string; }
 interface UserItem { id: number; email: string; name: string|null; credits: number; credits_paid: number; credits_free: number; credits_bonus: number; credits_promo: number; is_active: boolean; is_admin: boolean; role_id: number|null; total_spent_rub: number; request_count: number; chat_count: number; last_seen: string|null; created_at: string; registered_by: string; }
-interface ModelItem { id: number; name: string; provider: string; or_model_id: string; category: string; or_input_cost: number; or_output_cost: number; price_input: number; price_output: number; price_unit: number; credits_in_1k: number; credits_out_1k: number; buy_credits_1k: number; markup_factor: number; margin: number; margin_min: number; is_unprofitable: boolean; is_active: boolean; is_visible: boolean; vision: boolean; request_count: number; error_count: number; }
+interface ModelItem { id: number; name: string; provider: string; or_model_id: string; category: string; or_input_cost: number; or_output_cost: number; price_input: number; price_output: number; price_unit: number; price_mode: string; credits_in_1k: number; credits_out_1k: number; markup_factor: number; margin: number; margin_min: number; is_unprofitable: boolean; is_active: boolean; is_visible: boolean; vision: boolean; request_count: number; error_count: number; input_modalities: string[]; output_modalities: string[]; supported_parameters: Record<string, unknown>; openrouter_pricing: Record<string, unknown>; auto_route_enabled: boolean; or_last_synced_at: string|null; recommended_priority?: number; availability_status?: string; catalog_miss_count?: number; last_provider_error?: string; unit_basis: string; provider_cost_usd_unit: number|null; provider_cost_rub_unit: number|null; revenue_credits_unit: number; revenue_rub_unit: number; payment_fee_rub_unit: number; profit_rub_unit: number|null; }
 interface PlanItem { id: number; name: string; price_rub: number; credits: number; bonus_credits: number; old_price_rub: number|null; badge: string|null; is_active: boolean; purchase_count: number; credit_price: number; }
 interface TxItem { id: number; user_id: number; user_email: string; amount: number; rub_amount: number; type: string; description: string; payment_id: string|null; created_at: string; }
 interface CreditOp { id: number; user_id: number; op_type: string; credit_type: string; amount: number; balance_before: number; balance_after: number; source: string; comment: string; created_at: string; }
@@ -20,63 +22,220 @@ interface LogItem { id: number; admin_id: number; admin_email: string; action: s
 interface ErrorItem { id: number; error_code: string; error_text: string; service: string; repeat_count: number; status: string; created_at: string; }
 interface RoleItem { id: number; name: string; description: string; is_system: boolean; }
 interface PromoItem { id: number; code: string; credits: number; max_uses: number; used_count: number; description: string; is_active: boolean; expires_at: string|null; created_at: string; }
-interface ChatItem { id: number; session_id: string; user_id: number; title: string; model: string; credits_spent: number; or_cost: number; message_count: number; created_at: string; updated_at: string; }
+interface ChatItem { id: number; session_id: string; user_id: number; user_email: string; title: string; model: string; credits_spent: number; or_cost: number; message_count: number; created_at: string; updated_at: string; }
+interface QueryItem { id: number; session_id: string; title: string; user_id: number; user_email: string; content: string; model: string; has_attachments: boolean; created_at: string; }
 interface FileItem { id: number; user_id: number; chat_id: string|null; original_name: string; mime_type: string|null; size_bytes: number; status: string; is_blocked: boolean; error_text: string|null; created_at: string; }
 interface TicketItem { id: number; user_id: number; user_email: string; subject: string; category: string; priority: string; status: string; assigned_to: number|null; assigned_email: string|null; message_count: number|null; last_message_at: string|null; created_at: string; }
 interface NotifItem { id: number; title: string; text: string; audience: string; channel: string; is_active: boolean; sent_count: number; opened_count: number; starts_at: string|null; ends_at: string|null; created_at: string; }
 interface FraudItem { id: number; user_id: number|null; alert_type: string; risk_level: string; ip_address: string|null; description: string; status: string; action_taken: string|null; created_at: string; }
 
-const ADMIN_TOKEN_KEY='ai_sphere_admin_token';
-function gt(): string|null { return localStorage.getItem(ADMIN_TOKEN_KEY); }
-function st(t: string) { localStorage.setItem(ADMIN_TOKEN_KEY, t); }
-function ct() { localStorage.removeItem(ADMIN_TOKEN_KEY); }
-
 const navSections: {title: string; items: {id: Section; label: string; icon: string}[]}[] = [
-  {title: 'Главная', items: [{id:'dashboard', label:'Дашборд', icon:'📊'}]},
-  {title: 'Управление', items: [{id:'users', label:'Пользователи', icon:'👤'},{id:'models', label:'Модели', icon:'🤖'},{id:'plans', label:'Тарифы', icon:'💎'},{id:'promo', label:'Промокоды', icon:'🎟️'},{id:'chats', label:'Чаты', icon:'💬'},{id:'files', label:'Файлы', icon:'📁'}]},
-  {title: 'Контент', items: [{id:'seo', label:'SEO-страницы', icon:'📝'},{id:'referrals', label:'Партнёры', icon:'🤝'}]},
-  {title: 'Коммуникация', items: [{id:'tickets', label:'Поддержка', icon:'🎫'},{id:'feedback', label:'Обратная связь', icon:'💬'},{id:'model-feedback', label:'Оценки ответов', icon:'👍'},{id:'notifications', label:'Уведомления', icon:'🔔'}]},
-  {title: 'Финансы', items: [{id:'payments', label:'Платежи', icon:'💰'},{id:'credits', label:'Операции', icon:'🪙'}]},
-  {title: 'Аналитика', items: [{id:'analytics', label:'Обзор', icon:'📈'},{id:'funnel', label:'Воронка', icon:'🔻'},{id:'problems', label:'Проблемы', icon:'⚠️'},{id:'segments', label:'Сегменты', icon:'👥'},{id:'categories', label:'Категории запросов', icon:'📋'},{id:'model-analytics', label:'Аналитика моделей', icon:'🤖'},{id:'forecast', label:'Прогноз', icon:'🔮'},{id:'cohorts', label:'Когорты', icon:'📊'},{id:'ltv', label:'LTV/Retention', icon:'💹'},{id:'fraud', label:'Антифрод', icon:'🛡️'},{id:'surveys', label:'Опросы', icon:'📝'}]},
-  {title: 'Система', items: [{id:'logs', label:'Журнал действий', icon:'📋'},{id:'errors', label:'Ошибки', icon:'⚠️'},{id:'roles', label:'Роли', icon:'🔐'},{id:'metrica', label:'Яндекс Метрика', icon:'📊'}]},
+  {title: 'Обзор', items: [{id:'growth-overview', label:'Пульс проекта', icon:'◉'},{id:'funnel', label:'Воронка', icon:'▽'},{id:'blockers', label:'Что мешает', icon:'⚠'}]},
+  {title: 'Пользователи', items: [{id:'users', label:'Все пользователи', icon:'👤'},{id:'journeys', label:'Путь пользователя', icon:'⌁'},{id:'segments', label:'Сегменты', icon:'◎'},{id:'queries', label:'Запросы', icon:'⌕'},{id:'chats', label:'Чаты', icon:'💬'}]},
+  {title: 'Продукт', items: [{id:'workspace', label:'Сценарии и сервисы', icon:'✦'},{id:'categories', label:'Категории задач', icon:'▤'},{id:'model-feedback', label:'Качество ответов', icon:'👍'}]},
+  {title: 'Монетизация', items: [{id:'payments', label:'Платежи', icon:'₽'},{id:'abandoned', label:'Брошенные оплаты', icon:'↘'},{id:'plans', label:'Пакеты кредитов', icon:'◆'},{id:'credits', label:'Операции', icon:'◈'},{id:'ltv', label:'LTV и Retention', icon:'↗'}]},
+  {title: 'Вовлечение', items: [{id:'campaigns', label:'Кампании', icon:'◐'},{id:'growth-surveys', label:'Микроопросы', icon:'?'},{id:'gamification', label:'Миссии и награды', icon:'★'},{id:'experiments', label:'A/B‑тесты', icon:'A/B'},{id:'cohorts', label:'Когорты', icon:'▦'},{id:'referrals', label:'Партнёры', icon:'🤝'}]},
+  {title: 'Операции', items: [{id:'models', label:'Модели', icon:'🤖'},{id:'errors', label:'Ошибки', icon:'!'},{id:'fraud', label:'Антифрод', icon:'🛡'},{id:'tickets', label:'Поддержка', icon:'🎫'},{id:'files', label:'Файлы', icon:'▣'}]},
+  {title: 'Контент', items: [{id:'seo', label:'SEO-страницы', icon:'📝'},{id:'feedback', label:'Отзывы', icon:'💬'},{id:'promo', label:'Промокоды', icon:'🎟'}]},
+  {title: 'Настройки', items: [{id:'roles', label:'Роли и доступ', icon:'🔐'},{id:'logs', label:'Аудит', icon:'▧'},{id:'metrica', label:'Яндекс Метрика', icon:'📊'}]},
 ];
 
 async function api<T>(path: string, opts?: RequestInit): Promise<T> {
-  const token = gt();
-  const res = await fetch(`/api/admin${path}`, {...opts, headers: {'Content-Type':'application/json', ...(token?{Authorization:`Bearer ${token}`}:{}), ...opts?.headers}});
-  if (!res.ok) throw new Error((await res.text()).slice(0,200));
-  return res.json();
+  return apiCall<T>(`/admin${path}`, opts);
 }
 
 // ── Main ──
 
 export default function AdminPage() {
   const [auth, setAuth] = useState<boolean|null>(null);
-  const [section, setSection] = useState<Section>('dashboard');
+  const [section, setSection] = useState<Section>('growth-overview');
   useEffect(() => {
-    const t = gt();
-    if (t) fetch('/api/admin/dashboard/stats?period=30d', {headers:{Authorization:`Bearer ${t}`}}).then(r=>setAuth(r.ok)).catch(()=>setAuth(false));
-    else setAuth(false);
+    getMe()
+      .then(user => user.is_admin === true)
+      .then(setAuth).catch(()=>setAuth(false));
   }, []);
   if (auth === null) return <div className="admin"><div className="admin__loading">Проверка доступа...</div></div>;
   if (!auth) return <LoginForm onLogin={()=>setAuth(true)} />;
   return <AdminLayout section={section} onSection={setSection} />;
 }
 
+function WorkspaceAdminSection() {
+  const [status,setStatus]=useState<any>(null);
+  const [templates,setTemplates]=useState<any[]>([]);
+  const [models,setModels]=useState<ModelItem[]>([]);
+  const [error,setError]=useState('');
+  const [syncing,setSyncing]=useState(false);
+  const [editingTemplate,setEditingTemplate]=useState<any|null>(null);
+
+  const load=useCallback(async()=>{
+    setError('');
+    try {
+      const [nextStatus,nextTemplates,nextModels]=await Promise.all([
+        api<any>('/integrations/status'),api<any[]>('/task-templates'),api<ModelItem[]>('/models'),
+      ]);
+      setStatus(nextStatus);setTemplates(nextTemplates);setModels(nextModels);
+    } catch(e:any) { setError(e.message); }
+  },[]);
+  useEffect(()=>{void load()},[load]);
+
+  const saveTemplate=async(template:any,changes:any)=>{
+    const next={...template,...changes};
+    const payload={
+      slug:next.slug,title:next.title,description:next.description,category:next.category,
+      task_type:next.task_type,prompt_template:next.prompt_template,example_input:next.example_input,
+      example_output:next.example_output,required_input:next.required_input,preview_url:next.preview_url,
+      default_parameters:next.default_parameters||{},preferred_model:next.preferred_model||'',
+      fallback_models:next.fallback_models||[],estimated_credits_label:next.estimated_credits_label||'',
+      is_featured:Boolean(next.is_featured),is_active:Boolean(next.is_active),sort_order:Number(next.sort_order||100),
+    };
+    await api(`/task-templates/${template.id}`,{method:'PUT',body:JSON.stringify(payload)});
+    setTemplates(prev=>prev.map(item=>item.id===template.id?next:item));
+  };
+  const compatibleModels=(template:any)=>{
+    const kind=template.category==='image'?'image':template.category==='video'?'video':'text';
+    return models.filter(model=>model.is_active&&model.is_visible&&(model.output_modalities||[]).includes(kind)&&(
+      template.task_type!=='analyze_image'||(model.input_modalities||[]).includes('image')
+    )).sort((left,right)=>(left.recommended_priority||100)-(right.recommended_priority||100)||left.name.localeCompare(right.name,'ru'));
+  };
+  const modelOptions=(template:any)=>{
+    const options=compatibleModels(template);
+    const selected=template.preferred_model||'';
+    const selectedAvailable=!selected||options.some(model=>model.or_model_id===selected);
+    return <><option value="">AI‑Sphere выбирает автоматически</option>{!selectedAvailable&&<option value={selected}>Недоступна: {selected}</option>}{options.map(model=><option key={model.id} value={model.or_model_id}>{model.name} · {model.provider}</option>)}</>;
+  };
+
+  return <div>
+    {error&&<div className="admin__error">{error}</div>}
+    <div className="admin__stats" style={{marginBottom:20}}>
+      <div className="admin__stat-card"><div className="admin__stat-label">OpenRouter</div><div className="admin__stat-value" style={{fontSize:22,color:status?.openrouter?.configured?'#00b894':'#e74c3c'}}>{status?.openrouter?.configured?'Подключён':'Не настроен'}</div><small>{status?.openrouter?.visible_models||0} видимых · {status?.openrouter?.unavailable_models||0} недоступны</small></div>
+      <div className="admin__stat-card"><div className="admin__stat-label">Последняя синхронизация</div><div className="admin__stat-value" style={{fontSize:16}}>{status?.openrouter?.last_sync?new Date(status.openrouter.last_sync).toLocaleString('ru-RU'):'Ещё не запускалась'}</div></div>
+      <div className="admin__stat-card"><div className="admin__stat-label">Оплата</div><div className="admin__stat-value" style={{fontSize:22,color:status?.payments?.configured?'#00b894':'#e74c3c'}}>{status?.payments?.provider||'Platega'}: {status?.payments?.configured?'готова':'не настроена'}</div></div>
+      <div className="admin__stat-card"><div className="admin__stat-label">Воронка</div><div style={{fontSize:12,marginTop:8}}>{Object.entries(status?.funnel||{}).map(([key,value])=><div key={key}>{key}: <b>{String(value)}</b></div>)}</div></div>
+      <div className="admin__stat-card"><div className="admin__stat-label">Новый продуктовый контур</div><div style={{fontSize:12,marginTop:8}}>Baseline: {status?.analytics?.baseline?new Date(status.analytics.baseline).toLocaleString('ru-RU'):'—'}<br/>Кампании: {status?.features?.campaigns?'вкл':'выкл'} · Миссии: {status?.features?.gamification?'вкл':'выкл'} · A/B: {status?.features?.experiments?'вкл':'выкл'}</div></div>
+    </div>
+    <button className="admin__btn admin__btn--primary" disabled={syncing} onClick={async()=>{setSyncing(true);try{await api('/models/auto-update-prices',{method:'POST'});await load()}catch(e:any){setError(e.message)}finally{setSyncing(false)}}}>{syncing?'Синхронизация…':'Синхронизировать OpenRouter'}</button>
+
+    <div className="admin__section-head" style={{display:'flex',justifyContent:'space-between',alignItems:'center',margin:'28px 0 12px'}}><h3 style={{margin:0}}>Сценарии задач</h3><button className="admin__btn admin__btn--primary" onClick={()=>setEditingTemplate({slug:'',title:'',description:'',category:'text',task_type:'text',prompt_template:'{input}',example_input:'',example_output:'',required_input:'Текст запроса',preview_url:'',default_parameters:{},preferred_model:'',fallback_models:[],estimated_credits_label:'',is_featured:false,is_active:true,sort_order:100})}>+ Добавить сценарий</button></div>
+    <div className="admin__table-wrapper"><table className="admin__table"><thead><tr><th>Порядок</th><th>Сценарий</th><th>Категория</th><th>Основная модель</th><th>Fallback</th><th>Активен</th><th></th></tr></thead><tbody>
+      {templates.map(template=><tr key={template.id}>
+        <td><input className="admin__modal-input" style={{width:72}} type="number" defaultValue={template.sort_order} onBlur={event=>void saveTemplate(template,{sort_order:Number(event.target.value)})}/></td>
+        <td><strong>{template.title}</strong><div style={{fontSize:11,color:'#8e8e9a'}}>{template.task_type} · использований {template.usage_count||0}</div></td>
+        <td>{template.category}</td>
+        <td><select className="admin__select admin__model-select" aria-label={`Основная модель для ${template.title}`} value={template.preferred_model||''} onChange={event=>void saveTemplate(template,{preferred_model:event.target.value}).catch(e=>setError(e.message))}>{modelOptions(template)}</select><div className="admin__field-hint">Пустое значение — безопасный автовыбор</div></td>
+        <td><input className="admin__modal-input" defaultValue={(template.fallback_models||[]).join(', ')} placeholder="model/a, model/b" onBlur={event=>void saveTemplate(template,{fallback_models:event.target.value.split(',').map(value=>value.trim()).filter(Boolean)})}/></td>
+        <td><label className="admin__toggle"><input type="checkbox" checked={template.is_active} onChange={event=>void saveTemplate(template,{is_active:event.target.checked})}/><span className="admin__toggle-slider"/></label></td>
+        <td><button className="admin__btn admin__btn-sm" onClick={()=>setEditingTemplate({...template})}>Редактировать</button></td>
+      </tr>)}
+    </tbody></table></div>
+
+    {editingTemplate&&<div className="admin__modal-overlay" onClick={()=>setEditingTemplate(null)}><div className="admin__modal admin__modal--wide" onClick={event=>event.stopPropagation()}>
+      <h3 className="admin__modal-title">{editingTemplate.id?'Редактировать сценарий':'Новый сценарий'}</h3>
+      <div className="admin__modal-field"><label className="admin__modal-label">Название</label><input className="admin__modal-input" value={editingTemplate.title} onChange={event=>setEditingTemplate({...editingTemplate,title:event.target.value})}/></div>
+      <div className="admin__modal-field"><label className="admin__modal-label">Slug</label><input className="admin__modal-input" value={editingTemplate.slug} disabled={Boolean(editingTemplate.id)} onChange={event=>setEditingTemplate({...editingTemplate,slug:event.target.value})}/></div>
+      <div className="admin__row"><div className="admin__modal-field" style={{flex:1}}><label className="admin__modal-label">Категория</label><select className="admin__select" value={editingTemplate.category} onChange={event=>setEditingTemplate({...editingTemplate,category:event.target.value})}><option value="text">Текст</option><option value="document">Документы</option><option value="image">Изображения</option><option value="video">Видео</option></select></div><div className="admin__modal-field" style={{flex:1}}><label className="admin__modal-label">Тип задачи</label><input className="admin__modal-input" value={editingTemplate.task_type} onChange={event=>setEditingTemplate({...editingTemplate,task_type:event.target.value})}/></div></div>
+      <div className="admin__modal-field"><label className="admin__modal-label">Описание</label><textarea className="admin__modal-input" rows={2} value={editingTemplate.description} onChange={event=>setEditingTemplate({...editingTemplate,description:event.target.value})}/></div>
+      <div className="admin__modal-field"><label className="admin__modal-label">Промпт (используйте {'{input}'})</label><textarea className="admin__modal-input" rows={6} value={editingTemplate.prompt_template} onChange={event=>setEditingTemplate({...editingTemplate,prompt_template:event.target.value})}/></div>
+      <div className="admin__row"><div className="admin__modal-field" style={{flex:1}}><label className="admin__modal-label">Основная модель</label><select className="admin__select admin__model-select" aria-label="Основная модель сценария" value={editingTemplate.preferred_model||''} onChange={event=>setEditingTemplate({...editingTemplate,preferred_model:event.target.value})}>{modelOptions(editingTemplate)}</select><div className="admin__field-hint">Автовыбор учитывает тип задачи, доступность, приоритет и стоимость.</div></div><div className="admin__modal-field" style={{flex:1}}><label className="admin__modal-label">Fallback-модели</label><input className="admin__modal-input" value={(editingTemplate.fallback_models||[]).join(', ')} onChange={event=>setEditingTemplate({...editingTemplate,fallback_models:event.target.value.split(',').map(value=>value.trim()).filter(Boolean)})} placeholder="provider/model-a, provider/model-b"/><div className="admin__field-hint">Используются по порядку, если основная модель недоступна.</div></div></div>
+      <div className="admin__row"><div className="admin__modal-field" style={{flex:1}}><label className="admin__modal-label">Что требуется</label><input className="admin__modal-input" value={editingTemplate.required_input} onChange={event=>setEditingTemplate({...editingTemplate,required_input:event.target.value})}/></div><div className="admin__modal-field" style={{flex:1}}><label className="admin__modal-label">Оценка стоимости</label><input className="admin__modal-input" value={editingTemplate.estimated_credits_label} onChange={event=>setEditingTemplate({...editingTemplate,estimated_credits_label:event.target.value})}/></div></div>
+      <div className="admin__row"><div className="admin__modal-field" style={{flex:1}}><label className="admin__modal-label">Пример запроса</label><textarea className="admin__modal-input" rows={2} value={editingTemplate.example_input} onChange={event=>setEditingTemplate({...editingTemplate,example_input:event.target.value})}/></div><div className="admin__modal-field" style={{flex:1}}><label className="admin__modal-label">Пример результата</label><textarea className="admin__modal-input" rows={2} value={editingTemplate.example_output} onChange={event=>setEditingTemplate({...editingTemplate,example_output:event.target.value})}/></div></div>
+      <div className="admin__modal-actions"><button className="admin__btn" onClick={()=>setEditingTemplate(null)}>Отмена</button><button className="admin__btn admin__btn--primary" onClick={async()=>{try{if(editingTemplate.id)await saveTemplate(editingTemplate,editingTemplate);else await api('/task-templates',{method:'POST',body:JSON.stringify(editingTemplate)});setEditingTemplate(null);await load()}catch(e:any){setError(e.message)}}}>Сохранить</button></div>
+    </div></div>}
+
+    <h3 style={{margin:'28px 0 12px'}}>Приоритет автоматического выбора моделей</h3>
+    <div className="admin__table-wrapper"><table className="admin__table"><thead><tr><th>Модель</th><th>Статус</th><th>Ошибки</th><th>Приоритет</th></tr></thead><tbody>
+      {models.filter(model=>model.is_visible).map(model=><tr key={model.id}><td><strong>{model.name}</strong><div style={{fontSize:11,color:'#8e8e9a'}}>{model.or_model_id}</div></td><td>{model.availability_status||'unknown'}{model.catalog_miss_count?` · пропусков ${model.catalog_miss_count}`:''}</td><td title={model.last_provider_error||''}>{model.error_count}</td><td><input className="admin__modal-input" style={{width:90}} type="number" defaultValue={model.recommended_priority||100} onBlur={async event=>{await api(`/models/${model.id}?recommended_priority=${Number(event.target.value)}`,{method:'PATCH'});}}/></td></tr>)}
+    </tbody></table></div>
+  </div>;
+}
+
+function GrowthOverviewSection({onNavigate}:{onNavigate:(section:Section)=>void}) {
+  const [days,setDays]=useState(30); const [source,setSource]=useState(''); const [device,setDevice]=useState('');
+  const [data,setData]=useState<any>(null); const [funnel,setFunnel]=useState<any>(null); const [error,setError]=useState('');
+  useEffect(()=>{setError('');Promise.all([
+    api<any>(`/growth/overview?days=${days}&source=${encodeURIComponent(source)}&device=${encodeURIComponent(device)}`),
+    api<any>(`/growth/funnel?days=${days}&source=${encodeURIComponent(source)}&device=${encodeURIComponent(device)}`),
+  ]).then(([overview,steps])=>{setData(overview);setFunnel(steps)}).catch(e=>setError(e.message))},[days,source,device]);
+  if(error)return <div className="admin__error">{error}</div>;
+  if(!data)return <div className="admin__loading">Собираем продуктовый обзор…</div>;
+  const m=data.metrics||{};
+  const cards=[
+    ['Уникальные посетители',m.unique_visitors],['Регистрации',m.registrations],['Активация за 24 часа',`${m.activation_24h_pct}%`],
+    ['Медиана до результата',m.median_time_to_value_seconds==null?'—':`${Math.round(m.median_time_to_value_seconds/60)} мин`],
+    ['Успешные задачи',m.successful_tasks],['Ошибки генерации',`${m.task_failure_pct}%`],['DAU / WAU / MAU',`${m.dau} / ${m.wau} / ${m.mau}`],
+    ['Платящие пользователи',m.paying_users],['Выручка',`${Number(m.revenue_rub||0).toLocaleString('ru-RU')} ₽`],
+    ['Расходы моделей, оценка',`${Number(m.model_cost_rub_estimate||0).toLocaleString('ru-RU')} ₽`],['Валовая маржа, оценка',`${m.gross_margin_pct_estimate}%`],
+    ['Первая / повторная оплата',`${m.first_payment_users} / ${m.repeat_payment_users}`],['Retention D1 / D7 / D30',`${m.retention_d1_pct}% / ${m.retention_d7_pct}% / ${m.retention_d30_pct}%`],
+  ];
+  return <div>
+    <div className="admin__filters"><select className="admin__select" value={days} onChange={e=>setDays(Number(e.target.value))}><option value={1}>Сегодня</option><option value={7}>7 дней</option><option value={30}>30 дней</option><option value={90}>90 дней</option></select><input className="admin__search-input" placeholder="Источник" value={source} onChange={e=>setSource(e.target.value)}/><select className="admin__select" value={device} onChange={e=>setDevice(e.target.value)}><option value="">Все устройства</option><option value="desktop">Desktop</option><option value="tablet">Tablet</option><option value="mobile">Mobile</option></select></div>
+    <div className={`growth-freshness${data.sample_warning?' growth-freshness--warning':''}`}>Данные на {data.freshness?new Date(data.freshness).toLocaleString('ru-RU'):'—'} · выборка {data.sample_size} {data.sample_warning&&'· данных пока недостаточно для устойчивых выводов'}</div>
+    <div className="admin__stats growth-stats">{cards.map(([label,value])=><button key={String(label)} className="admin__stat-card growth-stat-card" onClick={()=>onNavigate(label==='Ошибки генерации'?'blockers':label==='Платящие пользователи'||label==='Выручка'?'payments':'users')}><div className="admin__stat-label">{label}</div><div className="admin__stat-value">{value}</div></button>)}</div>
+    <h3>Что требует внимания сегодня</h3>
+    <div className="growth-alerts">{data.alerts?.length?data.alerts.map((item:any,index:number)=><button key={index} className={`growth-alert growth-alert--${item.severity}`} onClick={()=>onNavigate(item.target?.startsWith('blockers')?'blockers':'feedback')}><span>{item.title}</span><b>{item.value}</b></button>):<div className="admin__empty">Критичных отклонений не обнаружено.</div>}</div>
+    <h3>Последовательная воронка · окно 7 дней</h3>
+    <div className="growth-funnel">{funnel?.stages?.map((item:any,index:number)=><div key={item.event}><span>{index+1}. {item.stage}</span><b>{item.users}</b><small>{item.conversion_pct}% от прошлого шага · ушли {item.dropped}</small></div>)}</div>
+  </div>;
+}
+
+function GrowthBlockersSection() {
+  const [days,setDays]=useState(30); const [items,setItems]=useState<any[]>([]); const [selected,setSelected]=useState<any|null>(null); const [users,setUsers]=useState<any[]>([]); const [error,setError]=useState('');
+  const load=useCallback(()=>api<any[]>(`/growth/blockers?days=${days}`).then(setItems).catch(e=>setError(e.message)),[days]);
+  useEffect(()=>{void load()},[load]);
+  const open=async(item:any)=>{setSelected(item);setError('');try{setUsers(await api<any[]>(`/growth/blockers/${item.code}/users?days=${days}`))}catch(e:any){setError(e.message)}};
+  return <div>{error&&<div className="admin__error">{error}</div>}<div className="admin__filters"><select className="admin__select" value={days} onChange={e=>setDays(Number(e.target.value))}><option value={7}>7 дней</option><option value={30}>30 дней</option><option value={90}>90 дней</option></select></div>
+    <div className="growth-blockers">{items.map(item=><button key={item.code} onClick={()=>void open(item)} className="growth-blocker"><span><strong>{item.label}</strong><small>{item.top_devices?.map((v:any)=>v[0]).join(', ')||'нет данных'} · {item.top_sources?.map((v:any)=>v[0]).join(', ')||'источник не определён'}</small></span><b>{item.users}</b><em>{item.share_pct}%</em>{item.revenue_at_risk_rub!=null&&<mark>{item.revenue_at_risk_rub} ₽ в начатых оплатах</mark>}</button>)}</div>
+    {selected&&<div className="growth-panel"><div className="growth-panel__head"><h3>{selected.label}</h3><button className="admin__btn admin__btn--primary" disabled={!users.length} onClick={async()=>{await api('/growth/segments',{method:'POST',body:JSON.stringify({name:`${selected.label} · ${new Date().toLocaleDateString('ru-RU')}`,description:'Создано из отчёта препятствий',filters:{user_ids:users.map(user=>user.id)}})});alert('Сегмент создан')}}>Создать сегмент</button></div><div className="admin__table-wrapper"><table className="admin__table"><thead><tr><th>ID</th><th>Email</th><th>Баланс</th><th>Запросы</th><th>Последняя активность</th></tr></thead><tbody>{users.map(user=><tr key={user.id}><td>{user.id}</td><td>{user.email}</td><td>{user.credits}</td><td>{user.requests}</td><td>{user.last_seen?new Date(user.last_seen).toLocaleString('ru-RU'):'—'}</td></tr>)}</tbody></table></div></div>}
+  </div>;
+}
+
+function JourneySection() {
+  const [userId,setUserId]=useState(''); const [data,setData]=useState<any>(null); const [filter,setFilter]=useState<'all'|'problems'|'payments'|'queries'>('all'); const [error,setError]=useState('');
+  const load=async()=>{setError('');setData(null);try{setData(await api<any>(`/growth/journeys/${Number(userId)}`))}catch(e:any){setError(e.message)}};
+  const timeline=(data?.timeline||[]).filter((item:any)=>filter==='all'||filter==='payments'?filter==='all'||['payment','credits'].includes(item.type):filter==='queries'?['query','response'].includes(item.type):item.type==='event'&&['generation_failed','payment_failed','auth_failed','balance_low'].includes(item.name));
+  return <div><div className="admin__filters"><input className="admin__search-input" type="number" placeholder="ID пользователя" value={userId} onChange={e=>setUserId(e.target.value)}/><button className="admin__btn admin__btn--primary" disabled={!userId} onClick={()=>void load()}>Открыть путь</button></div>{error&&<div className="admin__error">{error}</div>}{data&&<><div className="growth-user-card"><div><strong>{data.user.email}</strong><small>#{data.user.id} · {data.user.name||'без имени'} · источник {data.user.source||'не определён'}</small></div><b>{data.user.credits} кредитов</b></div><div className="admin__tabs">{(['all','problems','payments','queries'] as const).map(value=><button key={value} className={`admin__tab${filter===value?' admin__tab--active':''}`} onClick={()=>setFilter(value)}>{{all:'Все',problems:'Только проблемы',payments:'Только оплаты',queries:'Запросы и ответы'}[value]}</button>)}</div><div className="growth-timeline">{timeline.map((item:any,index:number)=><article key={`${item.at}-${index}`} className={`growth-timeline__item growth-timeline__item--${item.type}`}><time>{new Date(item.at).toLocaleString('ru-RU')}</time><strong>{item.name}</strong><pre>{JSON.stringify(item.detail,null,2)}</pre></article>)}</div></>}</div>;
+}
+
+function GrowthCampaignsSection() {
+  const [campaigns,setCampaigns]=useState<any[]>([]); const [segments,setSegments]=useState<any[]>([]); const [error,setError]=useState('');
+  const [form,setForm]=useState<any>({name:'',title:'',body:'',placement:'notification',button_text:'Открыть',button_url:'/',segment_id:'',frequency_cap:1,holdout_pct:10,goal_event:'payment_succeeded'});
+  const load=useCallback(()=>Promise.all([api<any[]>('/growth/campaigns'),api<any[]>('/growth/segments')]).then(([a,b])=>{setCampaigns(a);setSegments(b)}).catch(e=>setError(e.message)),[]); useEffect(()=>{void load()},[load]);
+  const create=async()=>{setError('');try{await api('/growth/campaigns',{method:'POST',body:JSON.stringify({...form,segment_id:form.segment_id?Number(form.segment_id):null,audience:form.segment_id?{}:{include_anonymous:true}})});setForm({...form,name:'',title:'',body:''});await load()}catch(e:any){setError(e.message)}};
+  return <div>{error&&<div className="admin__error">{error}</div>}<div className="growth-editor"><h3>Новая in‑app кампания</h3><div className="growth-editor__grid"><input className="admin__modal-input" placeholder="Служебное название" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/><select className="admin__select" value={form.placement} onChange={e=>setForm({...form,placement:e.target.value})}><option value="notification">Центр сообщений</option><option value="banner">Баннер</option><option value="card">Карточка</option><option value="popup">Popup</option></select><input className="admin__modal-input" placeholder="Заголовок" value={form.title} onChange={e=>setForm({...form,title:e.target.value})}/><select className="admin__select" value={form.segment_id} onChange={e=>setForm({...form,segment_id:e.target.value})}><option value="">Все, включая анонимных</option>{segments.map(item=><option key={item.id} value={item.id}>{item.name} · {item.size}</option>)}</select><textarea className="admin__modal-input" placeholder="Текст" value={form.body} onChange={e=>setForm({...form,body:e.target.value})}/><input className="admin__modal-input" placeholder="URL кнопки" value={form.button_url} onChange={e=>setForm({...form,button_url:e.target.value})}/></div><p className="growth-editor__hint">Контрольная группа 10%, лимит 1 показ. Кампания появится как черновик и потребует ручного запуска.</p><button className="admin__btn admin__btn--primary" disabled={!form.name||!form.title||!form.body} onClick={()=>void create()}>Создать черновик</button></div>
+    <div className="admin__table-wrapper"><table className="admin__table"><thead><tr><th>Кампания</th><th>Канал</th><th>Статус</th><th>Доставки</th><th>Результат</th><th>Действия</th></tr></thead><tbody>{campaigns.map(item=><tr key={item.id}><td><strong>{item.name}</strong><div>{item.title}</div></td><td>{item.placement}</td><td>{item.status}</td><td>{item.stats?.shown||0} показов · {item.stats?.clicked||0} кликов</td><td>{item.stats?.converted||0} конверсий · holdout {item.stats?.holdout||0}</td><td>{item.status!=='active'?<button className="admin__btn admin__btn--primary" onClick={async()=>{await api(`/growth/campaigns/${item.id}/activate`,{method:'POST'});await load()}}>Запустить</button>:<button className="admin__btn" onClick={async()=>{await api(`/growth/campaigns/${item.id}/pause`,{method:'POST'});await load()}}>Пауза</button>}</td></tr>)}</tbody></table></div>
+  </div>;
+}
+
+function GamificationSection() {
+  const [items,setItems]=useState<any[]>([]); const [error,setError]=useState(''); const load=useCallback(()=>api<any[]>('/growth/missions').then(setItems).catch(e=>setError(e.message)),[]); useEffect(()=>{void load()},[load]);
+  const save=async(item:any,changes:any)=>{const next={...item,...changes};await api(`/growth/missions/${item.id}`,{method:'PUT',body:JSON.stringify({title:next.title,description:next.description,criteria:next.criteria,reward_credits:Number(next.reward_credits),reward_xp:Number(next.reward_xp),period:next.period,is_active:Boolean(next.is_active),sort_order:Number(next.sort_order)})});setItems(current=>current.map(value=>value.id===item.id?next:value))};
+  return <div>{error&&<div className="admin__error">{error}</div>}<div className="growth-rules"><b>Правила экономики</b><span>5 XP за результат · до 25 XP/день · 20 бонусных кредитов/месяц · кредиты не сгорают</span><span>Уровни: Новичок 0 → Исследователь 100 → Практик 300 → Эксперт 700 → Мастер 1500</span></div><div className="admin__table-wrapper"><table className="admin__table"><thead><tr><th>Миссия</th><th>Участие</th><th>Завершили</th><th>Стоимость</th><th>Награда</th><th>Активна</th></tr></thead><tbody>{items.map(item=><tr key={item.id}><td><strong>{item.title}</strong><div>{item.description}</div></td><td>{item.started}</td><td>{item.completed} · {item.completion_pct}%</td><td>{item.credits_awarded} кр.</td><td><input className="admin__modal-input" style={{width:70}} type="number" defaultValue={item.reward_credits} onBlur={e=>void save(item,{reward_credits:Number(e.target.value)})}/> кр.</td><td><label className="admin__toggle"><input type="checkbox" checked={item.is_active} onChange={e=>void save(item,{is_active:e.target.checked})}/><span className="admin__toggle-slider"/></label></td></tr>)}</tbody></table></div></div>;
+}
+
+function GrowthSurveysSection() {
+  const [items,setItems]=useState<any[]>([]); const [error,setError]=useState(''); useEffect(()=>{api<any[]>('/growth/surveys').then(setItems).catch(e=>setError(e.message))},[]);
+  return <div>{error&&<div className="admin__error">{error}</div>}<div className="growth-surveys">{items.map(item=><article key={item.id}><div><strong>{item.title}</strong><small>Триггер: {item.trigger_event} · не чаще 1 раза в {item.frequency_days} дней</small></div><b>{item.responses} ответов</b><div>{item.answers.map((answer:any)=><span key={answer[0]}>{answer[0]} — {answer[1]}</span>)}</div></article>)}</div></div>;
+}
+
+function ExperimentsSection() {
+  const [items,setItems]=useState<any[]>([]); const [error,setError]=useState(''); const [name,setName]=useState(''); const [surface,setSurface]=useState('pricing');
+  const load=useCallback(()=>api<any[]>('/growth/experiments').then(setItems).catch(e=>setError(e.message)),[]);useEffect(()=>{void load()},[load]);
+  const create=async()=>{await api('/growth/experiments',{method:'POST',body:JSON.stringify({name,surface,primary_metric:surface==='pricing'?'payment':'activation',guardrails:['errors','costs','negative_feedback'],variants:[{key:'A',name:'Контроль',payload:{},weight:.5},{key:'B',name:'Вариант',payload:surface==='pricing'?{headline:'Выберите подходящий пакет',cta_text:'Получить кредиты'}:{featured_order:[]},weight:.5}]})});setName('');await load()};
+  return <div>{error&&<div className="admin__error">{error}</div>}<div className="growth-editor"><h3>Новый эксперимент</h3><div className="growth-editor__grid"><input className="admin__modal-input" placeholder="Название" value={name} onChange={e=>setName(e.target.value)}/><select className="admin__select" value={surface} onChange={e=>setSurface(e.target.value)}><option value="pricing">Тарифы</option><option value="task_hub">Порядок сценариев</option></select></div><p className="growth-editor__hint">Варианты фиксируются после запуска. Решение доступно при 200 экспозициях и 20 конверсиях на вариант; победитель выбирается вручную.</p><button className="admin__btn admin__btn--primary" disabled={name.length<2} onClick={()=>void create()}>Создать A/B‑черновик</button></div>{items.map(item=><section key={item.id} className="growth-experiment"><div className="growth-panel__head"><div><h3>{item.name}</h3><small>{item.surface} · цель {item.primary_metric} · {item.status}</small></div>{item.status==='draft'?<button className="admin__btn admin__btn--primary" onClick={async()=>{await api(`/growth/experiments/${item.id}/start`,{method:'POST'});await load()}}>Запустить</button>:item.status==='active'&&<button className="admin__btn" onClick={async()=>{await api(`/growth/experiments/${item.id}/stop`,{method:'POST'});await load()}}>Остановить</button>}</div><div className="growth-experiment__variants">{item.variants.map((variant:any)=><article key={variant.id}><strong>{variant.name}</strong><b>{variant.conversion_pct}%</b><span>{variant.exposed} экспозиций · {variant.conversions} конверсий</span><small>{variant.enough_data?'Данных достаточно':'Рано делать выводы'}</small>{item.status==='active'&&variant.enough_data&&<button className="admin__btn" onClick={async()=>{await api(`/growth/experiments/${item.id}/winner?winner_variant_id=${variant.id}`,{method:'POST'});await load()}}>Выбрать победителем</button>}</article>)}</div></section>)}</div>;
+}
+
 function LoginForm({onLogin}:{onLogin:()=>void}) {
-  const [login,setLogin]=useState(''); const [password,setPassword]=useState(''); const [error,setError]=useState(''); const [loading,setLoading]=useState(false);
+  const [email,setEmail]=useState(''); const [password,setPassword]=useState(''); const [error,setError]=useState(''); const [loading,setLoading]=useState(false);
   const handle=async(e:React.FormEvent)=>{e.preventDefault();setError('');setLoading(true);try{
-    const r=await fetch(`/api/admin/login?login=${encodeURIComponent(login)}&password=${encodeURIComponent(password)}`,{method:'POST'});
-    if(!r.ok)throw new Error((await r.text()).slice(0,200));const d=await r.json();st(d.token);onLogin();
+    const d=await loginAdmin(email,password);if(!d.user?.is_admin){await logoutUser();throw new Error('У пользователя нет прав администратора')}onLogin();
   }catch(err:any){setError(err.message||'Ошибка входа')}finally{setLoading(false)}};
   return (
     <div className="admin"><div className="admin__login-form">
       <h2 style={{marginBottom:24,textAlign:'center'}}>Вход в панель управления</h2>
       <form onSubmit={handle}>
-        <div className="admin__modal-field"><label className="admin__modal-label">Логин</label><input className="admin__modal-input" type="text" value={login} onChange={e=>setLogin(e.target.value)} placeholder="bookazzz" autoFocus /></div>
+        <div className="admin__modal-field"><label className="admin__modal-label">Email</label><input className="admin__modal-input" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="admin@example.com" autoFocus /></div>
         <div className="admin__modal-field"><label className="admin__modal-label">Пароль</label><input className="admin__modal-input" type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" /></div>
         {error&&<div className="admin__error" style={{marginBottom:12}}>{error}</div>}
-        <button className="admin__btn admin__btn--primary" type="submit" disabled={loading||!login||!password} style={{width:'100%',padding:12,fontSize:16}}>{loading?'Проверка...':'Войти'}</button>
+        <button className="admin__btn admin__btn--primary" type="submit" disabled={loading||!email||!password} style={{width:'100%',padding:12,fontSize:16}}>{loading?'Проверка...':'Войти'}</button>
       </form>
     </div></div>
   );
@@ -86,10 +245,20 @@ function LoginForm({onLogin}:{onLogin:()=>void}) {
 
 function AdminLayout({section,onSection}:{section:Section;onSection:(s:Section)=>void}) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  useEffect(()=>{
+    if(!mobileOpen)return;
+    const closeOnEscape=(event:KeyboardEvent)=>{if(event.key==='Escape')setMobileOpen(false)};
+    window.addEventListener('keydown',closeOnEscape);
+    return()=>window.removeEventListener('keydown',closeOnEscape);
+  },[mobileOpen]);
+  const leaveAdmin = async () => { try { await logoutUser(); } finally { window.location.reload(); } };
   const sectionTitle: Record<Section,string> = {
+    'growth-overview':'Обзор проекта','blockers':'Что мешает пользователям','journeys':'Путь пользователя',
+    campaigns:'Кампании',gamification:'Освоение AI‑Sphere',experiments:'A/B‑тесты','growth-surveys':'Микроопросы',
+    workspace:'Сценарии и состояние сервисов',
     dashboard:'Дашборд',users:'Пользователи',models:'Модели',plans:'Тарифы',payments:'Платежи',
     credits:'Операции с кредитами',logs:'Журнал действий',errors:'Системные ошибки',promo:'Промокоды',
-    roles:'Роли и доступ',chats:'Чаты',files:'Файлы',tickets:'Поддержка',notifications:'Уведомления',
+    roles:'Роли и доступ',chats:'Чаты',queries:'Запросы пользователей',files:'Файлы',tickets:'Поддержка',notifications:'Уведомления',
     fraud:'Антифрод',analytics:'Аналитика',
     seo:'SEO-страницы',referrals:'Партнёрская программа',
     forecast:'Прогнозирование',cohorts:'Когортный анализ',ltv:'LTV и Retention',
@@ -104,9 +273,9 @@ function AdminLayout({section,onSection}:{section:Section;onSection:(s:Section)=
 
   return (
     <div className="admin-layout">
-      {mobileOpen && <div className="admin-sidebar__overlay" onClick={closeMobile} />}
-      <nav className={`admin-sidebar${mobileOpen?' admin-sidebar--open':''}`}>
-        <div className="admin-sidebar__close" onClick={closeMobile}>✕</div>
+      {mobileOpen && <div className="admin-sidebar__overlay" onClick={closeMobile} aria-hidden="true" />}
+      <nav id="admin-navigation" aria-label="Разделы админки" className={`admin-sidebar${mobileOpen?' admin-sidebar--open':''}`}>
+        <button type="button" className="admin-sidebar__close" onClick={closeMobile} aria-label="Закрыть меню">✕</button>
         <div className="admin-sidebar__logo"><span className="admin-sidebar__logo-icon">◆</span> AI-Sphere Admin</div>
         {navSections.map(s=><div key={s.title} className="admin-sidebar__section">
           <div className="admin-sidebar__section-title">{s.title}</div>
@@ -117,20 +286,28 @@ function AdminLayout({section,onSection}:{section:Section;onSection:(s:Section)=
           )}
         </div>)}
         <div className="admin-sidebar__bottom">
-          <button className="admin-sidebar__item" onClick={()=>{ct();window.location.reload()}}><span className="admin-sidebar__icon">🚪</span> Выйти</button>
+          <button className="admin-sidebar__item" onClick={leaveAdmin}><span className="admin-sidebar__icon">🚪</span> Выйти</button>
         </div>
       </nav>
       <div className="admin-main">
         <div className="admin-topbar">
           <div className="admin-topbar__left">
-            <button className="admin-sidebar__hamburger" onClick={()=>setMobileOpen(true)} aria-label="Меню">
+            <button type="button" className="admin-sidebar__hamburger" onClick={()=>setMobileOpen(true)} aria-label="Меню" aria-expanded={mobileOpen} aria-controls="admin-navigation">
               <span/><span/><span/>
             </button>
             <h2 className="admin-topbar__title">{sectionTitle[section]}</h2>
           </div>
-          <div className="admin-topbar__right"><span className="admin-topbar__user">admin</span><button className="admin-topbar__logout" onClick={()=>{ct();window.location.reload()}}>Выйти</button></div>
+          <div className="admin-topbar__right"><span className="admin-topbar__user">admin</span><button className="admin-topbar__logout" onClick={leaveAdmin}>Выйти</button></div>
         </div>
         <div className="admin-content">
+          {section==='growth-overview'&&<GrowthOverviewSection onNavigate={onSection} />}
+          {section==='blockers'&&<GrowthBlockersSection />}
+          {section==='journeys'&&<JourneySection />}
+          {section==='campaigns'&&<GrowthCampaignsSection />}
+          {section==='gamification'&&<GamificationSection />}
+          {section==='experiments'&&<ExperimentsSection />}
+          {section==='growth-surveys'&&<GrowthSurveysSection />}
+          {section==='workspace'&&<WorkspaceAdminSection />}
           {section==='dashboard'&&<DashboardSection />}
           {section==='users'&&<UsersSection />}
           {section==='models'&&<ModelsSection />}
@@ -142,6 +319,7 @@ function AdminLayout({section,onSection}:{section:Section;onSection:(s:Section)=
           {section==='promo'&&<PromoSection />}
           {section==='roles'&&<RolesSection />}
           {section==='chats'&&<ChatsSection />}
+          {section==='queries'&&<QueriesSection />}
           {section==='files'&&<FilesSection />}
           {section==='tickets'&&<TicketsSection />}
           {section==='feedback'&&<FeedbacksSection />}
@@ -336,19 +514,28 @@ function MetricaSection() {
 // ══════════════════════════════════
 
 function ModelRow({model,onUpdate,onRecalc}:{model:ModelItem;onUpdate:(id:number,f:string,v:any)=>Promise<void>;onRecalc:(id:number)=>Promise<void>}) {
-  const [sellVal,setSellVal]=useState(String(model.price_unit??''));
-  useEffect(()=>{setSellVal(String(model.price_unit??''))},[model.id,model.price_unit]);
-  const sellNum=parseFloat(sellVal)||0;
+  const [inputVal,setInputVal]=useState(String(model.price_input??''));
+  const [outputVal,setOutputVal]=useState(String(model.price_output??''));
+  useEffect(()=>{setInputVal(String(model.price_input??''));setOutputVal(String(model.price_output??''))},[model.id,model.price_input,model.price_output]);
   const margin=model.margin??0;
-  const iu=margin<(model.margin_min||60);
+  const requiredMargin=(model.margin_min||0.8)*100;
+  const iu=margin<requiredMargin;
+  const isText=(model.output_modalities||[]).includes('text');
+  const savePrice=(field:'price_input'|'price_output',value:string,current:number)=>{const next=parseFloat(value);if(!isNaN(next)&&next>=0&&next!==current)onUpdate(model.id,field,String(next))};
   return <tr style={iu?{background:'rgba(231,76,60,0.05)'}:{}}>
     <td><strong>{model.name}</strong><br/><span style={{fontSize:11,color:'#8e8e9a'}}>{model.or_model_id}</span></td>
     <td>{model.provider}</td><td>{model.category}</td>
-    <td><strong>{model.buy_credits_1k??"—"}</strong></td>
-    <td style={{fontSize:12}}><strong>{model.credits_in_1k??"—"}</strong></td>
-    <td style={{fontSize:12}}><strong>{model.credits_out_1k??"—"}</strong></td>
-    <td><input className="admin__modal-input" type="number" step="0.01" min="0" value={sellVal===''?'':sellNum} onChange={e=>setSellVal(e.target.value)} onBlur={()=>{const n=parseFloat(sellVal);if(!isNaN(n)&&n>=0)onUpdate(model.id,'price_unit',String(n))}} style={{width:70,padding:'4px 8px',fontSize:12}}/></td>
+    <td style={{fontSize:11,whiteSpace:'nowrap'}}>{isText?<><div>In: <strong>${Number(model.or_input_cost||0).toFixed(3)}</strong>/1M</div><div>Out: <strong>${Number(model.or_output_cost||0).toFixed(3)}</strong>/1M</div></>:model.provider_cost_usd_unit!=null?<><strong>${Number(model.provider_cost_usd_unit).toFixed(5)}</strong><div style={{color:'#8e8e9a'}}>{model.unit_basis}</div></>:'—'}</td>
+    <td style={{fontSize:11,whiteSpace:'nowrap'}}>{model.provider_cost_usd_unit!=null?<><div><strong>${Number(model.provider_cost_usd_unit).toFixed(6)}</strong></div><div><strong>{Number(model.provider_cost_rub_unit||0).toFixed(5)} ₽</strong></div><div style={{color:'#8e8e9a'}}>{model.unit_basis}</div></>:'—'}</td>
+    <td style={{fontSize:11}}>{isText?<div style={{display:'grid',gap:4,minWidth:105}}><label style={{display:'flex',alignItems:'center',gap:4}}>In <input className="admin__modal-input" aria-label={`Input цена ${model.name}`} type="number" step="0.01" min="0" value={inputVal} onChange={e=>setInputVal(e.target.value)} onBlur={()=>savePrice('price_input',inputVal,model.price_input)} style={{width:72,padding:'4px 6px',fontSize:11}}/></label><label style={{display:'flex',alignItems:'center',gap:4}}>Out <input className="admin__modal-input" aria-label={`Output цена ${model.name}`} type="number" step="0.01" min="0" value={outputVal} onChange={e=>setOutputVal(e.target.value)} onBlur={()=>savePrice('price_output',outputVal,model.price_output)} style={{width:72,padding:'4px 6px',fontSize:11}}/></label><span style={{color:'#8e8e9a'}}>кредитов за 1K</span></div>:<><strong>{model.revenue_credits_unit}</strong> кр.<div style={{color:'#8e8e9a'}}>{model.unit_basis}</div></>}</td>
+    <td style={{fontSize:11,whiteSpace:'nowrap'}}><strong>{Number(model.revenue_credits_unit||0).toFixed(2)} кр.</strong><div>{Number(model.revenue_rub_unit||0).toFixed(5)} ₽</div><div style={{color:'#8e8e9a'}}>{model.unit_basis}</div></td>
+    <td style={{fontSize:11,whiteSpace:'nowrap'}}>{model.profit_rub_unit!=null?<><strong>{Number(model.profit_rub_unit).toFixed(5)} ₽</strong><div style={{color:'#8e8e9a'}}>после комиссий</div></>:'—'}</td>
     <td><span style={{color:iu?'#e74c3c':margin<80?'#fdcb6e':'#00b894',fontWeight:600}}>{margin}%</span></td>
+    <td><div style={{display:'flex',flexWrap:'wrap',gap:4,maxWidth:180}}>{[
+      ...(model.input_modalities||[]).map(value=>`in:${value}`),
+      ...(model.output_modalities||[]).map(value=>`out:${value}`),
+    ].map(tag=><span key={tag} className="admin__badge" style={{fontSize:10}}>{tag}</span>)}</div></td>
+    <td><label className="admin__toggle" title="Разрешить автоматический выбор"><input type="checkbox" checked={model.auto_route_enabled} onChange={()=>onUpdate(model.id,'auto_route_enabled',model.auto_route_enabled?'false':'true')}/><span className="admin__toggle-slider"></span></label></td>
     <td><label className="admin__toggle"><input type="checkbox" checked={model.is_active} onChange={()=>onUpdate(model.id,'is_active',model.is_active?'false':'true')}/><span className="admin__toggle-slider"></span></label></td>
     <td style={{color:model.error_count>0?'#e74c3c':'#8e8e9a'}}>{model.error_count}</td>
     <td><button className="admin__btn admin__btn-sm" onClick={()=>onRecalc(model.id)}>⟳</button></td>
@@ -357,15 +544,53 @@ function ModelRow({model,onUpdate,onRecalc}:{model:ModelItem;onUpdate:(id:number
 
 function ModelsSection() {
   const [models,setModels]=useState<ModelItem[]>([]); const [loading,setLoading]=useState(true); const [err,setErr]=useState('');
-  const loadModels=useCallback(async()=>{setLoading(true);setErr('');try{setModels(await api<ModelItem[]>('/models'))}catch(e:any){setErr(e.message)}finally{setLoading(false)}},[]);
-  const refreshModels=useCallback(async()=>{try{setModels(await api<ModelItem[]>('/models'))}catch(e:any){setErr(e.message)}},[]);
+  const [syncing,setSyncing]=useState(false); const [syncResult,setSyncResult]=useState('');
+  const [economics,setEconomics]=useState<any>(null);
+  const modelsAnchorRef=useRef<HTMLDivElement>(null);
+  const modelsTableRef=useRef<HTMLDivElement>(null);
+  const modelsTopScrollRef=useRef<HTMLDivElement>(null);
+  const [modelsTableWidth,setModelsTableWidth]=useState(0);
+  const [modelsTableOverflow,setModelsTableOverflow]=useState(false);
+  const [showModelsTop,setShowModelsTop]=useState(false);
+  const loadModels=useCallback(async()=>{setLoading(true);setErr('');try{const [nextModels,nextEconomics]=await Promise.all([api<ModelItem[]>('/models'),api<any>('/models/economics')]);setModels(nextModels);setEconomics(nextEconomics)}catch(e:any){setErr(e.message)}finally{setLoading(false)}},[]);
+  const refreshModels=useCallback(async()=>{try{const [nextModels,nextEconomics]=await Promise.all([api<ModelItem[]>('/models'),api<any>('/models/economics')]);setModels(nextModels);setEconomics(nextEconomics)}catch(e:any){setErr(e.message)}},[]);
   useEffect(()=>{loadModels()},[loadModels]);
-  const updateModel=async(id:number,field:string,val:any)=>{try{await api(`/models/${id}?${field}=${val}`,{method:'PATCH'});await refreshModels()}catch(e:any){setErr(e.message)}};
+  useEffect(()=>{
+    const table=modelsTableRef.current; const top=modelsTopScrollRef.current;
+    if(!table||!top)return;
+    let syncingScroll=false;
+    const measure=()=>{setModelsTableWidth(table.scrollWidth);setModelsTableOverflow(table.scrollWidth>table.clientWidth+1)};
+    const fromTop=()=>{if(syncingScroll)return;syncingScroll=true;table.scrollLeft=top.scrollLeft;requestAnimationFrame(()=>{syncingScroll=false})};
+    const fromTable=()=>{if(syncingScroll)return;syncingScroll=true;top.scrollLeft=table.scrollLeft;requestAnimationFrame(()=>{syncingScroll=false})};
+    measure();
+    const observer=new ResizeObserver(measure);observer.observe(table);
+    const tableElement=table.querySelector('table');if(tableElement)observer.observe(tableElement);
+    top.addEventListener('scroll',fromTop,{passive:true});table.addEventListener('scroll',fromTable,{passive:true});
+    return()=>{observer.disconnect();top.removeEventListener('scroll',fromTop);table.removeEventListener('scroll',fromTable)};
+  },[models.length,loading]);
+  useEffect(()=>{
+    const anchor=modelsAnchorRef.current;if(!anchor)return;
+    const root=anchor.closest('.admin-content');
+    const observer=new IntersectionObserver(([entry])=>setShowModelsTop(
+      !entry.isIntersecting&&entry.boundingClientRect.top<(entry.rootBounds?.top??0)
+    ),{root,threshold:0});
+    observer.observe(anchor);return()=>observer.disconnect();
+  },[loading]);
+  const updateModel=async(id:number,field:string,val:any)=>{try{await api(`/models/${id}?${field}=${encodeURIComponent(String(val))}`,{method:'PATCH'});await refreshModels()}catch(e:any){setErr(e.message)}};
+  const syncOpenRouter=async()=>{setSyncing(true);setSyncResult('');try{const result=await api<{ok:boolean;error?:string;catalog_models:number;updated:number;imported:number;enabled:number;target_margin_pct:number;endpoint_errors:string[]}>('/models/auto-update-prices',{method:'POST'});setSyncResult(result.ok?`Каталог: ${result.catalog_models}, добавлено: ${result.imported}, доступно пользователям: ${result.enabled}, защита маржи: ${result.target_margin_pct}%${result.endpoint_errors?.length?`. Ошибки: ${result.endpoint_errors.join('; ')}`:''}`:`OpenRouter не обновлён: ${result.error||'неизвестная ошибка'}`);await refreshModels()}catch(e:any){setErr(e.message)}finally{setSyncing(false)}};
   if(err)return<div className="admin__error">{err}</div>;
   if(loading)return<div className="admin__loading">Загрузка...</div>;
-  return <div className="admin__table-wrapper"><table className="admin__table"><thead><tr><th>Название</th><th>Провайдер</th><th>Категория</th><th>Покупаю<br/><span style={{fontSize:10,fontWeight:400,color:'#8e8e9a'}}>кр/1K</span></th><th>Input<br/><span style={{fontSize:10,fontWeight:400,color:'#8e8e9a'}}>кр/1K</span></th><th>Output<br/><span style={{fontSize:10,fontWeight:400,color:'#8e8e9a'}}>кр/1K</span></th><th>Продаю<br/><span style={{fontSize:10,fontWeight:400,color:'#8e8e9a'}}>кр/1K</span></th><th>Маржа</th><th>Статус</th><th>Ошибки</th><th></th></tr></thead><tbody>
+  return <div><div className="admin__row" style={{marginBottom:12}}><button className="admin__btn admin__btn--primary" onClick={syncOpenRouter} disabled={syncing}>{syncing?'Синхронизация…':'Синхронизировать OpenRouter'}</button>{syncResult&&<span className="admin__page-info">{syncResult}</span>}</div>
+  {economics&&<><div className="growth-rules"><b>Защита экономики: {economics.guard_passed?'работает':'есть риск'}</b><span>Минимальная маржа {economics.assumptions.target_margin_pct}% · контрольный тариф «{economics.assumptions.guard_plan_name}» · {economics.assumptions.cheapest_credit_rub} ₽/кредит</span><span>Курс {economics.assumptions.usd_rub_rate} ₽/$ × запас {economics.assumptions.fx_safety_factor} · комиссия оплаты {economics.assumptions.payment_fee_pct}% · пополнение OpenRouter {economics.assumptions.openrouter_funding_fee_pct}%</span></div>
+  {economics.pnl&&<div className="growth-rules"><b>P&amp;L за {economics.pnl.period_days} дней: {economics.pnl.break_even?'безубыточно':'убыток'}</b><span>Выручка {economics.pnl.revenue_rub} ₽ · провайдер {economics.pnl.provider_cost_rub} ₽ · эквайринг {economics.pnl.payment_fees_rub} ₽ · постоянные расходы {economics.pnl.fixed_costs_rub} ₽</span><span>Бесплатная программа ${economics.pnl.free_program_cost_usd} · contribution {economics.pnl.contribution_rub} ₽</span></div>}
+  <h3>Стоимость по пользовательским задачам</h3><div className="admin__table-wrapper" style={{marginBottom:24}}><table className="admin__table"><thead><tr><th>Задача</th><th>Модель</th><th>Профиль</th><th>Себестоимость</th><th>Списание</th><th>Цена для пользователя</th><th>Маржа</th></tr></thead><tbody>{economics.tasks.map((item:any)=><tr key={item.template_id}><td><strong>{item.task}</strong><div style={{fontSize:11,color:'#8e8e9a'}}>{item.task_type}</div></td><td>{item.model_name||'Нет доступной модели'}<div style={{fontSize:10,color:'#8e8e9a'}}>{item.model||''}</div></td><td style={{fontSize:11}}>{item.input_tokens?`${item.input_tokens} in / ${item.output_tokens} out`:Object.entries(item.parameters||{}).map(([key,value])=>`${key}: ${String(value)}`).join(' · ')}</td><td>${Number(item.provider_cost_usd||0).toFixed(4)}</td><td>{item.credits||0} кр.</td><td>{Number(item.customer_price_rub||0).toFixed(2)} ₽</td><td><strong style={{color:item.status==='safe'?'#00b894':'#e74c3c'}}>{item.margin_pct??'—'}%</strong></td></tr>)}</tbody></table></div>
+  <h3>Фактическая экономика за {economics.actual_period_days} дней</h3><div className="admin__table-wrapper" style={{marginBottom:24}}><table className="admin__table"><thead><tr><th>Задача</th><th>Модель</th><th>Генерации</th><th>С данными стоимости</th><th>Пользователи</th><th>OpenRouter</th><th>Выручка в кредитах</th><th>Маржа</th></tr></thead><tbody>{(economics.actual||[]).length?(economics.actual||[]).map((item:any)=><tr key={`${item.task_type}:${item.model}`}><td>{item.task_type}</td><td>{item.model}</td><td>{item.generations}</td><td>{item.priced_generations}</td><td>{item.unique_users}</td><td>${Number(item.provider_cost_usd||0).toFixed(4)}</td><td>{item.credits} кр. · {Number(item.customer_price_rub||0).toFixed(2)} ₽</td><td><strong style={{color:item.margin_pct==null?'#8e8e9a':item.margin_pct>=economics.assumptions.target_margin_pct?'#00b894':'#e74c3c'}}>{item.margin_pct==null?'нет данных':`${item.margin_pct}%`}</strong></td></tr>):<tr><td colSpan={8}>Фактические данные появятся после новых успешных генераций.</td></tr>}</tbody></table></div></>}
+  <div ref={modelsAnchorRef} className="admin__model-table-anchor" aria-hidden="true" />
+  <div className="admin__model-table-head"><h3>Каталог моделей</h3><span>{models.length} моделей · таблицу можно двигать горизонтально</span></div>
+  <div className={`admin__table-scroll-top${modelsTableOverflow?' admin__table-scroll-top--visible':''}`} ref={modelsTopScrollRef} aria-label="Горизонтальная прокрутка таблицы моделей"><div style={{width:modelsTableWidth}} /></div>
+  <div className="admin__table-wrapper admin__model-table" ref={modelsTableRef}><table className="admin__table"><thead><tr><th>Название</th><th>Провайдер</th><th>Категория</th><th>OpenRouter<br/><span style={{fontSize:10,fontWeight:400,color:'#8e8e9a'}}>$ / 1M токенов</span></th><th>Себестоимость<br/><span style={{fontSize:10,fontWeight:400,color:'#8e8e9a'}}>USD и ₽</span></th><th>Списание<br/><span style={{fontSize:10,fontWeight:400,color:'#8e8e9a'}}>кредиты input/output</span></th><th>Выручка<br/><span style={{fontSize:10,fontWeight:400,color:'#8e8e9a'}}>кредиты и ₽</span></th><th>Прибыль<br/><span style={{fontSize:10,fontWeight:400,color:'#8e8e9a'}}>после комиссий</span></th><th>Маржа</th><th>Возможности</th><th>Авто</th><th>Статус</th><th>Ошибки</th><th></th></tr></thead><tbody>
     {models.map(m=><ModelRow key={m.id} model={m} onUpdate={updateModel} onRecalc={async id=>{try{await api(`/models/${id}/recalc`,{method:'POST'});await refreshModels()}catch(e:any){setErr(e.message)}}}/>)}
-  </tbody></table></div>;
+  </tbody></table></div>{showModelsTop&&<button type="button" className="admin__models-back-top" onClick={()=>modelsAnchorRef.current?.scrollIntoView({behavior:'smooth',block:'start'})} aria-label="К началу таблицы моделей">↑ <span>К началу моделей</span></button>}</div>;
 }
 
 // ══════════════════════════════════
@@ -382,7 +607,7 @@ function PlansSection() {
   };
   if(err)return<div className="admin__error">{err}</div>;
   return <div>
-    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}><span className="admin__page-info">Тарифов: {plans.length}</span><button className="admin__btn admin__btn--primary" onClick={()=>setShowCreate(true)}>+ Новый тариф</button></div>
+    <div className="admin__section-head" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}><span className="admin__page-info">Тарифов: {plans.length}</span><button className="admin__btn admin__btn--primary" onClick={()=>setShowCreate(true)}>+ Новый тариф</button></div>
     {loading?<div className="admin__loading">Загрузка...</div>:<div className="admin__stats">
       {plans.map(p=><div key={p.id} className="admin__stat-card">
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><strong style={{fontSize:16}}>{p.name}</strong>{p.badge&&<span className="admin__badge admin__badge--promo">{p.badge}</span>}</div>
@@ -403,7 +628,7 @@ function PlansSection() {
 
 function CreatePlanModal({onClose,onDone}:{onClose:()=>void;onDone:()=>void}) {
   const [name,setName]=useState(''); const [credits,setCredits]=useState('1000'); const [price,setPrice]=useState('50000'); const [bonus,setBonus]=useState('0'); const [loading,setLoading]=useState(false); const [err,setErr]=useState(''); const [success,setSuccess]=useState('');
-  const handle=async()=>{setLoading(true);setErr('');try{await api(`/plans?name=${encodeURIComponent(name)}&credits=${credits}&price_rub=${price}&bonus_credits=${bonus}`,{method:'POST'});setSuccess('Создано!');setTimeout(onDone,1500)}catch(e:any){setErr(e.message)}finally{setLoading(false)}};
+  const handle=async()=>{setLoading(true);setErr('');try{await api('/plans',{method:'POST',body:JSON.stringify({name,credits:Number(credits),price_rub:Number(price),bonus_credits:Number(bonus)})});setSuccess('Создано!');setTimeout(onDone,1500)}catch(e:any){setErr(e.message)}finally{setLoading(false)}};
   return <div className="admin__modal-overlay" onClick={loading?undefined:onClose}><div className="admin__modal" onClick={e=>e.stopPropagation()}>
     <h3 className="admin__modal-title">Новый тариф</h3>
     <div className="admin__modal-field"><label className="admin__modal-label">Название</label><input className="admin__modal-input" value={name} onChange={e=>setName(e.target.value)} placeholder="Премиум"/></div>
@@ -417,7 +642,7 @@ function CreatePlanModal({onClose,onDone}:{onClose:()=>void;onDone:()=>void}) {
 
 function EditPlanModal({plan,onClose,onDone}:{plan:PlanItem;onClose:()=>void;onDone:()=>void}) {
   const [name,setName]=useState(plan.name); const [credits,setCredits]=useState(String(plan.credits)); const [price,setPrice]=useState(String(plan.price_rub)); const [bonus,setBonus]=useState(String(plan.bonus_credits||0)); const [loading,setLoading]=useState(false); const [err,setErr]=useState(''); const [success,setSuccess]=useState('');
-  const handle=async()=>{setLoading(true);setErr('');try{await api(`/plans/${plan.id}?name=${encodeURIComponent(name)}&credits=${credits}&price_rub=${price}&bonus_credits=${bonus}`,{method:'PUT'});setSuccess('Сохранено!');setTimeout(onDone,1500)}catch(e:any){setErr(e.message)}finally{setLoading(false)}};
+  const handle=async()=>{setLoading(true);setErr('');try{await api(`/plans/${plan.id}`,{method:'PATCH',body:JSON.stringify({name,credits:Number(credits),price_rub:Number(price),bonus_credits:Number(bonus)})});setSuccess('Сохранено!');setTimeout(onDone,1500)}catch(e:any){setErr(e.message)}finally{setLoading(false)}};
   return <div className="admin__modal-overlay" onClick={loading?undefined:onClose}><div className="admin__modal" onClick={e=>e.stopPropagation()}>
     <h3 className="admin__modal-title">Редактировать тариф</h3>
     <div className="admin__modal-field"><label className="admin__modal-label">Название</label><input className="admin__modal-input" value={name} onChange={e=>setName(e.target.value)} placeholder="Премиум"/></div>
@@ -495,8 +720,9 @@ function LogsSection() {
 
 function ErrorsSection() {
   const [errors,setErrors]=useState<ErrorItem[]>([]); const [total,setTotal]=useState(0); const [offset,setOffset]=useState(0); const [loading,setLoading]=useState(true); const [err,setErr]=useState('');
-  useEffect(()=>{setLoading(true);api<{total:number;errors:ErrorItem[]}>(`/errors?limit=50&offset=${offset}`).then(d=>{setErrors(d.errors);setTotal(d.total)}).catch(e=>setErr(e.message)).finally(()=>setLoading(false))},[offset]);
-  const updateErr=async(eid:number,s:string)=>{try{await api(`/errors/${eid}?status=${s}`,{method:'PATCH'});setOffset(0)}catch(e:any){setErr(e.message)}};
+  const fetchErrors=useCallback(()=>{setLoading(true);setErr('');api<{total:number;errors:ErrorItem[]}>(`/errors?limit=50&offset=${offset}`).then(d=>{setErrors(d.errors);setTotal(d.total)}).catch(e=>setErr(e.message)).finally(()=>setLoading(false))},[offset]);
+  useEffect(()=>{fetchErrors()},[fetchErrors]);
+  const updateErr=async(eid:number,s:string)=>{try{await api(`/errors/${eid}?status=${s}`,{method:'PATCH'});if(offset!==0)setOffset(0);else fetchErrors()}catch(e:any){setErr(e.message)}};
   if(err)return<div className="admin__error">{err}</div>;const totPages=Math.ceil(total/50);const curPage=Math.floor(offset/50)+1;
   return <div>
     {loading?<div className="admin__loading">Загрузка...</div>:
@@ -521,7 +747,7 @@ function PromoSection() {
   const fetch=useCallback(async()=>{setLoading(true);try{setPromos(await api<PromoItem[]>('/promo-codes'))}catch(e:any){setErr(e.message)}finally{setLoading(false)}},[]);
   useEffect(()=>{fetch()},[fetch]);
   return <div>
-    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}><span className="admin__page-info">Промокодов: {promos.length}</span><button className="admin__btn admin__btn--primary" onClick={()=>setShowCreate(true)}>+ Создать</button></div>
+    <div className="admin__section-head" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}><span className="admin__page-info">Промокодов: {promos.length}</span><button className="admin__btn admin__btn--primary" onClick={()=>setShowCreate(true)}>+ Создать</button></div>
     {err&&<div className="admin__error">{err}</div>}
     {loading?<div className="admin__loading">Загрузка...</div>:<div className="admin__promo-grid">{promos.map(p=><div key={p.id} className="admin__promo-card"><div className="admin__promo-card-header"><span className="admin__promo-code">{p.code}</span><span className={`admin__badge ${p.is_active?'admin__badge--active':'admin__badge--blocked'}`}>{p.is_active?'active':'inactive'}</span></div><div className="admin__promo-detail">+{p.credits} кредитов</div><div className="admin__promo-detail">Использован: {p.used_count}/{p.max_uses||'∞'}</div><div className="admin__promo-detail" style={{fontSize:11}}>{p.expires_at?`до ${new Date(p.expires_at).toLocaleDateString('ru-RU')}`:'без срока'}</div><div className="admin__row" style={{marginTop:12}}><button className="admin__btn admin__btn-sm" onClick={async()=>{try{await api(`/promo-codes/${p.id}/toggle`,{method:'POST'});fetch()}catch(e:any){setErr(e.message)}}}>{p.is_active?'deactivate':'activate'}</button><button className="admin__btn admin__btn-sm admin__btn--danger" onClick={async()=>{if(!confirm('Удалить?'))return;try{await api(`/promo-codes/${p.id}`,{method:'DELETE'});fetch()}catch(e:any){setErr(e.message)}}}>delete</button></div></div>)}</div>}
     {showCreate&&<CreatePromoModal onClose={()=>setShowCreate(false)} onDone={()=>{setShowCreate(false);fetch()}} />}
@@ -552,7 +778,7 @@ function RolesSection() {
   const fetch=useCallback(async()=>{setLoading(true);try{setRoles(await api<RoleItem[]>('/roles'))}catch(e:any){setErr(e.message)}finally{setLoading(false)}},[]);
   useEffect(()=>{fetch()},[fetch]);
   return <div>
-    <div style={{display:'flex',justifyContent:'space-between',marginBottom:16}}><span className="admin__page-info">Ролей: {roles.length}</span><button className="admin__btn admin__btn--primary" onClick={()=>setShowCreate(true)}>+ Роль</button></div>
+    <div className="admin__section-head" style={{display:'flex',justifyContent:'space-between',marginBottom:16}}><span className="admin__page-info">Ролей: {roles.length}</span><button className="admin__btn admin__btn--primary" onClick={()=>setShowCreate(true)}>+ Роль</button></div>
     {err&&<div className="admin__error">{err}</div>}{loading?<div className="admin__loading">Загрузка...</div>:
     <div className="admin__table-wrapper"><table className="admin__table"><thead><tr><th>Название</th><th>Описание</th><th>Системная</th></tr></thead><tbody>
       {roles.map(r=><tr key={r.id}><td><strong>{r.name}</strong></td><td style={{fontSize:12,color:'#8e8e9a'}}>{r.description}</td><td>{r.is_system?<span className="admin__badge admin__badge--admin">system</span>:'—'}</td></tr>)}
@@ -604,7 +830,7 @@ function ChatsSection() {
     {loading?<div className="admin__loading">Загрузка...</div>:
     <div className="admin__table-wrapper"><table className="admin__table"><thead><tr><th>Название</th><th>Пользователь</th><th>Модель</th><th>Сообщ.</th><th>Кредиты</th><th>OR Cost</th><th>Создан</th><th></th></tr></thead><tbody>
       {chats.map(c=><tr key={c.session_id}>
-        <td><strong>{c.title}</strong></td><td>#{c.user_id}</td>
+        <td><strong>{c.title}</strong></td><td>{c.user_email||`#${c.user_id}`}</td>
         <td style={{fontSize:12}}>{c.model||'—'}</td>
         <td>{c.message_count}</td>
         <td style={{color:'#00b894'}}>{c.credits_spent}</td>
@@ -648,6 +874,49 @@ function ChatViewer({sessionId,onBack}:{sessionId:string;onBack:()=>void}) {
 // ══════════════════════════════════
 // STAGE 2: Files
 // ══════════════════════════════════
+
+function QueriesSection() {
+  const [queries,setQueries]=useState<QueryItem[]>([]); const [models,setModels]=useState<string[]>([]);
+  const [total,setTotal]=useState(0); const [offset,setOffset]=useState(0); const [search,setSearch]=useState('');
+  const [model,setModel]=useState(''); const [loading,setLoading]=useState(true); const [err,setErr]=useState('');
+  const [expanded,setExpanded]=useState<number|null>(null);
+  const fetch=useCallback(async()=>{
+    setLoading(true);setErr('');
+    try {
+      const p=new URLSearchParams({limit:'50',offset:String(offset)});
+      if(search.trim())p.set('search',search.trim());
+      if(model)p.set('model',model);
+      const d=await api<{total:number;models:string[];queries:QueryItem[]}>(`/queries?${p}`);
+      setQueries(d.queries);setModels(d.models);setTotal(d.total);
+    } catch(e:any){setErr(e.message)}finally{setLoading(false)}
+  },[offset,search,model]);
+  useEffect(()=>{const timer=setTimeout(fetch,250);return()=>clearTimeout(timer)},[fetch]);
+  const pages=Math.ceil(total/50);const page=Math.floor(offset/50)+1;
+  return <div>
+    <div className="admin__row" style={{marginBottom:16,alignItems:'center'}}>
+      <input className="admin__search-input" style={{flex:'1 1 320px'}} placeholder="Поиск по запросу, email или названию чата..." value={search} onChange={e=>{setSearch(e.target.value);setOffset(0)}} />
+      <select className="admin__select" value={model} onChange={e=>{setModel(e.target.value);setOffset(0)}}>
+        <option value="">Все модели</option>
+        {models.map(item=><option key={item} value={item}>{item}</option>)}
+      </select>
+      <span className="admin__page-info">Запросов: {total}</span>
+    </div>
+    {err&&<div className="admin__error">{err}</div>}
+    {loading?<div className="admin__loading">Загрузка...</div>:
+    <div className="admin__table-wrapper"><table className="admin__table"><thead><tr><th>Запрос</th><th>Пользователь</th><th>Чат</th><th>Модель</th><th>Дата</th><th></th></tr></thead><tbody>
+      {queries.map(item=><tr key={item.id}>
+        <td style={{minWidth:260,maxWidth:520}}><div style={{whiteSpace:expanded===item.id?'pre-wrap':'nowrap',overflow:'hidden',textOverflow:'ellipsis',wordBreak:'break-word'}}>{item.content}</div>{item.has_attachments&&<span className="admin__badge admin__badge--promo" style={{marginTop:6}}>есть вложение</span>}</td>
+        <td style={{fontSize:12}}>{item.user_email}<br/><span style={{color:'#8e8e9a'}}>#{item.user_id}</span></td>
+        <td style={{fontSize:12,maxWidth:180,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}} title={item.title}>{item.title||'Без названия'}</td>
+        <td style={{fontSize:11}}>{item.model||'—'}</td>
+        <td style={{fontSize:12,color:'#8e8e9a',whiteSpace:'nowrap'}}>{new Date(item.created_at).toLocaleString('ru-RU')}</td>
+        <td><button className="admin__btn admin__btn-sm" onClick={()=>setExpanded(expanded===item.id?null:item.id)}>{expanded===item.id?'свернуть':'полностью'}</button></td>
+      </tr>)}
+      {queries.length===0&&<tr><td colSpan={6} style={{textAlign:'center',color:'#8e8e9a',padding:24}}>Запросов пока нет</td></tr>}
+    </tbody></table></div>}
+    {pages>1&&<div className="admin__pagination"><button className="admin__btn admin__btn-sm" disabled={offset===0} onClick={()=>setOffset(Math.max(0,offset-50))}>←</button><span className="admin__page-info">{page}/{pages}</span><button className="admin__btn admin__btn-sm" disabled={offset+50>=total} onClick={()=>setOffset(offset+50)}>→</button></div>}
+  </div>;
+}
 
 function FilesSection() {
   const [files,setFiles]=useState<FileItem[]>([]); const [total,setTotal]=useState(0); const [offset,setOffset]=useState(0);
@@ -698,7 +967,7 @@ function FilesSection() {
 // STAGE 2: Support Tickets
 // ══════════════════════════════════
 
-const ticketLabels:Record<string,string>={payment:'Оплата',credits:'Списание кредитов',model_error:'Ошибка модели',files:'Работа с файлами',auth:'Авторизация',data_deletion:'Удаление данных',other:'Другое'};
+const ticketLabels:Record<string,string>={general:'Общий вопрос',billing:'Оплата и тарифы',technical:'Техническая проблема',feature:'Предложение',bug:'Ошибка',payment:'Оплата',credits:'Списание кредитов',model_error:'Ошибка модели',files:'Работа с файлами',auth:'Авторизация',data_deletion:'Удаление данных',other:'Другое'};
 const priorityColors:Record<string,string>={low:'#8e8e9a',normal:'#6c5ce7',high:'#fdcb6e',urgent:'#e74c3c'};
 const statusColors:Record<string,string>={new:'#e74c3c',in_progress:'#fdcb6e',waiting_user:'#6c5ce7',resolved:'#00b894',closed:'#8e8e9a'};
 
@@ -752,11 +1021,11 @@ function TicketsSection() {
 function TicketViewer({ticketId,onBack,onUpdate}:{ticketId:number;onBack:()=>void;onUpdate:()=>void}) {
   const [data,setData]=useState<any>(null); const [err,setErr]=useState('');
   const [newMsg,setNewMsg]=useState(''); const [isInternal,setIsInternal]=useState(false); const [sending,setSending]=useState(false);
-  const [newStatus,setNewStatus]=useState(''); const [newPriority,setNewPriority]=useState('');
+  const [newStatus,setNewStatus]=useState('');
   const fetchData=useCallback(()=>{api<any>(`/tickets/${ticketId}`).then(setData).catch(e=>setErr(e.message))},[ticketId]);
   useEffect(()=>{fetchData()},[fetchData]);
   const handleStatus=async()=>{if(!newStatus)return;try{await api(`/tickets/${ticketId}?status=${newStatus}`,{method:'PATCH'});fetchData();onUpdate();setNewStatus('')}catch(e:any){setErr(e.message)}};
-  const handleSend=async()=>{if(!newMsg.trim())return;setSending(true);try{await api(`/tickets/${ticketId}/message?content=${encodeURIComponent(newMsg)}&is_internal=${isInternal}`,{method:'POST'});setNewMsg('');fetchData();onUpdate()}catch(e:any){setErr(e.message)}finally{setSending(false)}};
+  const handleSend=async()=>{if(!newMsg.trim())return;setSending(true);try{await api(`/tickets/${ticketId}/message`,{method:'POST',body:JSON.stringify({content:newMsg,is_internal:isInternal})});setNewMsg('');fetchData();onUpdate()}catch(e:any){setErr(e.message)}finally{setSending(false)}};
   if(err)return<div className="admin__error">{err}</div>;
   if(!data)return<div className="admin__loading">Загрузка...</div>;
   const t=data.ticket;
@@ -828,7 +1097,6 @@ function ModelFeedbackSection() {
   const [stats, setStats] = useState<ModelFeedbackStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
-  const [period, setPeriod] = useState('30d');
 
   const fetch = useCallback(async () => {
     setLoading(true); setErr('');
@@ -842,7 +1110,7 @@ function ModelFeedbackSection() {
   useEffect(() => { fetch() }, [fetch]);
 
   if (err) return <div className="admin__error">{err}</div>;
-  if (!stats) return <div className="admin__loading">Загрузка...</div>;
+  if (loading || !stats) return <div className="admin__loading">Загрузка...</div>;
 
   const totalFeedback = stats.total;
   const satisfactionPct = (stats.satisfaction_rate * 100).toFixed(1);
@@ -961,7 +1229,7 @@ function NotificationsSection() {
   const fetch=useCallback(async()=>{setLoading(true);try{setNotifs(await api<NotifItem[]>('/notifications'))}catch(e:any){setErr(e.message)}finally{setLoading(false)}},[]);
   useEffect(()=>{fetch()},[fetch]);
   return <div>
-    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+    <div className="admin__section-head" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
       <span className="admin__page-info">Уведомлений: {notifs.length}</span>
       <button className="admin__btn admin__btn--primary" onClick={()=>setShowCreate(true)}>+ Создать</button>
     </div>
@@ -1552,11 +1820,11 @@ function SeoSection() {
   },[]);
   useEffect(()=>{fetch(search,statusFilter,typeFilter,offset)},[search,statusFilter,typeFilter,offset,fetch]);
   const createPage=async(slug:string,title:string,pageType:string,metaTitle:string)=>{
-    await api(`/seo-pages?slug=${encodeURIComponent(slug)}&title=${encodeURIComponent(title)}&page_type=${encodeURIComponent(pageType)}&meta_title=${encodeURIComponent(metaTitle)}&status=published`,{method:'POST'});
+    await api('/seo-pages',{method:'POST',body:JSON.stringify({slug,title,page_type:pageType,meta_title:metaTitle,status:'published'})});
     setShowCreate(false);fetch(search,statusFilter,typeFilter,offset);
   };
   const deletePage=async(id:number)=>{if(!confirm('Удалить страницу?'))return;await api(`/seo-pages/${id}`,{method:'DELETE'});fetch(search,statusFilter,typeFilter,offset)};
-  const toggleStatus=async(p:any)=>{await api(`/seo-pages/${p.id}?status=${p.status==='published'?'draft':'published'}`,{method:'PATCH'});fetch(search,statusFilter,typeFilter,offset)};
+  const toggleStatus=async(p:any)=>{await api(`/seo-pages/${p.id}`,{method:'PATCH',body:JSON.stringify({status:p.status==='published'?'draft':'published'})});fetch(search,statusFilter,typeFilter,offset)};
   const totPages=Math.ceil(total/limit);const curPage=Math.floor(offset/limit)+1;
   return <div>
     <div className="admin__search">
@@ -1655,31 +1923,26 @@ function SeoEditModal({pageId,onClose,onDone}:{pageId:number;onClose:()=>void;on
         if(form.content)q.root.innerHTML=form.content;
       }
     }
-  },[page]);
+  },[page, form.content]);
   useEffect(()=>{
     api<any>(`/seo-pages/${pageId}`).then(p=>{
       setPage(p);setForm({title:p.title||'',h1:p.h1||'',meta_title:p.meta_title||'',meta_description:p.meta_description||'',
         content:p.content||'',subtitle:p.subtitle||'',canonical:p.canonical||'',robots:p.robots||'',author:p.author||''});
     }).catch(e=>setErr(e.message)).finally(()=>setLoading(false));
   },[pageId]);
-  // Sync Quill content back to form before save
-  const syncContent=()=>{
-    if(quillRef.current)setForm(f=>({...f,content:quillRef.current.root.innerHTML}));
-  };
   const set=(k:string,v:string)=>setForm(f=>({...f,[k]:v}));
   const save=async()=>{
-    syncContent();
     setSaving(true);setErr('');setSuccess('');
     try{
-      const p=new URLSearchParams();Object.entries(form).forEach(([k,v])=>{if(v)p.set(k,v)});
-      await api(`/seo-pages/${pageId}?${p}`,{method:'PATCH'});
+      const payload={...form,content:quillRef.current?.root.innerHTML??form.content};
+      await api(`/seo-pages/${pageId}`,{method:'PATCH',body:JSON.stringify(payload)});
       setSuccess('Сохранено!');setTimeout(()=>{onDone()},1200);
     }catch(e:any){setErr(e.message)}finally{setSaving(false)}
   };
   if(loading)return<div className="admin__modal-overlay" onClick={onClose}><div className="admin__modal"><div className="admin__loading">Загрузка...</div></div></div>;
   return <div className="admin__modal-overlay" onClick={saving?undefined:onClose}><div className="admin__modal admin__modal--wide" onClick={e=>e.stopPropagation()}>
     <h3 className="admin__modal-title">Редактировать: {page?.slug||'/'}</h3>
-    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,maxHeight:'60vh',overflowY:'auto',padding:'4px 0'}}>
+    <div className="admin__modal-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,maxHeight:'60vh',overflowY:'auto',padding:'4px 0'}}>
       <div className="admin__modal-field"><label className="admin__modal-label">Title</label><input className="admin__modal-input" value={form.title} onChange={e=>set('title',e.target.value)}/></div>
       <div className="admin__modal-field"><label className="admin__modal-label">H1</label><input className="admin__modal-input" value={form.h1} onChange={e=>set('h1',e.target.value)}/></div>
       <div className="admin__modal-field"><label className="admin__modal-label">Meta Title</label><input className="admin__modal-input" value={form.meta_title} onChange={e=>set('meta_title',e.target.value)}/></div>
@@ -1788,7 +2051,7 @@ function ProblemsSection() {
 
 function SegmentsSection() {
   const [data,setData]=useState<any>(null); const [err,setErr]=useState(''); const [expanded,setExpanded]=useState<string|null>(null);
-  useEffect(()=>{api<any>('/users/segments').then(setData).catch(e=>setErr(e.message))},[]);
+  useEffect(()=>{api<any>('/analytics/user-segments').then(setData).catch(e=>setErr(e.message))},[]);
   if(err)return<div className="admin__error">{err}</div>;
   if(!data)return<div className="admin__loading">Загрузка...</div>;
   const segLabels:Record<string,string>={inactive:'Неактивные',new:'Новые',activated:'Активировались',interested:'Заинтересованные',almost_buying:'Почти купят',active_free:'Активные бесплатные',paying:'Платящие',vip:'VIP'};
@@ -1833,7 +2096,7 @@ function CategoriesSection() {
 
 function ModelAnalyticsSection() {
   const [data,setData]=useState<any[]>([]); const [err,setErr]=useState('');
-  useEffect(()=>{api<any[]>('/models/analytics').then(setData).catch(e=>setErr(e.message))},[]);
+  useEffect(()=>{api<any[]>('/analytics/models-feedback').then(setData).catch(e=>setErr(e.message))},[]);
   if(err)return<div className="admin__error">{err}</div>;
   return <div>
     <p style={{fontSize:13,color:'#8e8e9a',marginBottom:12}}>Аналитика по моделям на основе оценок пользователей</p>
@@ -1903,12 +2166,12 @@ function TriggersSection() {
   const toggleActive=async(t:any)=>{try{await api(`/triggers/${t.id}`,{method:'PUT',body:JSON.stringify({is_active:!t.is_active})});setTriggers(triggers.map(x=>x.id===t.id?{...x,is_active:!x.is_active}:x))}catch(e:any){setErr(e.message)}};
   const del=async(id:number)=>{if(!confirm('Удалить триггер?'))return;try{await api(`/triggers/${id}`,{method:'DELETE'});setTriggers(triggers.filter(x=>x.id!==id))}catch(e:any){setErr(e.message)}};
   return <div>
-    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+    <div className="admin__section-head" style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
       <p style={{fontSize:13,color:'#8e8e9a',margin:0}}>Автоматические предложения на основе поведения</p>
       <button className="admin__btn admin__btn--primary admin__btn-sm" onClick={()=>setEditing({name:'',action_type:'banner',action_config:{title:'',text:'',button_text:''},conditions:{event_type:'message_sent',min_count:2},priority:100,is_active:true,is_once:true})}>+ Новый триггер</button>
     </div>
     {triggers.length===0 && !editing && <div className="admin__empty">Нет триггеров. Создайте первый.</div>}
-    {triggers.map((t:any)=><div key={t.id} className="admin__card" style={{padding:12,marginBottom:8,display:'flex',justifyContent:'space-between',alignItems:'center',opacity:t.is_active?1:0.5}}>
+    {triggers.map((t:any)=><div key={t.id} className="admin__card admin__stack-card" style={{padding:12,marginBottom:8,display:'flex',justifyContent:'space-between',alignItems:'center',opacity:t.is_active?1:0.5}}>
       <div><strong>{t.name}</strong><div style={{fontSize:12,color:'#8e8e9a'}}>{t.action_type} · приоритет {t.priority}{t.user_segment?` · сегмент: ${t.user_segment}`:''}</div></div>
       <div style={{display:'flex',gap:8}}>
         <button className="admin__btn admin__btn-sm" onClick={()=>setEditing(t)}>✏️</button>

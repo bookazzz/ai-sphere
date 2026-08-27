@@ -18,8 +18,6 @@ status: "ready"
 index: true
 ---
 
-# Artificial Analysis запускает платформу Optima
-
 **Кратко:** Artificial Analysis запустила платформу Optima, доступную с 16 августа 2026 года. Сервис предназначен для сравнения AI-моделей.
 
 **Что произошло**

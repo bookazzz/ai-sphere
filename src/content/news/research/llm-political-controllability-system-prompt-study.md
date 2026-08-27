@@ -20,7 +20,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Политическая контролируемость LLM: 88-93% эффекта даёт system prompt, а не модель
+
 
 **Кратко:** Новое исследование на arXiv показывает, что ответы больших языковых моделей на политические вопросы на 88-93% определяются контекстуальной настройкой (system prompt), а не самой моделью. Среди семи ведущих LLM разница в идентичности модели объясняет менее 3% вариативности.
 

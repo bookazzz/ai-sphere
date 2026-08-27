@@ -50,4 +50,3 @@ def downgrade() -> None:
         op.drop_column("generation_jobs", "reserved_buckets")
     if "promo_redemptions" in tables:
         op.drop_table("promo_redemptions")
-

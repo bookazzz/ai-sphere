@@ -45,7 +45,6 @@ interface Props {
 export default function SectionRenderer({ section }: Props) {
   const Component = sectionRegistry[section.type];
   if (!Component) {
-    console.warn(`[SectionRenderer] Unknown section type: ${section.type}`);
     return null;
   }
   return <Component section={section} />;

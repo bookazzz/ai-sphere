@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Новая нейросетевая архитектура для анализа иерархических данных: Deep Generalised Mixed Models
+
 
 **Кратко:** На arXiv опубликована работа, описывающая новую нейросетевую архитектуру Deep Generalised Mixed Models (DGMM), которая обобщает смешанные модели на глубокое обучение. Архитектура предназначена для анализа иерархических данных, в частности данных, собранных методом выборки переживаний (ESM), и решает проблему смещения, вызванного пропусками.
 

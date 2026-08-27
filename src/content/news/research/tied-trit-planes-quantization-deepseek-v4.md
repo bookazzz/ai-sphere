@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Новый метод квантования Tied Trit-Planes сжимает DeepSeek-V4 до 4.0625 бит на вес
+
 
 **Кратко:** Опубликована работа, в которой предложен метод квантования Tied Trit-Planes, обобщающий PTQTP до единого девятиуровневого квантователя. Метод применён к модели DeepSeek-V4-Flash-0731 (284B параметров, 13B активных) и обеспечивает компактное представление 4.0625 бит на вес с возможностью потоковой загрузки экспертов с диска.
 

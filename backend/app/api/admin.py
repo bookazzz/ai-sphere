@@ -1,6 +1,6 @@
-"""Admin API вЂ” unified admin panel for AI-Sphere.
+"""Admin API — unified admin panel for AI-Sphere.
 
-Covers MVP (СЌС‚Р°Рї 1): roles, dashboard, users, models, tariffs,
+Covers MVP (этап 1): roles, dashboard, users, models, tariffs,
 payments, credit operations, logs, system errors.
 """
 
@@ -146,9 +146,9 @@ class CreditPlanUpdateRequest(BaseModel):
     is_active: bool | None = None
     sort_order: int | None = None
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # Admin auth
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 _permission_resources = {
     "dashboard": "*",
@@ -175,7 +175,7 @@ async def admin_login(payload: LoginRequest, response: Response, db: AsyncSessio
     """Password authentication reserved exclusively for active administrators."""
     user = (await db.execute(select(User).where(User.email == payload.email))).scalar_one_or_none()
     if not user or not user.is_admin or not user.is_active or not verify_password(payload.password, user.hashed_password):
-        raise HTTPException(401, "РќРµРІРµСЂРЅС‹Рµ РґР°РЅРЅС‹Рµ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°")
+        raise HTTPException(401, "Неверные данные администратора")
     if password_needs_rehash(user.hashed_password):
         user.hashed_password = hash_password(payload.password)
         await db.commit()
@@ -189,28 +189,28 @@ async def require_admin(
     db: AsyncSession = Depends(get_db),
 ) -> User:
     if not user.is_admin:
-        raise HTTPException(403, "РўСЂРµР±СѓСЋС‚СЃСЏ РїСЂР°РІР° Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°")
+        raise HTTPException(403, "Требуются права администратора")
     # role_id=None is reserved for the bootstrap super-administrator.
     if user.role_id is not None:
         role = await db.get(Role, user.role_id)
         if role is None:
-            raise HTTPException(403, "Р РѕР»СЊ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР° РЅРµ РЅР°Р№РґРµРЅР°")
+            raise HTTPException(403, "Роль администратора не найдена")
         try:
             permissions = json.loads(role.permissions or "{}")
         except (json.JSONDecodeError, TypeError):
-            raise HTTPException(403, "РќРµРєРѕСЂСЂРµРєС‚РЅС‹Рµ РїСЂР°РІР° СЂРѕР»Рё")
+            raise HTTPException(403, "Некорректные права роли")
         segment = request.url.path.removeprefix("/api/admin/").split("/", 1)[0]
         resource = _permission_resources.get(segment, segment)
         allowed = str(permissions.get(resource, permissions.get("*", ""))).lower()
         operation = {"GET": "r", "POST": "c", "PUT": "u", "PATCH": "u", "DELETE": "d"}.get(request.method, "")
         if operation not in allowed:
-            raise HTTPException(403, "РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РїСЂР°РІ РґР»СЏ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РёРІРЅРѕРіРѕ РґРµР№СЃС‚РІРёСЏ")
+            raise HTTPException(403, "Недостаточно прав для административного действия")
     return user
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # Dashboard
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/dashboard/stats")
 async def dashboard_stats(
@@ -301,22 +301,22 @@ async def dashboard_warnings(
             "model_id": m.id,
             "model_name": m.name,
             "margin": m.margin,
-            "message": f"РњРѕРґРµР»СЊ В«{m.name}В» СЂР°Р±РѕС‚Р°РµС‚ РІ РјРёРЅСѓСЃ (РјР°СЂР¶Р° {m.margin:.1f}%)",
+            "message": f"Модель «{m.name}» работает в минус (маржа {m.margin:.1f}%)",
         })
 
-    # OpenRouter balance low (check not possible without OR API call вЂ” placeholder)
+    # OpenRouter balance low (check not possible without OR API call — placeholder)
     warnings.append({
         "type": "info",
         "severity": "info",
-        "message": f"РњРѕРґРµР»РµР№ СЃ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅРѕР№ РјР°СЂР¶РѕР№: {len(bad_models)}",
+        "message": f"Моделей с отрицательной маржой: {len(bad_models)}",
     })
 
     return {"warnings": warnings}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # Roles
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/roles")
 async def list_roles(_=Depends(require_admin), db: AsyncSession = Depends(get_db)):
@@ -346,7 +346,7 @@ async def create_role(name: str = Query(...), description: str = Query(""),
 async def delete_role(role_id: int, _=Depends(require_admin), db: AsyncSession = Depends(get_db)):
     role = await db.get(Role, role_id)
     if not role: raise HTTPException(404)
-    if role.is_system: raise HTTPException(400, "РќРµР»СЊР·СЏ СѓРґР°Р»РёС‚СЊ СЃРёСЃС‚РµРјРЅСѓСЋ СЂРѕР»СЊ")
+    if role.is_system: raise HTTPException(400, "Нельзя удалить системную роль")
     # Unassign users with this role
     await db.execute(User.__table__.update().where(User.role_id == role_id).values(role_id=None))
     await db.delete(role)
@@ -354,9 +354,9 @@ async def delete_role(role_id: int, _=Depends(require_admin), db: AsyncSession =
     return {"ok": True}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # Users
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/users")
 async def list_users(
@@ -380,7 +380,7 @@ async def list_users(
 @router.get("/users/{user_id}")
 async def get_user_card(user_id: int, _=Depends(require_admin), db: AsyncSession = Depends(get_db)):
     user = await db.get(User, user_id)
-    if not user: raise HTTPException(404, "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РЅР°Р№РґРµРЅ")
+    if not user: raise HTTPException(404, "Пользователь не найден")
 
     # Payments
     payments = (await db.execute(
@@ -427,14 +427,14 @@ async def adjust_credits(
     comment: str = Query(""),
     admin: User = Depends(require_admin), db: AsyncSession = Depends(get_db),
 ):
-    if amount <= 0: raise HTTPException(400, "РЎСѓРјРјР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ РїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕР№")
+    if amount <= 0: raise HTTPException(400, "Сумма должна быть положительной")
     user = await db.get(User, user_id)
     if not user: raise HTTPException(404)
 
     col = {"paid": "credits_paid", "free": "credits_free",
            "bonus": "credits_bonus", "promo": "credits_promo"}
     col_name = col.get(credit_type)
-    if not col_name: raise HTTPException(400, "РќРµРёР·РІРµСЃС‚РЅС‹Р№ С‚РёРї РєСЂРµРґРёС‚РѕРІ")
+    if not col_name: raise HTTPException(400, "Неизвестный тип кредитов")
 
     sign = -1 if op_type == "manual_remove" else 1
     old_val = getattr(user, col_name)
@@ -472,9 +472,9 @@ async def delete_user_account(
 ):
     user = await db.get(User, user_id)
     if not user:
-        raise HTTPException(404, "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Пользователь не найден")
     if user.id == admin.id or user.is_admin:
-        raise HTTPException(400, "РђРґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР° РЅРµР»СЊР·СЏ СѓРґР°Р»РёС‚СЊ С‡РµСЂРµР· СЌС‚РѕС‚ СЂР°Р·РґРµР»")
+        raise HTTPException(400, "Администратора нельзя удалить через этот раздел")
 
     feedback_ids = select(UserFeedback.id).where(UserFeedback.user_id == user_id)
     ticket_ids = select(SupportTicket.id).where(SupportTicket.user_id == user_id)
@@ -528,9 +528,9 @@ def _user_json(u: User) -> dict:
     }
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # AI Models
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 def _media_pricing_parameters(model: AiModel, kind: str) -> dict:
     """Return a real, supported unit for media economics and sync guards."""
@@ -598,7 +598,7 @@ def _model_unit_economics(model: AiModel, context: PricingContext) -> dict:
         media_parameters = _media_pricing_parameters(model, kind) if kind else {}
         provider_cost_usd = provider_cost_from_snapshot(snapshot, kind, media_parameters, conservative=True) if kind else None
         credits = credits_for_provider_cost(provider_cost_usd, context, whole=True) if provider_cost_usd else 0.0
-        basis = "1 Р·Р°РїСЂРѕСЃ" if provider_cost_usd else "РЅРµС‚ СЂР°СЃС‡С‘С‚Р°"
+        basis = "1 запрос" if provider_cost_usd else "нет расчёта"
     provider_cost_rub = (provider_cost_usd or 0.0) * context.effective_usd_rub
     revenue_rub = credits * context.credit_rub
     payment_fee_rub = revenue_rub * context.payment_fee_rate
@@ -707,6 +707,10 @@ async def model_economics(_=Depends(require_admin), db: AsyncSession = Depends(g
         compatible = [model for model in usable if kind in outputs(model)]
         preferred = next((model for model in compatible if model.or_model_id == template.preferred_model), None)
         if kind == "text":
+            # A zero/unknown token price is missing catalog data, not a free
+            # request. Exclude such models from the economics recommendation.
+            compatible = [model for model in compatible if (model.or_input_cost or 0) > 0 or (model.or_output_cost or 0) > 0 or (model.fixed_price or 0) > 0]
+            preferred = next((model for model in compatible if model.or_model_id == template.preferred_model), None)
             input_tokens, output_tokens = TASK_TOKEN_PROFILES.get(
                 template.task_type, (6000, 1000) if template.category == "document" else (1000, 1000),
             )
@@ -936,7 +940,7 @@ async def update_model(model_id: int, _=Depends(require_admin), db: AsyncSession
     if model.is_unprofitable and (model.is_active or model.is_visible):
         rejected_margin = model.margin
         await db.rollback()
-        raise HTTPException(422, f"Р¦РµРЅР° РґР°С‘С‚ РјР°СЂР¶Сѓ {rejected_margin:.2f}%. РњРёРЅРёРјСѓРј вЂ” {settings.target_gross_margin * 100:.0f}%")
+        raise HTTPException(422, f"Цена даёт маржу {rejected_margin:.2f}%. Минимум — {settings.target_gross_margin * 100:.0f}%")
     await db.commit()
     return {"ok": True, "margin": model.margin, "is_unprofitable": model.is_unprofitable}
 
@@ -953,9 +957,9 @@ async def recalc_model(model_id: int, _=Depends(require_admin), db: AsyncSession
     return {"ok": True, "margin": model.margin, "is_unprofitable": model.is_unprofitable}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # Credit Plans (Tariffs)
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 async def _reprice_catalog(db: AsyncSession) -> None:
     """Apply the current tariff guard to every synchronized model."""
@@ -1033,9 +1037,9 @@ async def delete_plan(plan_id: int, _=Depends(require_admin), db: AsyncSession =
     return {"ok": True}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # Payments / Transactions
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/payments")
 async def list_payments(
@@ -1064,9 +1068,9 @@ async def list_payments(
     }
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # Credit Operations Journal
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/credit-ops")
 async def list_credit_ops(
@@ -1091,9 +1095,9 @@ async def list_credit_ops(
     }
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # Admin Log
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/logs")
 async def list_logs(
@@ -1120,9 +1124,9 @@ async def list_logs(
     }
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # System Errors
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/errors")
 async def list_errors(
@@ -1155,9 +1159,9 @@ async def update_error(error_id: int, status: str = Query(...),
     return {"ok": True}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # Promo codes (enhanced)
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/promo-codes")
 async def list_promos(_=Depends(require_admin), db: AsyncSession = Depends(get_db)):
@@ -1182,7 +1186,7 @@ async def create_promo(
     code = code.strip().upper()
     existing = await db.execute(select(PromoCode).where(PromoCode.code == code))
     if existing.scalar_one_or_none():
-        raise HTTPException(400, "РўР°РєРѕР№ РєРѕРґ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚")
+        raise HTTPException(400, "Такой код уже существует")
     expires_at = date.today() + timedelta(days=expires_in_days) if expires_in_days > 0 else None
     promo = PromoCode(code=code, credits=credits, max_uses=max_uses,
                       description=description, is_active=True, expires_at=expires_at)
@@ -1210,9 +1214,9 @@ async def delete_promo(promo_id: int, _=Depends(require_admin), db: AsyncSession
     return {"ok": True}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 2: Chats
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/chats")
 async def list_chats(
@@ -1259,7 +1263,7 @@ async def list_chats(
             "session_id": session.id,
             "user_id": session.user_id,
             "user_email": email,
-            "title": session.title or "(Р±РµР· РЅР°Р·РІР°РЅРёСЏ)",
+            "title": session.title or "(без названия)",
             "model": session_model,
             "credits_spent": credits_spent,
             "or_cost": 0.0,
@@ -1284,7 +1288,7 @@ async def list_chats(
         "total": total,
         "chats": [{
             "id": c.id, "session_id": c.session_id, "user_id": c.user_id,
-            "title": c.title or "(Р±РµР· РЅР°Р·РІР°РЅРёСЏ)", "model": c.model,
+            "title": c.title or "(без названия)", "model": c.model,
             "credits_spent": c.credits_spent, "or_cost": c.or_cost,
             "message_count": msg_counts.get(c.session_id, 0),
             "created_at": c.created_at.isoformat() if c.created_at else "",
@@ -1300,7 +1304,7 @@ async def get_chat_messages(
 ):
     session = await db.get(ChatSession, session_id)
     if not session:
-        raise HTTPException(404, "Р§Р°С‚ РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Чат не найден")
     try:
         all_messages = json.loads(session.messages or "[]")
     except (TypeError, json.JSONDecodeError):
@@ -1323,7 +1327,7 @@ async def get_chat_messages(
                 if item.get("type") == "text":
                     parts.append(str(item.get("text") or ""))
                 elif item.get("type") in {"image_url", "video_url"}:
-                    parts.append("[РІР»РѕР¶РµРЅРёРµ]")
+                    parts.append("[вложение]")
             return " ".join(filter(None, parts))
         return str(value or "")
 
@@ -1356,7 +1360,7 @@ async def get_chat_messages(
     session = await db.execute(select(ChatSession).where(ChatSession.session_id == session_id))
     session = session.scalar_one_or_none()
     if not session:
-        raise HTTPException(404, "Р§Р°С‚ РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Чат не найден")
 
     q = select(ChatMessage).where(
         ChatMessage.session_id == session_id, ChatMessage.is_deleted == False
@@ -1382,9 +1386,9 @@ async def get_chat_messages(
     }
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 2: Files
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/queries")
 async def list_user_queries(
@@ -1474,9 +1478,9 @@ async def update_file(
     return {"ok": True}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 2: Support Tickets
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/tickets")
 async def list_tickets(
@@ -1578,9 +1582,9 @@ async def add_ticket_message(
     return {"ok": True}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 2: Notifications
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/notifications")
 async def list_notifications(_=Depends(require_admin), db: AsyncSession = Depends(get_db)):
@@ -1629,9 +1633,9 @@ async def delete_notification(notif_id: int, _=Depends(require_admin), db: Async
     return {"ok": True}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 2: Fraud Alerts
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/fraud-alerts")
 async def list_fraud_alerts(
@@ -1673,9 +1677,9 @@ async def update_fraud_alert(
     return {"ok": True}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 2: Advanced analytics
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/analytics/overview")
 async def analytics_overview(
@@ -1797,12 +1801,12 @@ async def analytics_funnel(_=Depends(require_admin), db: AsyncSession = Depends(
         select(ProductEvent.event_name, func.count(ProductEvent.id)).group_by(ProductEvent.event_name)
     )).all())
     event_stages = [
-        ("Р’С‹Р±СЂР°Р»Рё СЃС†РµРЅР°СЂРёР№", "template_view"),
-        ("РќР°С‡Р°Р»Рё Р·Р°РґР°С‡Сѓ", "task_started"),
-        ("РџРѕР»СѓС‡РёР»Рё РїРµСЂРІС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚", "first_result"),
-        ("РћС‚РєСЂС‹Р»Рё С‚Р°СЂРёС„С‹", "pricing_view"),
-        ("РќР°С‡Р°Р»Рё РѕРїР»Р°С‚Сѓ", "checkout_started"),
-        ("РЈСЃРїРµС€РЅРѕ РѕРїР»Р°С‚РёР»Рё", "payment_succeeded"),
+        ("Выбрали сценарий", "template_view"),
+        ("Начали задачу", "task_started"),
+        ("Получили первый результат", "first_result"),
+        ("Открыли тарифы", "pricing_view"),
+        ("Начали оплату", "checkout_started"),
+        ("Успешно оплатили", "payment_succeeded"),
     ]
     product_funnel = []
     previous = 0
@@ -1825,11 +1829,11 @@ async def analytics_funnel(_=Depends(require_admin), db: AsyncSession = Depends(
             "avg_revenue_per_payer_rub": round(total_revenue_kop / paid_users / 100, 2) if paid_users else 0,
         },
         "legacy_funnel": [
-            {"stage": "Р—Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅРѕ", "count": total_reg},
-            {"stage": "РЎРѕРІРµСЂС€РёР»Рё Р·Р°РїСЂРѕСЃ", "count": active_users},
-            {"stage": "РћРїР»Р°С‚РёР»Рё С…РѕС‚СЏ Р±С‹ СЂР°Р·", "count": paid_users,
+            {"stage": "Зарегистрировано", "count": total_reg},
+            {"stage": "Совершили запрос", "count": active_users},
+            {"stage": "Оплатили хотя бы раз", "count": paid_users,
              "conversion": round(paid_users / total_reg * 100, 1) if total_reg else 0},
-            {"stage": "РџРѕРІС‚РѕСЂРЅР°СЏ РѕРїР»Р°С‚Р°", "count": repeat_payers,
+            {"stage": "Повторная оплата", "count": repeat_payers,
              "conversion": round(repeat_payers / paid_users * 100, 1) if paid_users else 0},
         ],
         "total_registrations": total_reg,
@@ -1839,9 +1843,9 @@ async def analytics_funnel(_=Depends(require_admin), db: AsyncSession = Depends(
     }
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 3: SEO Pages
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 SEO_PAGE_TYPES = ["article", "model_page", "task_page", "faq_list", "static", "legal"]
 SEO_STATUSES = ["draft", "review", "published", "unpublished", "scheduled"]
@@ -1884,10 +1888,10 @@ async def create_seo_page(
 ):
     slug, title, page_type, status = payload.slug, payload.title, payload.page_type, payload.status
     if slug in ("admin", "api", "login", "register", ""):
-        raise HTTPException(400, "РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ slug")
+        raise HTTPException(400, "Недопустимый slug")
     existing = await db.execute(select(SeoPage).where(SeoPage.slug == slug))
     if existing.scalar_one_or_none():
-        raise HTTPException(400, f"РЎС‚СЂР°РЅРёС†Р° СЃ slug '{slug}' СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚")
+        raise HTTPException(400, f"Страница с slug '{slug}' уже существует")
     now = datetime.now(timezone.utc)
     page = SeoPage(
         slug=slug, title=title, page_type=page_type,
@@ -1930,9 +1934,9 @@ async def delete_seo_page(page_id: int, _=Depends(require_admin), db: AsyncSessi
     return {"ok": True}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 3: Referral / Affiliate Program
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/referrals")
 async def list_referral_partners(
@@ -1996,9 +2000,9 @@ async def update_referral_partner(
     return {"ok": True}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 3: Auto-update model prices from OpenRouter
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.post("/models/auto-update-prices")
 async def auto_update_prices(
@@ -2187,9 +2191,9 @@ async def auto_update_prices(
     }
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 3: Forecast analytics
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/analytics/forecast")
 async def analytics_forecast(
@@ -2248,9 +2252,9 @@ async def analytics_forecast(
     }
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 3: Cohort analysis
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/analytics/cohorts")
 async def analytics_cohorts(
@@ -2289,9 +2293,9 @@ async def analytics_cohorts(
     return {"cohorts": result, "total_cohorts": len(result)}
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 3: LTV Analytics
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/analytics/ltv")
 async def analytics_ltv(
@@ -2355,9 +2359,9 @@ async def analytics_ltv(
     }
 
 
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 # STAGE 3: Retention Analytics
-# в•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђв•ђ
+# ═══════════════════════════════════════════════
 
 @router.get("/analytics/retention")
 async def analytics_retention(
@@ -2436,7 +2440,7 @@ async def feedback_stats(
     per_model: dict[str, dict] = {}
     for item in feedback:
         totals[item.feedback_type] = totals.get(item.feedback_type, 0) + 1
-        bucket = per_model.setdefault(item.model or "РќРµ СѓРєР°Р·Р°РЅР°", {"total": 0, "likes": 0, "dislikes": 0})
+        bucket = per_model.setdefault(item.model or "Не указана", {"total": 0, "likes": 0, "dislikes": 0})
         bucket["total"] += 1
         if item.feedback_type == "like":
             bucket["likes"] += 1
@@ -2503,7 +2507,7 @@ async def get_feedback(feedback_id: int, _=Depends(require_admin), db: AsyncSess
         select(UserFeedback, User.email).join(User, User.id == UserFeedback.user_id).where(UserFeedback.id == feedback_id)
     )).one_or_none()
     if not row:
-        raise HTTPException(404, "РћС‚Р·С‹РІ РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Отзыв не найден")
     item, email = row
     replies = (await db.execute(
         select(FeedbackReply).where(FeedbackReply.feedback_id == feedback_id).order_by(FeedbackReply.created_at)
@@ -2529,7 +2533,7 @@ async def update_feedback_status(
 ):
     item = await db.get(UserFeedback, feedback_id)
     if not item:
-        raise HTTPException(404, "РћС‚Р·С‹РІ РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Отзыв не найден")
     item.status = status
     await db.commit()
     return {"ok": True, "status": status}
@@ -2542,7 +2546,7 @@ async def reply_to_feedback(
 ):
     item = await db.get(UserFeedback, feedback_id)
     if not item:
-        raise HTTPException(404, "РћС‚Р·С‹РІ РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Отзыв не найден")
     reply = FeedbackReply(feedback_id=feedback_id, admin_id=admin.id, message=message.strip())
     db.add(reply)
     item.status = "replied"
@@ -2562,7 +2566,7 @@ async def save_metrica(
     _=Depends(require_admin), db: AsyncSession = Depends(get_db),
 ):
     if not counter_id.isdigit():
-        raise HTTPException(422, "ID СЃС‡С‘С‚С‡РёРєР° РґРѕР»Р¶РµРЅ СЃРѕРґРµСЂР¶Р°С‚СЊ С‚РѕР»СЊРєРѕ С†РёС„СЂС‹")
+        raise HTTPException(422, "ID счётчика должен содержать только цифры")
     item = await db.get(AppSetting, "yandex_metrica_id")
     if item:
         item.value = counter_id
@@ -2578,7 +2582,7 @@ async def models_feedback_analytics(_=Depends(require_admin), db: AsyncSession =
     by_model: dict[str, list[int]] = {}
     rating = {"like": 5, "regenerate": 3, "dislike": 1}
     for item in feedback:
-        by_model.setdefault(item.model or "РќРµ СѓРєР°Р·Р°РЅР°", []).append(rating.get(item.feedback_type, 3))
+        by_model.setdefault(item.model or "Не указана", []).append(rating.get(item.feedback_type, 3))
     return [{
         "model_name": model,
         "feedback_count": len(values),
@@ -2610,7 +2614,7 @@ async def analytics_problems(_=Depends(require_admin), db: AsyncSession = Depend
     )).scalars().all()
     if failed:
         result.insert(0, {
-            "problem": "РќРµСѓСЃРїРµС€РЅС‹Рµ РїР»Р°С‚РµР¶Рё",
+            "problem": "Неуспешные платежи",
             "users_count": len({item.user_id for item in failed}),
             "lost_revenue": round(sum(item.amount_kopecks for item in failed) / 100, 2),
             "priority": "high",
@@ -2660,16 +2664,16 @@ async def request_categories(_=Depends(require_admin), db: AsyncSession = Depend
         .order_by(desc(UserQuery.created_at)).limit(500)
     )).all()
     definitions = [
-        ("РџСЂРѕРіСЂР°РјРјРёСЂРѕРІР°РЅРёРµ", ("РєРѕРґ", "python", "javascript", "api", "РѕС€РёР±Рє", "С„СѓРЅРєС†Рё")),
-        ("РўРµРєСЃС‚С‹ Рё РєРѕРЅС‚РµРЅС‚", ("РЅР°РїРёС€Рё", "С‚РµРєСЃС‚", "СЃС‚Р°С‚СЊ", "РїРѕСЃС‚", "РїРµСЂРµРІРѕРґ", "СЂРµР·СЋРјРµ")),
-        ("РњР°СЂРєРµС‚РёРЅРі", ("РјР°СЂРєРµС‚", "СЂРµРєР»Р°Рј", "РїСЂРѕРґР°Р¶", "Р°СѓРґРёС‚РѕСЂ", "seo")),
-        ("РђРЅР°Р»РёС‚РёРєР°", ("Р°РЅР°Р»РёР·", "С‚Р°Р±Р»РёС†", "РґР°РЅРЅ", "РѕС‚С‡С‘С‚", "СЃСЂР°РІРЅРё")),
-        ("РР·РѕР±СЂР°Р¶РµРЅРёСЏ", ("РёР·РѕР±СЂР°Р¶", "РєР°СЂС‚РёРЅ", "С„РѕС‚Рѕ", "РЅР°СЂРёСЃ", "Р»РѕРіРѕС‚РёРї")),
+        ("Программирование", ("код", "python", "javascript", "api", "ошибк", "функци")),
+        ("Тексты и контент", ("напиши", "текст", "стать", "пост", "перевод", "резюме")),
+        ("Маркетинг", ("маркет", "реклам", "продаж", "аудитор", "seo")),
+        ("Аналитика", ("анализ", "таблиц", "данн", "отчёт", "сравни")),
+        ("Изображения", ("изображ", "картин", "фото", "нарис", "логотип")),
     ]
     buckets: dict[str, dict] = {}
     for query, paid in rows:
         text = query.content.lower()
-        category = next((name for name, words in definitions if any(word in text for word in words)), "Р”СЂСѓРіРѕРµ")
+        category = next((name for name, words in definitions if any(word in text for word in words)), "Другое")
         bucket = buckets.setdefault(category, {"count": 0, "paying": set(), "revenue": 0})
         bucket["count"] += 1
         if paid > 0:
@@ -2706,4 +2710,3 @@ async def abandoned_payments(
 @router.get("/surveys/results")
 async def survey_results(_=Depends(require_admin)):
     return {}
-

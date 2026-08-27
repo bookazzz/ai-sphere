@@ -98,7 +98,7 @@ function validateRequiredSections(page) {
 
 function validateCanonical(page) {
   if (!page.canonical || !page.slug) return;
-  const expectedSlug = page.canonical.replace('https://ai-sphere.ru/', '');
+  const expectedSlug = page.canonical.replace('https://ai-sphere.ru/', '').replace(/\/$/, '');
   if (expectedSlug !== page.slug) {
     errors.push(`${page.slug}: canonical "${page.canonical}" doesn't match slug "${page.slug}"`);
   }
@@ -115,7 +115,11 @@ function validateRelatedPages(page, allSlugs) {
 function validateSitemapCoverage(pages) {
   const sitemapPath = path.join(PUBLIC_DIR, 'sitemap.xml');
   if (!fs.existsSync(sitemapPath)) {
-    warnings.push('sitemap.xml not found — coverage check skipped');
+    const routePath = path.join(__dirname, '..', 'src', 'app', 'sitemap.xml', 'route.ts');
+    const routeSource = fs.existsSync(routePath) ? fs.readFileSync(routePath, 'utf8') : '';
+    if (!routeSource.includes('seoContentMap')) {
+      errors.push('dynamic sitemap route must include seoContentMap');
+    }
     return;
   }
 

@@ -13,7 +13,7 @@ tags:
   - гайд
   - для начинающих
 status: ready
-index: true
+index: false
 canonical: /blog/guides/chto-takoe-nejroseti
 relatedSeoPages:
   - nejroset-online

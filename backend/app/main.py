@@ -67,17 +67,17 @@ async def lifespan(app: FastAPI):
         role_count = (await conn.execute(text("SELECT COUNT(*) FROM admin_roles"))).scalar()
         if role_count == 0:
             roles = [
-                Role(name="РЎСѓРїРµСЂР°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ", description="РџРѕР»РЅС‹Р№ РґРѕСЃС‚СѓРї",
+                Role(name="Суперадминистратор", description="Полный доступ",
                      permissions='{"*": "crud"}', is_system=True),
-                Role(name="РђРґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂ", description="РЈРїСЂР°РІР»РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРјРё Рё РјРѕРґРµР»СЏРјРё",
+                Role(name="Администратор", description="Управление пользователями и моделями",
                      permissions='{"users": "crud", "models": "crud", "plans": "crud", "promo": "crud"}', is_system=True),
-                Role(name="Р¤РёРЅ. РјРµРЅРµРґР¶РµСЂ", description="Р¤РёРЅР°РЅСЃС‹ Рё РїР»Р°С‚РµР¶Рё",
+                Role(name="Фин. менеджер", description="Финансы и платежи",
                      permissions='{"payments": "crud", "plans": "r", "users": "r"}', is_system=True),
-                Role(name="РљРѕРЅС‚РµРЅС‚-РјРµРЅРµРґР¶РµСЂ", description="SEO Рё РєРѕРЅС‚РµРЅС‚",
+                Role(name="Контент-менеджер", description="SEO и контент",
                      permissions='{"content": "crud"}', is_system=True),
-                Role(name="РўРµС…РїРѕРґРґРµСЂР¶РєР°", description="РџРѕР»СЊР·РѕРІР°С‚РµР»Рё Рё РѕР±СЂР°С‰РµРЅРёСЏ",
+                Role(name="Техподдержка", description="Пользователи и обращения",
                      permissions='{"users": "r", "chats": "r"}', is_system=True),
-                Role(name="РђРЅР°Р»РёС‚РёРє", description="РўРѕР»СЊРєРѕ С‡С‚РµРЅРёРµ",
+                Role(name="Аналитик", description="Только чтение",
                      permissions='{"*": "r"}', is_system=True),
             ]
             for r in roles:
@@ -163,10 +163,10 @@ async def lifespan(app: FastAPI):
         plan_count = (await conn.execute(text("SELECT COUNT(*) FROM credit_plans"))).scalar()
         if plan_count == 0:
             plans = [
-                ("РЎС‚Р°СЂС‚РѕРІС‹Р№", 5000, 500, 0, None, None, 1),
-                ("Р‘Р°Р·РѕРІС‹Р№", 25000, 2500, 0, None, None, 2),
-                ("РџРѕРїСѓР»СЏСЂРЅС‹Р№", 100000, 10000, 1500, 115000, "+15%", 3),
-                ("РџСЂРµРјРёСѓРј", 250000, 25000, 5000, 300000, "+20%", 4),
+                ("Стартовый", 5000, 500, 0, None, None, 1),
+                ("Базовый", 25000, 2500, 0, None, None, 2),
+                ("Популярный", 100000, 10000, 1500, 115000, "+15%", 3),
+                ("Премиум", 250000, 25000, 5000, 300000, "+20%", 4),
             ]
             for p in plans:
                 await conn.execute(text(
@@ -189,8 +189,8 @@ async def lifespan(app: FastAPI):
         # Editing is covered by the combined write/improve scenario.
         await conn.execute(text("UPDATE task_templates SET is_active = 0 WHERE slug = 'improve-text'"))
         await conn.execute(text("UPDATE task_templates SET title = :title, description = :description WHERE slug = 'write-text'"), {
-            "title": "РќР°РїРёСЃР°С‚СЊ РёР»Рё СѓР»СѓС‡С€РёС‚СЊ С‚РµРєСЃС‚",
-            "description": "РЎРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ С‚РµРєСЃС‚ РёР»Рё РѕС‚СЂРµРґР°РєС‚РёСЂРѕРІР°С‚СЊ РіРѕС‚РѕРІС‹Р№",
+            "title": "Написать или улучшить текст",
+            "description": "Создать новый текст или отредактировать готовый",
         })
         mission_count = (await conn.execute(text("SELECT COUNT(*) FROM missions"))).scalar()
         if mission_count == 0:
@@ -216,9 +216,9 @@ async def lifespan(app: FastAPI):
         achievement_count = (await conn.execute(text("SELECT COUNT(*) FROM achievements"))).scalar()
         if achievement_count == 0:
             for code, title, description, icon in (
-                ("first-result", "РџРµСЂРІС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚", "РџРѕР»СѓС‡РµРЅ РїРµСЂРІС‹Р№ РїРѕР»РµР·РЅС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚", "вњ¦"),
-                ("explorer", "РСЃСЃР»РµРґРѕРІР°С‚РµР»СЊ", "РћСЃРІРѕРµРЅС‹ С‚СЂРё СЂР°Р·РЅС‹С… СЃС†РµРЅР°СЂРёСЏ", "в—‡"),
-                ("project-master", "РњР°СЃС‚РµСЂ РїСЂРѕС†РµСЃСЃРѕРІ", "Р—Р°РІРµСЂС€С‘РЅ РјРЅРѕРіРѕС€Р°РіРѕРІС‹Р№ РїСЂРѕРµРєС‚", "в—†"),
+                ("first-result", "Первый результат", "Получен первый полезный результат", "✦"),
+                ("explorer", "Исследователь", "Освоены три разных сценария", "◇"),
+                ("project-master", "Мастер процессов", "Завершён многошаговый проект", "◆"),
             ):
                 await conn.execute(Achievement.__table__.insert().values(
                     code=code, title=title, description=description, icon=icon,
@@ -306,4 +306,3 @@ app.include_router(growth.router)
 @app.get("/api/health")
 async def health():
     return {"status": "ok", "app": settings.app_name}
-

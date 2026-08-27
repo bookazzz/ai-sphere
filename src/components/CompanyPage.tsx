@@ -25,6 +25,16 @@ export default function CompanyPageClient({ company }: Props) {
 
   // Map company name to price anchor
   const priceAnchor = company.categories[0]?.toLowerCase() || company.slug;
+  const newsCategoryByCompany: Record<string, string> = {
+    openai: 'openai',
+    anthropic: 'anthropic',
+    'google-deepmind': 'google-gemini',
+    'meta-ai': 'llm',
+    'mistral-ai': 'llm',
+    xai: 'llm',
+    deepseek: 'llm',
+  };
+  const newsCategory = newsCategoryByCompany[company.slug] || 'general';
 
   return (
     <>
@@ -83,7 +93,7 @@ export default function CompanyPageClient({ company }: Props) {
           <p className="company-section__text">
             Актуальные цены на модели {company.shortName} — на странице{' '}
             <Link href={`/prices/#${priceAnchor}`}>тарифов</Link>.
-            Все модели доступны с оплатой в рублях, без комиссий и скрытых платежей.
+            Перед запуском показывается оценка расхода кредитов; итог зависит от модели и объёма задачи.
           </p>
         </section>
 
@@ -100,7 +110,7 @@ export default function CompanyPageClient({ company }: Props) {
           <h2 className="company-section__title">Последние новости {company.shortName}</h2>
           <p className="company-section__text">
             Читайте последние новости и обновления {company.shortName} в нашем{' '}
-            <Link href={`/news/category/${company.slug}/`}>новостном разделе</Link>.
+            <Link href={`/news/category/${newsCategory}/`}>новостном разделе</Link>.
           </p>
         </section>
 
@@ -109,7 +119,7 @@ export default function CompanyPageClient({ company }: Props) {
           <div className="company-cta__content">
             <h2 className="company-cta__title">Попробуйте {company.shortName}</h2>
             <p className="company-cta__text">
-              10 000 кредитов бесплатно при регистрации
+              Доступный стартовый баланс отображается после регистрации
             </p>
             <a href="https://ai-sphere.ru?topup=true" className="company-cta__btn">
               Начать пользоваться

@@ -4,7 +4,14 @@ export const nejroset_online: SeoPageContent = {
   slug: 'nejroset-online',
   type: 'use-case',
   title: 'Нейросеть онлайн — доступ к AI бесплатно и без VPN | AI-Sphere',
-  description: 'Нейросеть онлайн: ChatGPT, DeepSeek, Midjourney, DALL-E без VPN и без регистрации. Работает в России, оплата в рублях. Попробуйте бесплатно.',
+  seoTitle: 'Нейросеть онлайн для разных задач',
+  description: 'Нейросеть онлайн для текста, документов, изображений и видео. AI-Sphere подбирает доступную модель и показывает стоимость до запуска.',
+  metaDescription: 'Нейросеть онлайн для текста, документов, изображений и видео. Автоматический выбор доступной модели и оценка стоимости до запуска.',
+  primaryKeyword: 'нейросеть онлайн',
+  secondaryKeywords: ['ии онлайн бесплатно', 'чат с нейросетью'],
+  searchIntent: 'transactional',
+  image: 'https://ai-sphere.ru/og/ai-sphere-platform.png',
+  imageAlt: 'Возможности платформы AI-Sphere',
   h1: 'Нейросеть онлайн — доступ к AI без установки и VPN',
   index: true,
   contentStatus: 'ready',
@@ -14,7 +21,7 @@ export const nejroset_online: SeoPageContent = {
 
   hero: {
     title: 'Нейросеть онлайн — доступ к AI без установки и VPN',
-    text: 'ChatGPT, DeepSeek, Midjourney, DALL-E, Stable Diffusion — все ведущие нейросети в одном месте. Без скачивания, без VPN, без привязки карты. Работает в России.',
+    text: 'Работайте с доступными AI-моделями в одном месте. Без установки и VPN: авторизуйтесь, выберите задачу и заранее посмотрите оценку стоимости.',
     ctaText: 'Попробовать бесплатно',
     modelId: 'claude-sonnet-4',
   },
@@ -141,7 +148,7 @@ export const nejroset_online: SeoPageContent = {
     },
     {
       question: 'Какие нейросети доступны бесплатно?',
-      answer: 'DeepSeek, базовая версия ChatGPT, Кандинский, MusicGen. Для Midjourney, Sora, ElevenLabs — платные тарифы.',
+      answer: 'Список доступных моделей и их стоимость синхронизируются с каталогом провайдера. Перед запуском AI-Sphere показывает выбранную модель и оценку в кредитах.',
     },
     {
       question: 'Можно ли использовать с телефона?',

@@ -13,7 +13,7 @@ tags:
   - гайд
   - доступ
 status: ready
-index: true
+index: false
 canonical: /blog/guides/kak-polzovatsya-chatgpt-v-rossii
 relatedSeoPages:
   - chat-gpt-online

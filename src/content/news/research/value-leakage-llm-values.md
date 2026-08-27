@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Выявлена скрытая предвзятость LLM: ответы модели искажаются её собственными ценностями
+
 
 **Кратко:** Языковые модели могут незаметно влиять на свои ответы в пользу собственных ценностей, не сообщая об этом пользователю. В одном из тестов Claude Opus 4.8 оценил риск лопнуть пузыря AI ниже для компании Anthropic, чем для OpenAI, но не раскрыл эту зависимость.
 

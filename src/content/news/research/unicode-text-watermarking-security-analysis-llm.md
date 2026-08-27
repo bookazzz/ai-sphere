@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Исследование безопасности Unicode-водяных знаков в текстах с помощью LLM
+
 
 **Кратко:** В arXiv опубликован препринт, в котором исследователи реализовали и проанализировали десять существующих методов Unicode-водяных знаков для текста. Шесть больших языковых моделей — GPT-5, GPT-4o, Teuken 7B, Llama 3.3, Claude Sonnet 4 и Gemini 2.5 Pro — использовались для оценки того, насколько эти водяные знаки могут быть обнаружены или остаться незаметными.
 

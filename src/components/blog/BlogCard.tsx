@@ -9,7 +9,8 @@ interface Props {
 }
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00');
+  const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(dateStr) ? `${dateStr}T00:00:00` : dateStr);
+  if (Number.isNaN(d.getTime())) return 'Дата уточняется';
   return d.toLocaleDateString('ru-RU', {
     year: 'numeric',
     month: 'long',
@@ -19,7 +20,7 @@ function formatDate(dateStr: string): string {
 
 export default function BlogCard({ post }: Props) {
   return (
-    <article
+    <article className="blog-card"
       style={{
         background: 'var(--bg-secondary, #fff)',
         borderRadius: 12,
@@ -36,13 +37,13 @@ export default function BlogCard({ post }: Props) {
         e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
       }}
     >
-      <Link
+      <Link className="blog-card__link"
         href={post.url}
         style={{ textDecoration: 'none', color: 'inherit' }}
       >
-        <div style={{ padding: 24 }}>
+        <div className="blog-card__body" style={{ padding: 24 }}>
           {/* Категория */}
-          <span
+          <span className="blog-card__category"
             style={{
               fontSize: 12,
               fontWeight: 600,
@@ -55,7 +56,7 @@ export default function BlogCard({ post }: Props) {
           </span>
 
           {/* Заголовок */}
-          <h2
+          <h2 className="blog-card__heading"
             style={{
               fontSize: 20,
               fontWeight: 700,
@@ -69,7 +70,7 @@ export default function BlogCard({ post }: Props) {
           </h2>
 
           {/* Описание */}
-          <p
+          <p className="blog-card__description"
             style={{
               fontSize: 14,
               color: 'var(--text-secondary, #666)',
@@ -81,7 +82,7 @@ export default function BlogCard({ post }: Props) {
           </p>
 
           {/* Мета */}
-          <div
+          <div className="blog-card__meta"
             style={{
               display: 'flex',
               justifyContent: 'space-between',

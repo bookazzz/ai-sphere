@@ -1,14 +1,17 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { site } from '@/config/site';
 
 export const metadata: Metadata = {
   title: 'Политика конфиденциальности | AI-Sphere',
   description: 'Политика конфиденциальности AI-Sphere. Узнайте, как мы обрабатываем и защищаем ваши персональные данные.',
+  alternates: { canonical: `${site.url}/privacy/` },
+  robots: { index: true, follow: true },
   openGraph: {
     title: 'Политика конфиденциальности | AI-Sphere',
     description: 'Политика конфиденциальности AI-Sphere. Узнайте, как мы обрабатываем и защищаем ваши персональные данные.',
+    url: `${site.url}/privacy/`,
   },
 };
 
@@ -76,10 +79,10 @@ export default function PrivacyPage() {
   return (
     <>
       <Header />
-      <main>
-        <section style={{ padding: '60px 20px', textAlign: 'center', background: 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%)' }}>
-          <div style={{ maxWidth: 800, margin: '0 auto' }}>
-            <h1 style={{ fontSize: 36, fontWeight: 700, marginBottom: 16, color: 'var(--text-primary)' }}>
+      <main className="legal-page">
+        <section className="legal-hero" style={{ padding: '60px 20px', textAlign: 'center', background: 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%)' }}>
+          <div className="legal-hero__inner" style={{ maxWidth: 800, margin: '0 auto' }}>
+            <h1 className="legal-hero__title" style={{ fontSize: 36, fontWeight: 700, marginBottom: 16, color: 'var(--text-primary)' }}>
               Политика конфиденциальности
             </h1>
             <p style={{ fontSize: 16, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
@@ -88,8 +91,8 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <section style={{ padding: '40px 20px 60px' }}>
-          <div style={{ maxWidth: 800, margin: '0 auto', fontSize: 16, color: 'var(--text-primary)', lineHeight: 1.8 }}>
+        <section className="legal-content" style={{ padding: '40px 20px 60px' }}>
+          <div className="legal-content__inner" style={{ maxWidth: 800, margin: '0 auto', fontSize: 16, color: 'var(--text-primary)', lineHeight: 1.8 }}>
             {contentSections.map((section, i) => (
               <div key={i} style={{ marginBottom: 36 }}>
                 <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 16, color: 'var(--text-primary)' }}>
@@ -105,7 +108,7 @@ export default function PrivacyPage() {
           </div>
         </section>
 
-        <section style={{ padding: '60px 20px', textAlign: 'center', background: 'linear-gradient(135deg, #7c3aed, #6366f1)', color: '#fff' }}>
+        <section className="legal-cta" style={{ padding: '60px 20px', textAlign: 'center', background: 'linear-gradient(135deg, #7c3aed, #6366f1)', color: '#fff' }}>
           <div style={{ maxWidth: 600, margin: '0 auto' }}>
             <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 12 }}>
               Остались вопросы?

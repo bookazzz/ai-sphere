@@ -61,7 +61,7 @@ export default function SeoRelated({ related, relatedPages }: Props) {
   const items: { slug: string; label: string }[] = [];
 
   if (related && Object.keys(related).length > 0) {
-    Object.entries(related).forEach(([slug, label]) => {
+    Object.entries(related).forEach(([slug]) => {
       // Используем override из related, если есть, иначе getTitle
       items.push({ slug, label: getTitle(slug) });
     });

@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# FAR.AI представил стандарт защиты AI-моделей и бенчмарк безопасности
+
 
 **Кратко:** FAR.AI опубликовал Minimal Standard for Safeguards версии 1.0 — набор из 67 статических техник джейлбрейка и методологию тестирования. Бенчмарк оценил четыре флагманские модели: Claude Fable 5, GPT-5.6 Sol, Gemini 3.1 Pro и Grok 4.5 на устойчивость к атакам по 360 сценариям в области CBRNE и киберугроз. Введена метрика cost-to-jailbreak.
 

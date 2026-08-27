@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Nanbeige4.2-3B: проблемы совместимости с Apple Silicon и решение для памяти
+
 
 **Кратко:** Модель Nanbeige4.2-3B (3B параметров) на основе Looped Transformer не запускается на Apple Silicon без исправлений. Исследователи нашли пять багов в репозитории и предложили стратегию chunked-prefill, которая снижает пиковое потребление памяти и увеличивает допустимый контекст в 2.7 раза на 32 ГБ общей памяти.
 

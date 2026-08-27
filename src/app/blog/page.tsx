@@ -5,15 +5,19 @@ import BlogList from '@/components/blog/BlogList';
 import BlogCategoryTabs from '@/components/blog/BlogCategoryTabs';
 import { getAllBlogPosts, getActiveCategories } from '@/lib/blog/get-posts';
 import { site } from '@/config/site';
+import { seoDescription } from '@/lib/seo';
+
+const blogDescription = 'Практические руководства по ChatGPT, Claude, Gemini, DeepSeek и другим нейросетям: выбор моделей, работа с текстом, кодом, файлами и изображениями.';
 
 export const metadata: Metadata = {
-  title: 'Блог AI-Sphere — новости, гайды и статьи о нейросетях',
-  description:
-    'Полезные статьи о нейросетях, ChatGPT, Claude, Gemini, DeepSeek и других AI-моделях. Гайды по работе с нейросетями, обзоры моделей, новости мира искусственного интеллекта.',
+  title: 'Блог о нейросетях и AI-инструментах | AI-Sphere',
+  description: seoDescription(blogDescription),
+  alternates: { canonical: `${site.url}/blog/` },
+  robots: { index: true, follow: true, 'max-image-preview': 'large' },
   openGraph: {
     title: 'Блог AI-Sphere — новости, гайды и статьи о нейросетях',
-    description:
-      'Полезные статьи о нейросетях, ChatGPT, Claude, Gemini, DeepSeek и других AI-моделях. Гайды, обзоры, новости мира искусственного интеллекта.',
+    description: seoDescription(blogDescription),
+    url: `${site.url}/blog/`,
   },
 };
 
@@ -38,8 +42,8 @@ export default function BlogPage() {
   return (
     <>
       <Header />
-      <main>
-        <section
+      <main className="blog-page">
+        <section className="blog-hero"
           style={{
             padding: '60px 20px 40px',
             textAlign: 'center',
@@ -47,8 +51,9 @@ export default function BlogPage() {
               'linear-gradient(135deg, var(--bg-secondary, #f8f9fa) 0%, var(--bg-primary, #fff) 100%)',
           }}
         >
-          <div style={{ maxWidth: 700, margin: '0 auto' }}>
-            <h1
+          <div className="blog-hero__inner" style={{ maxWidth: 700, margin: '0 auto' }}>
+            <div className="blog-hero__eyebrow">AI SPHERE / JOURNAL</div>
+            <h1 className="blog-hero__title"
               style={{
                 fontSize: 36,
                 fontWeight: 700,
@@ -58,7 +63,7 @@ export default function BlogPage() {
             >
               Блог AI-Sphere
             </h1>
-            <p
+            <p className="blog-hero__subtitle"
               style={{
                 fontSize: 16,
                 color: 'var(--text-secondary, #666)',
@@ -71,7 +76,7 @@ export default function BlogPage() {
           </div>
         </section>
 
-        <section style={{ padding: '40px 20px 80px' }}>
+        <section className="blog-content" style={{ padding: '40px 20px 80px' }}>
           <BlogCategoryTabs categories={categories} />
           <BlogList posts={posts} />
         </section>

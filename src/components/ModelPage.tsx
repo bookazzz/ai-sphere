@@ -35,7 +35,7 @@ export default function ModelPageClient({ model }: Props) {
         <section className="model-section">
           <h2 className="model-section__title">Ключевые возможности</h2>
           <ul className="model-features">
-            {model.features.map((f, i) => (
+            {model.features.filter(f => !/кредит/i.test(f)).map((f, i) => (
               <li key={i} className="model-feature">{f}</li>
             ))}
           </ul>
@@ -65,13 +65,13 @@ export default function ModelPageClient({ model }: Props) {
         <section className="model-section">
           <h2 className="model-section__title">Стоимость и доступность</h2>
           <p className="model-section__text">
-            Цена {model.name} — от {model.id === 'deepseek/deepseek-v4-flash' ? '1' : '2'} кредита за 1K токенов.
-            Точную стоимость смотрите на странице{' '}
+            Точная стоимость {model.name} рассчитывается по актуальному тарифу провайдера и объёму задачи.
+            Перед запуском AI-Sphere показывает оценку расхода, а актуальные условия доступны на странице{' '}
             <Link href={`/prices/#${model.provider}`}>тарифов</Link>.
           </p>
           <p className="model-section__text">
-            Модель доступна в России через AI-Sphere. Оплата в рублях, без комиссий.
-            {model.id === 'deepseek/deepseek-v4-flash' && ' Это модель по умолчанию в AI-Sphere.'}
+            Доступность модели проверяется по текущему каталогу. Если выбранная модель временно недоступна,
+            интерфейс предложит рабочую альтернативу до списания кредитов.
           </p>
         </section>
 
@@ -80,7 +80,7 @@ export default function ModelPageClient({ model }: Props) {
           <section className="model-section">
             <h2 className="model-section__title">FAQ</h2>
             <div className="model-faq">
-              {model.faq.map((item, i) => (
+            {model.faq.filter(item => !/(сколько стоит|цена)/i.test(item.q)).map((item, i) => (
                 <div key={i} className="model-faq__item">
                   <h3 className="model-faq__q">{item.q}</h3>
                   <p className="model-faq__a">{item.a}</p>
@@ -103,7 +103,7 @@ export default function ModelPageClient({ model }: Props) {
         <section className="model-cta">
           <div className="model-cta__content">
             <h2 className="model-cta__title">Попробуйте {model.name}</h2>
-            <p className="model-cta__text">10 000 кредитов бесплатно при регистрации</p>
+            <p className="model-cta__text">Доступный стартовый баланс отображается после регистрации</p>
             <a href="https://ai-sphere.ru?topup=true" className="model-cta__btn">
               Начать чат с {model.name}
             </a>

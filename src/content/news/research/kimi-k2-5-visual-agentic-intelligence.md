@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Kimi K2.5: новая открытая мультимодальная модель для агентного ИИ
+
 
 **Кратко:** Исследователи представили Kimi K2.5 — открытую мультимодальную модель, нацеленную на продвижение общего агентного интеллекта. Модель объединяет обучение текста и зрения, а также использует новый фреймворк Agent Swarm для параллельного выполнения сложных задач.
 

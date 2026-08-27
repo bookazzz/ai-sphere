@@ -15,11 +15,14 @@ export default function Footer() {
         <div>
           <div className="footer__column-title">Компания</div>
           <div className="footer__links">
-            <a className="footer__link" href="/about">О компании</a>
             <a className="footer__link" href="/prices">Тарифы</a>
-            <a className="footer__link" href="/contacts">Контакты</a>
-            <a className="footer__link" href="/security">Безопасность</a>
-            <a className="footer__link" href="/faq">FAQ</a>
+            <a className="footer__link" href="/blog">Блог</a>
+            <a className="footer__link" href="/news">Новости</a>
+            <a className="footer__link" href="/nejroset-dlya-dokumentov/">Работа с документами</a>
+            <a className="footer__link" href="/about/">О проекте</a>
+            <a className="footer__link" href="/contacts/">Контакты</a>
+            <a className="footer__link" href="/faq/">FAQ</a>
+            <a className="footer__link" href="/company/mistral-ai/">Mistral AI</a>
             <a className="footer__link" href="/privacy">Политика конфиденциальности</a>
             <a className="footer__link" href="/offer">Пользовательское соглашение</a>
           </div>

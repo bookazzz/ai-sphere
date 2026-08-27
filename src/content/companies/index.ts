@@ -5,6 +5,7 @@ import { google } from './google-deepmind';
 import { meta } from './meta-ai';
 import { mistral } from './mistral-ai';
 import { xai } from './xai';
+import { deepseek } from './deepseek';
 
 const companies: Record<string, Company> = {
   openai,
@@ -13,6 +14,7 @@ const companies: Record<string, Company> = {
   'meta-ai': meta,
   'mistral-ai': mistral,
   xai,
+  deepseek,
 };
 
 export function getCompany(slug: string): Company | null {

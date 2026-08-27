@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# ChatGPT научился предсказывать тренды фондового рынка по твитам: результаты исследования
+
 
 **Кратко:** Новое исследование на arXiv (2311.06273v1) демонстрирует способность ChatGPT прогнозировать краткосрочные движения акций Microsoft и Google, используя только твиты и анализ настроений. Выявлена положительная корреляция между оценками модели и последующими изменениями стоимости акций.
 

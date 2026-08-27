@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Open-weight LLMs слабо справляются с верификацией Coq-доказательств: лучшая модель подтвердила лишь 12 из 100 теорем
+
 
 **Кратко:** Пилотное исследование на arXiv проверило способность шести open-weight LLM генерировать формальные доказательства для Coq. Моделям дали одну попытку на каждую из 100 теорем из бенчмарка CoqStoq. Лучший результат показала Gemma 4 — 12 успешных доказательств, остальные модели существенно отстали.
 

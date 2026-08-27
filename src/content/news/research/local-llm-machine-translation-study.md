@@ -20,7 +20,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Новое исследование сравнивает локальные LLM и выделенные системы машинного перевода
+
 
 **Кратко:** Исследователи изучили, как изменение промпта и выбор демонстрационных примеров влияют на качество машинного перевода с помощью локальных LLM. В работе сравниваются три модели (llama3.2:3b, mistral:latest, qwen2.5:14b) с выделенными системами OPUS-MT и NLLB-200 на девяти официальных языках ЕС.
 

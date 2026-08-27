@@ -4,7 +4,12 @@ export const chat_gpt_online: SeoPageContent = {
   slug: 'chat-gpt-online',
   type: 'model',
   title: 'ChatGPT онлайн',
-  description: 'Чат GPT на русском — общение с искусственным интеллектом онлайн. Бесплатно, без регистрации.',
+  seoTitle: 'ChatGPT онлайн на русском языке',
+  description: 'Работайте с доступными моделями OpenAI в AI-Sphere: задавайте вопросы, создавайте тексты и анализируйте материалы. Стоимость видна до запуска.',
+  metaDescription: 'ChatGPT онлайн на русском: вопросы, тексты и анализ материалов через доступные модели OpenAI. Оценка стоимости до запуска.',
+  primaryKeyword: 'chatgpt онлайн',
+  secondaryKeywords: ['чат gpt', 'chatgpt на русском'],
+  searchIntent: 'navigational',
   subtitle: 'ChatGPT онлайн это возможность общаться с ИИ на русском языке прямо сейчас. Без VPN, регистрации за 30 секунд.',
   hero: {
     title: 'ChatGPT онлайн',

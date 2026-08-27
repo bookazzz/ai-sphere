@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { apiCall } from '@/lib/api';
+import { apiCall, exposeExperiment, fetchExperimentAssignment, recordProductEvent } from '@/lib/api';
 
 interface Plan {
   id: string;
@@ -24,12 +24,18 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loadingPlanId, setLoadingPlanId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [experiment, setExperiment] = useState<Record<string, unknown>>({});
 
   useEffect(() => {
     if (!isOpen) return;
+    void recordProductEvent({ event_name: 'pricing_view', metadata: { source: 'pricing_modal' } }).catch(() => undefined);
     // Check if returning from payment
     const params = new URLSearchParams(window.location.search);
-    if (params.get('payment') === 'success' && typeof onSuccess === 'function') {
+    const paymentStatus = params.get('payment');
+    if (paymentStatus) {
+      void recordProductEvent({ event_name: 'payment_returned', metadata: { status: paymentStatus } });
+    }
+    if (paymentStatus === 'success' && typeof onSuccess === 'function') {
       onSuccess();
       // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
@@ -38,15 +44,24 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
 
   useEffect(() => {
     if (!isOpen) return;
+    fetchExperimentAssignment('pricing').then(assignment => {
+      if (!assignment) return;
+      setExperiment(assignment.payload);
+      if (!assignment.exposed) void exposeExperiment(assignment.experiment_id);
+      void recordProductEvent({ event_name: 'experiment_exposure', metadata: { surface: 'pricing', variant_id: assignment.variant_id } });
+    }).catch(() => undefined);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
     setError(null);
-    // Try fetching plans from API, fallback to hardcoded
-    fetch('/api/billing/plans')
-      .then(r => r.ok ? r.json() : null)
-      .then(data => { if (data) setPlans(data); })
-      .catch(() => {});
+    apiCall<Plan[]>('/billing/plans')
+      .then(setPlans)
+      .catch(err => setError(err.message || 'Не удалось загрузить тарифы'));
   }, [isOpen]);
 
   const handleTopUp = async (planId: string) => {
+    void recordProductEvent({ event_name: 'plan_selected', metadata: { plan_id: planId } });
     if (!isLoggedIn) {
       if (onTopUp) onTopUp();
       return;
@@ -66,6 +81,8 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
       });
       clearTimeout(timeoutId);
 
+      void recordProductEvent({ event_name: 'checkout_started', metadata: { plan_id: planId } });
+
       // Redirect to Platega payment page
       window.location.href = result.payment_url;
     } catch (err: any) {
@@ -78,13 +95,6 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
     }
   };
 
-  const displayPlans = plans.length > 0 ? plans : [
-    { id: 'starter',  name: 'Стартовый',  price: 5000,  credits: 500,  bonus: 0,    popular: false },
-    { id: 'basic',    name: 'Базовый',    price: 25000, credits: 2500,  bonus: 0,    popular: false },
-    { id: 'popular',  name: 'Популярный', price: 100000, credits: 10000, bonus: 1500, popular: true },
-    { id: 'premium',  name: 'Премиум',    price: 250000, credits: 25000, bonus: 5000, popular: false },
-  ];
-
   const fmtPrice = (p: number) => (p / 100).toLocaleString('ru-RU'); // kop → rub
 
   if (!isOpen) return null;
@@ -95,7 +105,7 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
       <div className="pricing-modal__content">
         <button className="pricing-modal__close" onClick={loadingPlanId ? undefined : onClose}>✕</button>
 
-        <h2 className="pricing-modal__title">Выберите тариф</h2>
+        <h2 className="pricing-modal__title">{String(experiment.headline || 'Выберите тариф')}</h2>
         <p className="pricing-modal__subtitle">
           Пополните баланс и получите доступ ко всем AI-моделям
         </p>
@@ -107,9 +117,11 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
         )}
 
         <div className="pricing-modal__grid">
-          {displayPlans.map((plan) => (
-            <div className={`pricing-modal__card ${plan.popular ? 'pricing-modal__card--popular' : ''}`} key={plan.id}>
-              {plan.popular && <div className="pricing-modal__card-badge">🔥 Выбор пользователей</div>}
+          {plans.map((plan) => {
+            const recommended = plan.popular || String(experiment.recommended_plan_id || '') === plan.id;
+            return (
+            <div className={`pricing-modal__card ${recommended ? 'pricing-modal__card--popular' : ''}`} key={plan.id}>
+              {recommended && <div className="pricing-modal__card-badge">🔥 Рекомендуем</div>}
               <div className="pricing-modal__card-header">
                 <span className="pricing-modal__price">{fmtPrice(plan.price)} ₽</span>
                 {plan.bonus > 0 && (
@@ -117,6 +129,10 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
                 )}
               </div>
               <div className="pricing-modal__card-body">
+                <p className="pricing-modal__benefit">
+                  ≈ {Math.max(1, Math.floor((plan.credits + plan.bonus) / 3)).toLocaleString('ru-RU')} коротких ответов<br />
+                  или {Math.max(1, Math.floor((plan.credits + plan.bonus) / 20)).toLocaleString('ru-RU')} изображений
+                </p>
                 <p className="pricing-modal__credits">
                   ~{(plan.credits + plan.bonus).toLocaleString('ru-RU')} кредитов
                 </p>
@@ -131,10 +147,16 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
                 disabled={loadingPlanId !== null}
                 onClick={() => handleTopUp(plan.id)}
               >
-                {loadingPlanId === plan.id ? 'Обработка...' : 'Пополнить'}
+                {loadingPlanId === plan.id ? 'Обработка...' : String(experiment.cta_text || 'Пополнить')}
               </button>
             </div>
-          ))}
+          )})}
+        </div>
+        <div className="pricing-modal__trust">
+          <span>✓ Только пакеты кредитов</span>
+          <span>✓ Без подписки и автосписаний</span>
+          <span>✓ Кредиты не сгорают</span>
+          <span>🔒 Безопасная оплата через Platega</span>
         </div>
       </div>
     </div>

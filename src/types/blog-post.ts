@@ -3,6 +3,8 @@ export type BlogStatus = 'draft' | 'review' | 'ready';
 
 export interface BlogPostMeta {
   title: string;
+  seoTitle?: string;
+  h1?: string;
   slug: string;
   category: BlogCategory;
   description: string;
@@ -18,6 +20,10 @@ export interface BlogPostMeta {
   relatedSeoPages?: string[];
   relatedPosts?: string[];
   sourceUrls?: string[];
+  primaryKeyword?: string;
+  secondaryKeywords?: string[];
+  searchIntent?: 'commercial' | 'informational' | 'navigational';
+  imageAlt?: string;
 }
 
 export interface BlogPost extends BlogPostMeta {
@@ -34,10 +40,10 @@ export const CATEGORY_LABELS: Record<BlogCategory, string> = {
 };
 
 export const CATEGORY_DESCRIPTIONS: Record<BlogCategory, string> = {
-  guides: 'Пошаговые инструкции и гайды по работе с AI-моделями',
-  reviews: 'Сравнения и обзоры популярных нейросетей',
-  analysis: 'Глубокий анализ трендов и развития AI-индустрии',
-  cases: 'Реальные кейсы использования нейросетей в бизнесе и жизни',
+  guides: 'Пошаговые инструкции по работе с нейросетями: выбор модели, создание текстов и изображений, анализ документов и решение рабочих задач.',
+  reviews: 'Подробные обзоры и сравнения популярных нейросетей, их возможностей, ограничений, стоимости и подходящих пользовательских сценариев.',
+  analysis: 'Разбор ключевых трендов AI-индустрии, развития языковых моделей, рынка генеративного ИИ и практического влияния новых технологий.',
+  cases: 'Практические примеры применения нейросетей в работе, бизнесе и повседневных задачах с понятным процессом и разбором результата.',
 };
 
 /** Schema.org тип по категории */

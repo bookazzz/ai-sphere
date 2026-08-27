@@ -1,10 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import QuickActions from './QuickActions';
-import ChatPlaceholder from './ChatPlaceholder';
 import TaskHub from './TaskHub';
-import { checkFacts, uploadFile, punctuateText, ensembleChat, sendFeedback, getGeneration, estimateTask, recordProductEvent, type GenerationInfo, type FactCheckResult, type ContentPart, type ChatMessage, type TaskEstimate, type TaskRunContext, type TaskTemplate } from '@/lib/api';
+import { uploadFile, punctuateText, ensembleChat, sendFeedback, getGeneration, estimateTask, recordProductEvent, type GenerationInfo, type FactCheckResult, type ContentPart, type ChatMessage, type TaskEstimate, type TaskRunContext, type TaskTemplate } from '@/lib/api';
 import { categories, allModels, DEFAULT_MODEL_ID, isVisionCapable, filterVisionModels, loadModelsFromApi, subscribeToModelsUpdates, type ModelItem } from '@/lib/models-data';
 
 // Read a File as a base64 data URL
@@ -43,7 +41,7 @@ function DownloadableImage({ src: imageUrl, alt, className, style }: { src: stri
   return (
     <div className="chat__image-wrapper">
       <img src={imageUrl} alt={alt || 'image'} className={className} style={style} />
-      <button className="chat__image-download-btn" onClick={handleDownload} title="РЎРєР°С‡Р°С‚СЊ">
+      <button className="chat__image-download-btn" onClick={handleDownload} title="Скачать">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
           <polyline points="7 10 12 15 17 10" />
@@ -88,49 +86,49 @@ function GenerationCard({ initial }: { initial: GenerationInfo }) {
   }, [generation.id, generation.status]);
 
   const statusLabel: Record<GenerationInfo['status'], string> = {
-    pending: 'Р’ РѕС‡РµСЂРµРґРё', processing: 'РЎРѕР·РґР°С‘Рј', completed: 'Р“РѕС‚РѕРІРѕ',
-    failed: 'РћС€РёР±РєР°', expired: 'РЎСЂРѕРє С…СЂР°РЅРµРЅРёСЏ РёСЃС‚С‘Рє',
+    pending: 'В очереди', processing: 'Создаём', completed: 'Готово',
+    failed: 'Ошибка', expired: 'Срок хранения истёк',
   };
 
   return (
     <section className={`chat__generation-card chat__generation-card--${generation.status}`} aria-live="polite">
       <header className="chat__generation-header">
         <div>
-          <strong>{generation.kind === 'image' ? 'РР·РѕР±СЂР°Р¶РµРЅРёРµ' : 'Р’РёРґРµРѕ'}</strong>
-          <span>РЎРіРµРЅРµСЂРёСЂРѕРІР°РЅРѕ С‡РµСЂРµР· {generation.effective_model_name}</span>
+          <strong>{generation.kind === 'image' ? 'Изображение' : 'Видео'}</strong>
+          <span>Сгенерировано через {generation.effective_model_name}</span>
         </div>
         <span className="chat__generation-status">{statusLabel[generation.status]}</span>
       </header>
       {['pending', 'processing'].includes(generation.status) && (
-        <div className="chat__generation-loading"><span />Р“РµРЅРµСЂР°С†РёСЏ РјРѕР¶РµС‚ Р·Р°РЅСЏС‚СЊ РЅРµСЃРєРѕР»СЊРєРѕ РјРёРЅСѓС‚</div>
+        <div className="chat__generation-loading"><span />Генерация может занять несколько минут</div>
       )}
-      {generation.status === 'failed' && <div className="chat__generation-error">{generation.error || 'РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚'}</div>}
-      {generation.status === 'expired' && <div className="chat__generation-error">Р¤Р°Р№Р» СѓРґР°Р»С‘РЅ РїРѕСЃР»Рµ 30 РґРЅРµР№ С…СЂР°РЅРµРЅРёСЏ.</div>}
+      {generation.status === 'failed' && <div className="chat__generation-error">{generation.error || 'Не удалось создать результат'}</div>}
+      {generation.status === 'expired' && <div className="chat__generation-error">Файл удалён после 30 дней хранения.</div>}
       {generation.status === 'completed' && (
         <div className="chat__generation-assets">
           {generation.assets.map(asset => asset.type === 'image' ? (
             <div className="chat__generation-asset" key={asset.id}>
-              <button className="chat__generation-preview" onClick={() => setLightbox(asset.url)} aria-label="РћС‚РєСЂС‹С‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ">
-                <img src={asset.url} alt="РЎРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ" />
+              <button className="chat__generation-preview" onClick={() => setLightbox(asset.url)} aria-label="Открыть изображение">
+                <img src={asset.url} alt="Сгенерированное изображение" />
               </button>
-              <a className="chat__generation-download" href={asset.url} download onClick={() => void recordProductEvent({event_name:'result_downloaded',model:generation.effective_model,metadata:{result_kind:'image'}})}>РЎРєР°С‡Р°С‚СЊ</a>
+              <a className="chat__generation-download" href={asset.url} download onClick={() => void recordProductEvent({event_name:'result_downloaded',model:generation.effective_model,metadata:{result_kind:'image'}})}>Скачать</a>
             </div>
           ) : (
             <div className="chat__generation-asset" key={asset.id}>
               <video src={asset.url} controls playsInline preload="metadata" />
-              <a className="chat__generation-download" href={asset.url} download onClick={() => void recordProductEvent({event_name:'result_downloaded',model:generation.effective_model,metadata:{result_kind:'video'}})}>РЎРєР°С‡Р°С‚СЊ РІРёРґРµРѕ</a>
+              <a className="chat__generation-download" href={asset.url} download onClick={() => void recordProductEvent({event_name:'result_downloaded',model:generation.effective_model,metadata:{result_kind:'video'}})}>Скачать видео</a>
             </div>
           ))}
         </div>
       )}
       <footer className="chat__generation-meta">
-        {Object.values(generation.parameters).filter(value => value !== false).map(String).join(' В· ')}
-        {generation.credits_spent > 0 ? ` В· ${generation.credits_spent} РєСЂРµРґРёС‚РѕРІ` : ''}
+        {Object.values(generation.parameters).filter(value => value !== false).map(String).join(' · ')}
+        {generation.credits_spent > 0 ? ` · ${generation.credits_spent} кредитов` : ''}
       </footer>
       {lightbox && (
         <div className="chat__lightbox" role="dialog" aria-modal="true" onClick={() => setLightbox(null)}>
-          <button ref={closeLightboxRef} onClick={() => setLightbox(null)} aria-label="Р—Р°РєСЂС‹С‚СЊ">Г—</button>
-          <img src={lightbox} alt="РЎРіРµРЅРµСЂРёСЂРѕРІР°РЅРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РєСЂСѓРїРЅС‹Рј РїР»Р°РЅРѕРј" onClick={event => event.stopPropagation()} />
+          <button ref={closeLightboxRef} onClick={() => setLightbox(null)} aria-label="Закрыть">×</button>
+          <img src={lightbox} alt="Сгенерированное изображение крупным планом" onClick={event => event.stopPropagation()} />
         </div>
       )}
     </section>
@@ -142,20 +140,20 @@ function getMessageText(content: string | { type: string; [key: string]: any }[]
   if (typeof content === 'string') return content;
   if (Array.isArray(content)) {
     const textPart = content.find(p => p.type === 'text');
-    return textPart?.text || '[РёР·РѕР±СЂР°Р¶РµРЅРёРµ]';
+    return textPart?.text || '[изображение]';
   }
   return '';
 }
 
 function capabilityTags(model: ModelItem): string[] {
   const tags: string[] = [];
-  if (model.outputModalities?.includes('text')) tags.push('РўРµРєСЃС‚');
-  if (model.inputModalities?.includes('image')) tags.push('Р¤РѕС‚Рѕ-РІС…РѕРґ');
-  if (model.outputModalities?.includes('image')) tags.push('РљР°СЂС‚РёРЅРєРё');
-  if (model.inputModalities?.includes('video')) tags.push('Р’РёРґРµРѕ-РІС…РѕРґ');
-  if (model.outputModalities?.includes('video')) tags.push('Р’РёРґРµРѕ');
+  if (model.outputModalities?.includes('text')) tags.push('Текст');
+  if (model.inputModalities?.includes('image')) tags.push('Фото-вход');
+  if (model.outputModalities?.includes('image')) tags.push('Картинки');
+  if (model.inputModalities?.includes('video')) tags.push('Видео-вход');
+  if (model.outputModalities?.includes('video')) tags.push('Видео');
   if (model.inputModalities?.includes('file')) tags.push('PDF');
-  return tags.length ? tags : ['РўРµРєСЃС‚'];
+  return tags.length ? tags : ['Текст'];
 }
 
 // Renders message content: text + images for content arrays
@@ -171,7 +169,7 @@ function RenderContent({ content, role }: { content: string | { type: string; [k
     ? content.filter(p => p.type === 'image_url' && p.image_url?.url).map(p => p.image_url.url)
     : [];
 
-  // Parse ![generated](url) from markdown text вЂ” extract as real image URLs
+  // Parse ![generated](url) from markdown text — extract as real image URLs
   const generatedImages: string[] = [];
   let cleanContent = textContent;
   if (typeof textContent === 'string') {
@@ -240,7 +238,7 @@ function RenderContent({ content, role }: { content: string | { type: string; [k
     );
   }
 
-  // User message вЂ” plain text
+  // User message — plain text
   if (typeof content === 'string') {
     return <div className="chat__message-content chat__message-content--user">{content}</div>;
   }
@@ -310,11 +308,12 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
     allModels.find(m => m.id === DEFAULT_MODEL_ID) || allModels[0]
   );
   const [autoModel, setAutoModel] = useState(true);
+  const [modelNameOverflow, setModelNameOverflow] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState<TaskTemplate | null>(null);
   const [estimate, setEstimate] = useState<TaskEstimate | null>(null);
   const [estimateLoading, setEstimateLoading] = useState(false);
   const [mediaPreferences, setMediaPreferences] = useState<Record<string, unknown>>({});
-  const currentModel: ModelItem = selectedModel ?? { id: '', name: 'Р—Р°РіСЂСѓР·РєР° РјРѕРґРµР»РµР№вЂ¦', price: 0 };
+  const currentModel: ModelItem = selectedModel ?? { id: '', name: 'Загрузка моделей…', price: 0 };
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [likedMessages, setLikedMessages] = useState<Set<number>>(new Set());
   const [dislikedMessages, setDislikedMessages] = useState<Set<number>>(new Set());
@@ -327,16 +326,16 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
   const onSendRef = useRef(onSendMessage);
   onSendRef.current = onSendMessage;
   const modelSelectRef = useRef<HTMLDivElement>(null);
+  const modelButtonRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const estimateTrackedRef = useRef<Set<number>>(new Set());
   const [headerModalOpen, setHeaderModalOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [userStarted, setUserStarted] = useState(false);
   const [visionAlert, setVisionAlert] = useState<{ modelName: string; visionModels: typeof allModels } | null>(null);
-  const [factCheckResults, setFactCheckResults] = useState<Record<number, FactCheckResult>>({});
-  const [factCheckLoading, setFactCheckLoading] = useState<number | null>(null);
+  const factCheckResults: Record<number, FactCheckResult> = {};
+  const factCheckLoading: number | null = null;
   const [ensembleLoading, setEnsembleLoading] = useState(false);
   const [ensembleError, setEnsembleError] = useState<string | null>(null);
   const [uiError, setUiError] = useState<string | null>(null);
@@ -353,7 +352,6 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
     setMediaPreferences(template.default_parameters || {});
     setAutoModel(true);
     onUpdateModel('auto');
-    setUserStarted(true);
   }, [onUpdateModel]);
 
   useEffect(() => {
@@ -453,7 +451,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
       return;
     }
     if (hasVideos && !currentModel.inputModalities?.includes('video')) {
-      setUiError(`РњРѕРґРµР»СЊ В«${currentModel.name}В» РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ Р°РЅР°Р»РёР· РІРёРґРµРѕ. Р’С‹Р±РµСЂРёС‚Рµ РјРѕРґРµР»СЊ СЃ С‚РµРіРѕРј В«Р’РёРґРµРѕ-РІС…РѕРґВ».`);
+      setUiError(`Модель «${currentModel.name}» не поддерживает анализ видео. Выберите модель с тегом «Видео-вход».`);
       if (fileInputRef.current) fileInputRef.current.value = '';
       return;
     }
@@ -504,6 +502,20 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
     }
   }, [modelSelectOpen]);
 
+  useEffect(() => {
+    const measureModelName = () => {
+      const element = modelButtonRef.current;
+      if (!element) return;
+      const label = element.querySelector<HTMLElement>('.chat__input-model-label');
+      const overflow = label ? Math.max(0, label.scrollWidth - label.clientWidth) : 0;
+      element.style.setProperty('--model-overflow', `${overflow}px`);
+      setModelNameOverflow(overflow > 1);
+    };
+    measureModelName();
+    window.addEventListener('resize', measureModelName);
+    return () => window.removeEventListener('resize', measureModelName);
+  }, [autoModel, currentModel.name]);
+
   // Scroll to bottom on new messages
   useEffect(() => {
     if (messagesContainerRef.current) {
@@ -537,7 +549,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
     setModelSearch('');
   };
 
-  // в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Voice Input в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+  // ──────────────── Voice Input ────────────────
 
   const startVoiceInput = useCallback(() => {
     if (!isLoggedIn) {
@@ -547,12 +559,12 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
 
     const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognitionAPI) {
-      setUiError('Р“РѕР»РѕСЃРѕРІРѕР№ РІРІРѕРґ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ РІ СЌС‚РѕРј Р±СЂР°СѓР·РµСЂРµ. РСЃРїРѕР»СЊР·СѓР№С‚Рµ Chrome РёР»Рё Edge.');
+      setUiError('Голосовой ввод не поддерживается в этом браузере. Используйте Chrome или Edge.');
       return;
     }
 
     if (isRecording) {
-      // Stop recording вЂ” clear ref so onend doesn't auto-restart
+      // Stop recording — clear ref so onend doesn't auto-restart
       recognitionRef.current?.stop();
       recognitionRef.current = null;
       setIsRecording(false);
@@ -565,7 +577,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
     // continuous=false + manual restart in onend avoids Chrome duplicate-result bug
     recognition.continuous = false;
 
-    // Accumulated final transcript вЂ” persists across manual restarts
+    // Accumulated final transcript — persists across manual restarts
     let accumulatedFinal = '';
     // Client-side silence detection: stop if no new results for 2 seconds
     // (Chrome's SpeechRecognition may not fire onend reliably on its own)
@@ -595,11 +607,11 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
 
     recognition.onerror = (event: any) => {
       if (event.error === 'not-allowed') {
-        setUiError('Р”РѕСЃС‚СѓРї Рє РјРёРєСЂРѕС„РѕРЅСѓ Р·Р°РїСЂРµС‰С‘РЅ. Р Р°Р·СЂРµС€РёС‚Рµ РґРѕСЃС‚СѓРї РІ РЅР°СЃС‚СЂРѕР№РєР°С… Р±СЂР°СѓР·РµСЂР°.');
+        setUiError('Доступ к микрофону запрещён. Разрешите доступ в настройках браузера.');
       } else if (event.error === 'no-speech') {
-        // Silent вЂ” user just didn't speak
+        // Silent — user just didn't speak
       } else {
-        setUiError(`РћС€РёР±РєР° СЂР°СЃРїРѕР·РЅР°РІР°РЅРёСЏ: ${event.error}`);
+        setUiError(`Ошибка распознавания: ${event.error}`);
       }
       setIsRecording(false);
     };
@@ -618,7 +630,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
       setIsRecording(false);
 
       if (rawText && isNaturalEnd) {
-        // Natural silence вЂ” punctuate the transcript and auto-send
+        // Natural silence — punctuate the transcript and auto-send
         punctuateText(rawText).then(result => {
           setMessage(result);
           // Small delay so the punctuated text is briefly visible, then auto-send
@@ -640,30 +652,9 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
     setIsRecording(true);
   }, [isLoggedIn, onOpenAuth, isRecording]);
 
-  // в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Fact Check в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+  // ──────────────── Fact Check ────────────────
 
-  const handleFactCheck = async (idx: number, msg: { role: string; content: string | any[] }) => {
-    if (factCheckResults[idx] || factCheckLoading !== null) return;
-    setFactCheckLoading(idx);
-    try {
-      // Find the user prompt that preceded this assistant message
-      const userMsg = [...messages.slice(0, idx)].reverse().find(m => m.role === 'user');
-      const prompt = userMsg
-        ? (typeof userMsg.content === 'string' ? userMsg.content : userMsg.content.map(p => p.text || '').join(' '))
-        : '';
-      const responseText = typeof msg.content === 'string' ? msg.content : msg.content.map(p => p.text || '').join(' ');
-
-      const result = await checkFacts(currentModel.id, prompt, responseText);
-      setFactCheckResults(prev => ({ ...prev, [idx]: result }));
-    } catch (e: any) {
-      setFactCheckResults(prev => ({
-        ...prev,
-        [idx]: { errors: [{ claim: e.message, status: 'incorrect' as const, correction: null }], confidence: 0, verified_claims: [], details: '' }
-      }));
-    } finally {
-      setFactCheckLoading(null);
-    }
-  };
+  const handleFactCheck = async (_idx: number, _msg: { role: string; content: string | any[] }) => undefined;
 
   const handleEnsemble = useCallback(async () => {
     if (!message.trim() || ensembleLoading || !isLoggedIn) return;
@@ -701,9 +692,9 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
       onEnsembleResult(text, currentFiles, result);
     } catch (e: any) {
       if (e.name === 'AbortError') {
-        setEnsembleError('РўР°Р№РјР°СѓС‚: РјРѕРґРµР»Рё РЅРµ РѕС‚РІРµС‚РёР»Рё Р·Р° 60 СЃРµРєСѓРЅРґ. РџРѕРїСЂРѕР±СѓР№С‚Рµ РµС‰С‘ СЂР°Р·.');
+        setEnsembleError('Таймаут: модели не ответили за 60 секунд. Попробуйте ещё раз.');
       } else {
-        setEnsembleError(e.message || 'РћС€РёР±РєР° РїСЂРё Р·Р°РїСЂРѕСЃРµ Ensemble');
+        setEnsembleError(e.message || 'Ошибка при запросе Ensemble');
       }
     } finally {
       setEnsembleLoading(false);
@@ -714,9 +705,9 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
     return (
       <main className="chat">
         <div className="chat__placeholder">
-          <h1 className="chat__title">Р РµС€РёС‚Рµ Р·Р°РґР°С‡Сѓ СЃ AI вЂ” Р±РµР· СЃР»РѕР¶РЅС‹С… РЅР°СЃС‚СЂРѕРµРє</h1>
-          <p>Р Р°Р±РѕС‚Р°Р№С‚Рµ СЃ С‚РµРєСЃС‚РѕРј, РґРѕРєСѓРјРµРЅС‚Р°РјРё, РёР·РѕР±СЂР°Р¶РµРЅРёСЏРјРё Рё РІРёРґРµРѕ РІ РѕРґРЅРѕРј РёРЅС‚РµСЂС„РµР№СЃРµ.</p>
-          <span aria-live="polite">Р—Р°РіСЂСѓР·РєР° РґРѕСЃС‚СѓРїРЅС‹С… РјРѕРґРµР»РµР№вЂ¦</span>
+          <h1 className="chat__title">Решите задачу с AI — без сложных настроек</h1>
+          <p>Работайте с текстом, документами, изображениями и видео в одном интерфейсе.</p>
+          <span aria-live="polite">Загрузка доступных моделей…</span>
         </div>
       </main>
     );
@@ -724,12 +715,12 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
 
   return (
     <main className={`chat ${chatActive || (isLoggedIn && messages.length > 0) ? 'chat--active' : ''}`}>
-      {/* Mobile header вЂ” always rendered, visibility via CSS */}
+      {/* Mobile header — always rendered, visibility via CSS */}
       <div className="chat__mobile-header">
         <button
           className="chat__mobile-menu-btn"
           onClick={onToggleSidebar}
-          aria-label={sidebarOpen ? 'Р—Р°РєСЂС‹С‚СЊ РјРµРЅСЋ' : 'РћС‚РєСЂС‹С‚СЊ РјРµРЅСЋ'}
+          aria-label={sidebarOpen ? 'Закрыть меню' : 'Открыть меню'}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="3" width="18" height="18" rx="3" />
@@ -738,8 +729,8 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
         </button>
         <span className="chat__mobile-logo">AI-Sphere</span>
         <div className="chat__mobile-actions">
-        {isLoggedIn && <button className="chat__mobile-balance" onClick={onOpenPricing} aria-label="РџРѕРїРѕР»РЅРёС‚СЊ Р±Р°Р»Р°РЅСЃ">{(userCredits || 0).toLocaleString('ru-RU')} РєСЂ. пј‹</button>}
-        <button className="chat__mobile-menu-btn" aria-label="РњРµРЅСЋ" onClick={() => setHeaderModalOpen(true)}>
+        {isLoggedIn && <button className="chat__mobile-balance" onClick={onOpenPricing} aria-label="Пополнить баланс">{(userCredits || 0).toLocaleString('ru-RU')} кр. ＋</button>}
+        <button className="chat__mobile-menu-btn" aria-label="Меню" onClick={() => setHeaderModalOpen(true)}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="12" cy="5" r="2" />
             <circle cx="12" cy="12" r="2" />
@@ -751,9 +742,9 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
 
       {!chatActive && messages.length === 0 ? (
         <div className="chat__welcome">
-          <h1 className="chat__title">Р РµС€РёС‚Рµ Р·Р°РґР°С‡Сѓ СЃ AI вЂ” Р±РµР· РІС‹Р±РѕСЂР° СЃР»РѕР¶РЅС‹С… РЅР°СЃС‚СЂРѕРµРє</h1>
+          <h1 className="chat__title">Решите задачу с AI — без выбора сложных настроек</h1>
           <p className="chat__subtitle">
-            РўРµРєСЃС‚, РґРѕРєСѓРјРµРЅС‚С‹, РёР·РѕР±СЂР°Р¶РµРЅРёСЏ Рё РІРёРґРµРѕ РІ РѕРґРЅРѕРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРµ. AIвЂ‘Sphere СЃР°Рј РїРѕРґР±РµСЂС‘С‚ РґРѕСЃС‚СѓРїРЅСѓСЋ РјРѕРґРµР»СЊ Рё Р·Р°СЂР°РЅРµРµ РїРѕРєР°Р¶РµС‚ СЃС‚РѕРёРјРѕСЃС‚СЊ.
+            Текст, документы, изображения и видео в одном пространстве. AI‑Sphere сам подберёт доступную модель и заранее покажет стоимость.
           </p>
         </div>
       ) : (
@@ -770,8 +761,8 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
            setCopiedIndex(i);
            setTimeout(() => setCopiedIndex(null), 2000);
          }}
-         aria-label="РљРѕРїРёСЂРѕРІР°С‚СЊ"
-         title="РљРѕРїРёСЂРѕРІР°С‚СЊ"
+         aria-label="Копировать"
+         title="Копировать"
        >
          {copiedIndex === i ? (
            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -801,8 +792,8 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                       setCopiedIndex(i);
                       setTimeout(() => setCopiedIndex(null), 2000);
                     }}
-                    aria-label="РљРѕРїРёСЂРѕРІР°С‚СЊ"
-                    title="РљРѕРїРёСЂРѕРІР°С‚СЊ"
+                    aria-label="Копировать"
+                    title="Копировать"
                   >
                     {copiedIndex === i ? (
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -831,8 +822,8 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                         }).catch(() => {});
                       }
                     }}
-                    aria-label="РќСЂР°РІРёС‚СЃСЏ"
-                    title="РќСЂР°РІРёС‚СЃСЏ"
+                    aria-label="Нравится"
+                    title="Нравится"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
@@ -854,8 +845,8 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                         }).catch(() => {});
                       }
                     }}
-                    aria-label="РќРµ РЅСЂР°РІРёС‚СЃСЏ"
-                    title="РќРµ РЅСЂР°РІРёС‚СЃСЏ"
+                    aria-label="Не нравится"
+                    title="Не нравится"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10zM17 2h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3" />
@@ -865,8 +856,8 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                     className="chat__action-btn"
                     onClick={() => onRegenerate?.()}
                     disabled={sending}
-                    aria-label="РџРµСЂРµРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ"
-                    title="РџРµСЂРµРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ"
+                    aria-label="Перегенерировать"
+                    title="Перегенерировать"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="23 4 23 10 17 10" />
@@ -878,8 +869,8 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                   {factCheckResults[i] ? (
                     <div className="chat__factcheck-result">
                       <div className="chat__factcheck-header">
-                        <span className="chat__factcheck-icon">рџ”Ќ</span>
-                        <span className="chat__factcheck-label">Р¤Р°РєС‚-С‡РµРє</span>
+                        <span className="chat__factcheck-icon">🔍</span>
+                        <span className="chat__factcheck-label">Факт-чек</span>
                         <span className={`chat__factcheck-score ${factCheckResults[i].confidence >= 80 ? 'chat__factcheck-score--high' : factCheckResults[i].confidence >= 50 ? 'chat__factcheck-score--mid' : 'chat__factcheck-score--low'}`}>
                           {factCheckResults[i].confidence}%
                         </span>
@@ -888,8 +879,8 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                         <div className="chat__factcheck-errors">
                           {factCheckResults[i].errors.map((e, ei) => (
                             <div key={ei} className="chat__factcheck-claim chat__factcheck-claim--error">
-                              <div className="chat__factcheck-claim-text">вњ— {e.claim}</div>
-                              {e.correction && <div className="chat__factcheck-correction">в†’ {e.correction}</div>}
+                              <div className="chat__factcheck-claim-text">✗ {e.claim}</div>
+                              {e.correction && <div className="chat__factcheck-correction">→ {e.correction}</div>}
                             </div>
                           ))}
                         </div>
@@ -898,7 +889,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                         <div className="chat__factcheck-verified">
                           {factCheckResults[i].verified_claims.filter(c => c.status === 'correct').map((c, ci) => (
                             <div key={ci} className="chat__factcheck-claim chat__factcheck-claim--ok">
-                              <div className="chat__factcheck-claim-text">вњ“ {c.claim}</div>
+                              <div className="chat__factcheck-claim-text">✓ {c.claim}</div>
                             </div>
                           ))}
                         </div>
@@ -914,9 +905,9 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                       disabled={factCheckLoading !== null}
                     >
                       {factCheckLoading === i ? (
-                        <><span className="chat__factcheck-spinner" /> РџСЂРѕРІРµСЂРєР°...</>
+                        <><span className="chat__factcheck-spinner" /> Проверка...</>
                       ) : (
-                        'рџ”Ќ РџСЂРѕРІРµСЂРёС‚СЊ С„Р°РєС‚С‹'
+                        '🔍 Проверить факты'
                       )}
                     </button>
                   )}
@@ -966,22 +957,22 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
             <button
               type="button"
               className="task-context__close"
-              aria-label="РЎР±СЂРѕСЃРёС‚СЊ СЃС†РµРЅР°СЂРёР№"
+              aria-label="Сбросить сценарий"
               onClick={() => { setActiveTemplate(null); setEstimate(null); setMediaPreferences({}); }}
-            >Г—</button>
+            >×</button>
           </div>
           <div className="task-context__details">
-            <span><b>РџСЂРёРјРµСЂ:</b> {activeTemplate.example_input}</span>
-            <span><b>Р РµР·СѓР»СЊС‚Р°С‚:</b> {activeTemplate.example_output}</span>
+            <span><b>Пример:</b> {activeTemplate.example_input}</span>
+            <span><b>Результат:</b> {activeTemplate.example_output}</span>
           </div>
           {activeTemplate.category === 'image' && activeTemplate.task_type === 'create_image' && (
             <div className="task-context__controls">
-              <label>Р¤РѕСЂРјР°С‚
+              <label>Формат
                 <select value={String(mediaPreferences.aspect_ratio || '1:1')} onChange={event => setMediaPreferences(prev => ({ ...prev, aspect_ratio: event.target.value }))}>
                   <option value="1:1">1:1</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="4:3">4:3</option>
                 </select>
               </label>
-              <label>Р Р°Р·СЂРµС€РµРЅРёРµ
+              <label>Разрешение
                 <select value={String(mediaPreferences.resolution || '1K')} onChange={event => setMediaPreferences(prev => ({ ...prev, resolution: event.target.value }))}>
                   <option value="1K">1K</option><option value="2K">2K</option>
                 </select>
@@ -990,12 +981,12 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
           )}
           {activeTemplate.category === 'video' && (
             <div className="task-context__controls">
-              <label>Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ
+              <label>Длительность
                 <select value={String(mediaPreferences.duration || 5)} onChange={event => setMediaPreferences(prev => ({ ...prev, duration: Number(event.target.value) }))}>
-                  <option value="5">5 СЃРµРєСѓРЅРґ</option><option value="10">10 СЃРµРєСѓРЅРґ</option>
+                  <option value="5">5 секунд</option><option value="10">10 секунд</option>
                 </select>
               </label>
-              <label>Р¤РѕСЂРјР°С‚
+              <label>Формат
                 <select value={String(mediaPreferences.aspect_ratio || '16:9')} onChange={event => setMediaPreferences(prev => ({ ...prev, aspect_ratio: event.target.value }))}>
                   <option value="16:9">16:9</option><option value="9:16">9:16</option><option value="1:1">1:1</option>
                 </select>
@@ -1039,9 +1030,9 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                   <button
                     className="chat__file-chip-remove"
                     onClick={() => removeFile(file.id)}
-                    aria-label="РЈРґР°Р»РёС‚СЊ С„Р°Р№Р»"
+                    aria-label="Удалить файл"
                   >
-                    вњ•
+                    ✕
                   </button>
                 </div>
               ))}
@@ -1050,7 +1041,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
 
           <textarea
             className="chat__input"
-            placeholder="Р—Р°РіСЂСѓР·РёС‚Рµ РґРѕРєСѓРјРµРЅС‚ РёР»Рё РѕРїРёС€РёС‚Рµ Р·Р°РґР°С‡Сѓ..."
+            placeholder="Загрузите документ или опишите задачу..."
             rows={3}
             value={message}
             onChange={e => {
@@ -1060,7 +1051,6 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
               });
               setMessage(e.target.value);
             }}
-            onFocus={() => setUserStarted(true)}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey && (message.trim() || files.length > 0)) {
                 e.preventDefault();
@@ -1082,7 +1072,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
               <button
                 className="chat__input-icon"
                 onClick={handleAttachClick}
-                aria-label="РџСЂРёРєСЂРµРїРёС‚СЊ С„Р°Р№Р»"
+                aria-label="Прикрепить файл"
                 disabled={uploading}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1092,13 +1082,14 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
 
               <div ref={modelSelectRef}>
               <button
-                className="chat__input-model"
+                ref={modelButtonRef}
+                className={`chat__input-model${modelNameOverflow ? ' chat__input-model--marquee' : ''}`}
                 onClick={() => setModelSelectOpen(prev => !prev)}
-                aria-label="Р’С‹Р±СЂР°С‚СЊ РјРѕРґРµР»СЊ"
+                aria-label="Выбрать модель"
               >
                 <span className="chat__model-dot" />
-                {autoModel ? 'AIвЂ‘Sphere СЂРµРєРѕРјРµРЅРґСѓРµС‚' : currentModel.name}
-                <span className="chat__model-arrow">в–ј</span>
+                <span className="chat__input-model-label"><span>{autoModel ? 'AI‑Sphere рекомендует' : currentModel.name}</span></span>
+                <span className="chat__model-arrow">▼</span>
               </button>
               {modelSelectOpen && (
                 <div className="chat__model-select chat__model-select--grouped">
@@ -1108,13 +1099,13 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                       ref={searchInputRef}
                       type="text"
                       className="chat__model-search-input"
-                      placeholder="РџРѕРёСЃРє РјРѕРґРµР»РµР№..."
+                      placeholder="Поиск моделей..."
                       value={modelSearch}
                       onChange={e => setModelSearch(e.target.value)}
                     />
-                    <div className="chat__model-filters" aria-label="Р¤РёР»СЊС‚СЂ РІРѕР·РјРѕР¶РЅРѕСЃС‚РµР№">
+                    <div className="chat__model-filters" aria-label="Фильтр возможностей">
                       {[
-                        ['all', 'Р’СЃРµ'], ['text', 'РўРµРєСЃС‚'], ['image', 'Р¤РѕС‚Рѕ'], ['video', 'Р’РёРґРµРѕ'], ['file', 'PDF'],
+                        ['all', 'Все'], ['text', 'Текст'], ['image', 'Фото'], ['video', 'Видео'], ['file', 'PDF'],
                       ].map(([value, label]) => (
                         <button
                           key={value}
@@ -1129,17 +1120,17 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                   {/* Grouped list */}
                   <div className="chat__model-groups">
                     <div className="chat__model-group">
-                      <div className="chat__model-group-title">РђРІС‚РѕРІС‹Р±РѕСЂ</div>
+                      <div className="chat__model-group-title">Автовыбор</div>
                       <button
                         type="button"
                         className={`chat__model-option ${autoModel ? 'chat__model-option--active' : ''}`}
                         onClick={handleSelectAuto}
                       >
                         <span className="chat__model-option-name">
-                          <span>AIвЂ‘Sphere СЂРµРєРѕРјРµРЅРґСѓРµС‚</span>
-                          <span className="chat__model-tags"><small>С†РµРЅР° + РєР°С‡РµСЃС‚РІРѕ + РґРѕСЃС‚СѓРїРЅРѕСЃС‚СЊ</small></span>
+                          <span>AI‑Sphere рекомендует</span>
+                          <span className="chat__model-tags"><small>цена + качество + доступность</small></span>
                         </span>
-                        <span className="chat__model-price">Р°РІС‚Рѕ</span>
+                        <span className="chat__model-price">авто</span>
                       </button>
                     </div>
                     {filteredCategories.map(cat => (
@@ -1155,13 +1146,13 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                               <span>{m.name}</span>
                               <span className="chat__model-tags">{capabilityTags(m).map(tag => <small key={tag}>{tag}</small>)}</span>
                             </span>
-                            <span className="chat__model-price">{m.price} РєСЂ.</span>
+                            <span className="chat__model-price">{m.price} кр.</span>
                           </button>
                         ))}
                       </div>
                     ))}
                     {filteredCategories.length === 0 && (
-                      <div className="chat__model-empty">РќРёС‡РµРіРѕ РЅРµ РЅР°Р№РґРµРЅРѕ</div>
+                      <div className="chat__model-empty">Ничего не найдено</div>
                     )}
                   </div>
                 </div>
@@ -1173,7 +1164,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
               <button
                 className={`chat__input-icon${isRecording ? ' chat__input-icon--recording' : ''}`}
                 onClick={startVoiceInput}
-                aria-label={isRecording ? 'РћСЃС‚Р°РЅРѕРІРёС‚СЊ Р·Р°РїРёСЃСЊ' : 'Р“РѕР»РѕСЃРѕРІРѕР№ РІРІРѕРґ'}
+                aria-label={isRecording ? 'Остановить запись' : 'Голосовой ввод'}
               >
                 {isRecording ? (
                   <svg className="chat__mic-icon" width="18" height="24" viewBox="0 0 24 28" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -1205,9 +1196,9 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                 setFiles([]);
               }}
                 disabled={sending || uploading || (!message.trim() && files.length === 0)}
-                aria-label="РћС‚РїСЂР°РІРёС‚СЊ"
+                aria-label="Отправить"
               >
-                в†‘
+                ↑
               </button>
             </div>
           </div>
@@ -1217,7 +1208,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
         {uiError && (
           <div className="chat__inline-error" role="alert">
             {uiError}
-            <button type="button" onClick={() => setUiError(null)} aria-label="Р—Р°РєСЂС‹С‚СЊ">Г—</button>
+            <button type="button" onClick={() => setUiError(null)} aria-label="Закрыть">×</button>
           </div>
         )}
 
@@ -1229,9 +1220,9 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
             disabled={ensembleLoading || !message.trim()}
           >
             {ensembleLoading ? (
-              <><span className="chat__ensemble-spinner" /> РћРїСЂР°С€РёРІР°РµРј 3 РјРѕРґРµР»Рё...</>
+              <><span className="chat__ensemble-spinner" /> Опрашиваем 3 модели...</>
             ) : (
-              'рџ§  РЈС‚РѕС‡РЅРёС‚СЊ Сѓ 3 РјРѕРґРµР»РµР№'
+              '🧠 Уточнить у 3 моделей'
             )}
           </button>
         </div>
@@ -1239,35 +1230,28 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
 
         {ensembleError && (
         <div className="chat__ensemble-error">
-          вљ пёЏ {ensembleError}
-          <button className="chat__ensemble-error-close" onClick={() => setEnsembleError(null)}>вњ•</button>
+          ⚠️ {ensembleError}
+          <button className="chat__ensemble-error-close" onClick={() => setEnsembleError(null)}>✕</button>
         </div>
         )}
 
         <div className="chat__cost-hint chat__cost-hint--live">
-          {estimateLoading ? 'Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј СЃС‚РѕРёРјРѕСЃС‚СЊвЂ¦' : estimate ? (
-            <><span>{estimate.exact ? 'РЎС‚РѕРёРјРѕСЃС‚СЊ:' : 'РџСЂРёРјРµСЂРЅР°СЏ СЃС‚РѕРёРјРѕСЃС‚СЊ:'}</span><strong>{estimate.exact ? `${estimate.credits_min}` : `${estimate.credits_min}вЂ“${estimate.credits_max}`} РєСЂРµРґРёС‚РѕРІ</strong><span>В· {estimate.effective_model_name}</span></>
+          {estimateLoading ? 'Рассчитываем стоимость…' : estimate ? (
+            <><span>{estimate.exact ? 'Стоимость:' : 'Примерная стоимость:'}</span><strong>{estimate.exact ? `${estimate.credits_min}` : `${estimate.credits_min}–${estimate.credits_max}`} кредитов</strong><span>· {estimate.effective_model_name}</span></>
           ) : (
-            <span>Р”Р»СЏ С‚РµРєСЃС‚Р° СЃС‚РѕРёРјРѕСЃС‚СЊ Р·Р°РІРёСЃРёС‚ РѕС‚ РґР»РёРЅС‹ РѕС‚РІРµС‚Р°</span>
+            <span>Для текста стоимость зависит от длины ответа</span>
           )}
         </div>
         <div className="chat__cost-hint chat__cost-hint--legacy">
-          РџСЂРёРјРµСЂРЅР°СЏ СЃС‚РѕРёРјРѕСЃС‚СЊ: РѕС‚ 1 РґРѕ 5 РєСЂРµРґРёС‚РѕРІ
+          Примерная стоимость: от 1 до 5 кредитов
         </div>
       </div>
-
-      {!userStarted && !chatActive && messages.length === 0 && !isLoggedIn && (
-        <>
-          <QuickActions onSelect={onSendMessage} />
-          <ChatPlaceholder onSelect={onSendMessage} />
-        </>
-      )}
 
       {/* Header modal */}
       {headerModalOpen && (
         <div className="modal-overlay" onClick={() => setHeaderModalOpen(false)}>
           <div className="header-modal" onClick={e => e.stopPropagation()}>
-            <div className="header-modal__title">Р”РµР№СЃС‚РІРёСЏ СЃ С‡Р°С‚РѕРј</div>
+            <div className="header-modal__title">Действия с чатом</div>
 
             <button
               className="header-modal__btn"
@@ -1280,7 +1264,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                 <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
               </svg>
-              РџРѕРґРµР»РёС‚СЊСЃСЏ С‡Р°С‚РѕРј
+              Поделиться чатом
             </button>
 
             <button
@@ -1292,11 +1276,11 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                 <polyline points="3 6 5 6 21 6" />
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
               </svg>
-              РЈРґР°Р»РёС‚СЊ С‡Р°С‚
+              Удалить чат
             </button>
 
             <button className="header-modal__close" onClick={() => setHeaderModalOpen(false)}>
-              РћС‚РјРµРЅР°
+              Отмена
             </button>
           </div>
         </div>
@@ -1306,14 +1290,14 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
       {shareModalOpen && (
         <div className="modal-overlay" onClick={() => setShareModalOpen(false)}>
           <div className="share-modal" onClick={e => e.stopPropagation()}>
-            <div className="share-modal__title">РџРѕРґРµР»РёС‚СЊСЃСЏ С‡Р°С‚РѕРј</div>
+            <div className="share-modal__title">Поделиться чатом</div>
 
             <div className="share-modal__grid">
               <button
                 className="share-modal__btn"
                 onClick={() => {
                   const url = window.location.href;
-                  const text = messages.map(m => `${m.role === 'user' ? 'РЇ' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
+                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
                   window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
                   setShareModalOpen(false);
                 }}
@@ -1328,7 +1312,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                 className="share-modal__btn"
                 onClick={() => {
                   const url = window.location.href;
-                  const text = messages.map(m => `${m.role === 'user' ? 'РЇ' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
+                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
                   window.open(`https://wa.me/?text=${encodeURIComponent(text + '\n' + url)}`, '_blank');
                   setShareModalOpen(false);
                 }}
@@ -1344,7 +1328,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                 onClick={() => {
                   const url = window.location.href;
                   const title = 'AI-Sphere Chat';
-                  const text = messages.map(m => `${m.role === 'user' ? 'РЇ' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
+                  const text = messages.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${getMessageText(m.content)}`).join('\n');
                   window.open(`https://vk.com/share.php?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&description=${encodeURIComponent(text)}`, '_blank');
                   setShareModalOpen(false);
                 }}
@@ -1360,7 +1344,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                 onClick={() => {
                   const url = window.location.href;
                   navigator.clipboard.writeText(url).then(() => {
-                    setUiError('РЎСЃС‹Р»РєР° СЃРєРѕРїРёСЂРѕРІР°РЅР° РІ Р±СѓС„РµСЂ РѕР±РјРµРЅР°');
+                    setUiError('Ссылка скопирована в буфер обмена');
                   }).catch(() => {});
                   setShareModalOpen(false);
                 }}
@@ -1369,27 +1353,27 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
-                РљРѕРїРёСЂРѕРІР°С‚СЊ СЃСЃС‹Р»РєСѓ
+                Копировать ссылку
               </button>
             </div>
 
             <button className="share-modal__close" onClick={() => setShareModalOpen(false)}>
-              РћС‚РјРµРЅР°
+              Отмена
             </button>
           </div>
         </div>
       )}
 
-      {/* Vision alert вЂ” model doesn't support images */}
+      {/* Vision alert — model doesn't support images */}
       {visionAlert && (
         <div className="modal-overlay" onClick={() => setVisionAlert(null)}>
           <div className="vision-alert" onClick={e => e.stopPropagation()}>
-            <div className="vision-alert__icon">рџ–јпёЏ</div>
-            <div className="vision-alert__title">Р”Р»СЏ РёР·РѕР±СЂР°Р¶РµРЅРёР№ РЅСѓР¶РЅР° РґСЂСѓРіР°СЏ РјРѕРґРµР»СЊ</div>
+            <div className="vision-alert__icon">🖼️</div>
+            <div className="vision-alert__title">Для изображений нужна другая модель</div>
             <div className="vision-alert__text">
-              <strong>{visionAlert.modelName}</strong> РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ.
-              РўРµРєСЃС‚РѕРІС‹Рµ С„Р°Р№Р»С‹, PDF Рё РґРѕРєСѓРјРµРЅС‚С‹ РїСЂРёРєСЂРµРїР»СЏСЋС‚СЃСЏ Р±РµР· РѕРіСЂР°РЅРёС‡РµРЅРёР№.
-              Р’С‹Р±РµСЂРёС‚Рµ РѕРґРЅСѓ РёР· РјРѕРґРµР»РµР№ СЃ РїРѕРґРґРµСЂР¶РєРѕР№ vision:
+              <strong>{visionAlert.modelName}</strong> не поддерживает изображения.
+              Текстовые файлы, PDF и документы прикрепляются без ограничений.
+              Выберите одну из моделей с поддержкой vision:
             </div>
             <div className="vision-alert__models">
               {visionAlert.visionModels.map(m => (
@@ -1407,7 +1391,7 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
               ))}
             </div>
             <button className="vision-alert__continue" onClick={() => setVisionAlert(null)}>
-              РџСЂРѕРґРѕР»Р¶РёС‚СЊ Р±РµР· РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
+              Продолжить без изображения
             </button>
           </div>
         </div>
@@ -1415,4 +1399,3 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
     </main>
   );
 }
-

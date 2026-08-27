@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# DiG-bench: новый бенчмарк для оценки способности ИИ к научным открытиям
+
 
 **Кратко:** Исследователи представили DiG-bench — набор из 70 независимых игр, в которых ИИ-агенты должны самостоятельно открывать скрытые правила трансформации через взаимодействие и эксперименты. Бенчмарк включает семь уровней сложности, от решаемых множеством моделей до бросающих вызов лучшим современным агентам.
 

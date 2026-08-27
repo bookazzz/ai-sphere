@@ -39,14 +39,14 @@ function getDateLabel(ts: number): string {
   const dateDay = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
   const diffDays = Math.floor((today.getTime() - dateDay.getTime()) / 86400000);
 
-  if (diffDays === 0) return 'РЎРµРіРѕРґРЅСЏ';
-  if (diffDays === 1) return 'Р’С‡РµСЂР°';
-  if (diffDays <= 7) return 'РџРѕСЃР»РµРґРЅРёРµ 7 РґРЅРµР№';
-  if (diffDays <= 30) return 'РџРѕСЃР»РµРґРЅРёРµ 30 РґРЅРµР№';
-  return 'Р Р°РЅРµРµ';
+  if (diffDays === 0) return 'Сегодня';
+  if (diffDays === 1) return 'Вчера';
+  if (diffDays <= 7) return 'Последние 7 дней';
+  if (diffDays <= 30) return 'Последние 30 дней';
+  return 'Ранее';
 }
 
-const GROUP_ORDER = ['РЎРµРіРѕРґРЅСЏ', 'Р’С‡РµСЂР°', 'РџРѕСЃР»РµРґРЅРёРµ 7 РґРЅРµР№', 'РџРѕСЃР»РµРґРЅРёРµ 30 РґРЅРµР№', 'Р Р°РЅРµРµ'];
+const GROUP_ORDER = ['Сегодня', 'Вчера', 'Последние 7 дней', 'Последние 30 дней', 'Ранее'];
 
 export default function Sidebar({
   isOpen, isMobile, isLoggedIn, userName, userCredits,
@@ -129,9 +129,19 @@ export default function Sidebar({
 
   const showFull = isMobile || isOpen;
 
-  const filteredSessions = searchQuery
-    ? sessions.filter(s => (s.title || '').toLowerCase().includes(searchQuery.toLowerCase()))
-    : sessions;
+  const filteredSessions = useMemo(() => {
+    const byId = new Map<string, ChatSession>();
+    for (const session of sessions) {
+      const firstUser = session.messages.find(message => message.role === 'user') as ({ message_id?: string } | undefined);
+      const key = firstUser?.message_id ? `message:${firstUser.message_id}` : `id:${session.id}`;
+      const previous = byId.get(key);
+      if (!previous || session.updatedAt >= previous.updatedAt) byId.set(key, session);
+    }
+    const unique = Array.from(byId.values());
+    return searchQuery
+      ? unique.filter(s => (s.title || '').toLowerCase().includes(searchQuery.toLowerCase()))
+      : unique;
+  }, [sessions, searchQuery]);
 
   // Group sessions by date
   const grouped = useMemo(() => {
@@ -169,7 +179,7 @@ export default function Sidebar({
         <>
           {/* Header */}
           <div className="sidebar__header">
-            <button className="sidebar__toggle" onClick={onToggle} aria-label="Р—Р°РєСЂС‹С‚СЊ РјРµРЅСЋ">
+            <button className="sidebar__toggle" onClick={onToggle} aria-label="Закрыть меню">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
@@ -184,14 +194,14 @@ export default function Sidebar({
               <line x1="9" y1="3" x2="9" y2="15" />
               <line x1="3" y1="9" x2="15" y2="9" />
             </svg>
-            РќРѕРІС‹Р№ С‡Р°С‚
+            Новый чат
           </button>
 
           {isLoggedIn && (
-            <nav className="sidebar__workspace-nav" aria-label="Р Р°Р±РѕС‡РµРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ">
-              <Link href="/works"><span>в–¦</span> РњРѕРё СЂР°Р±РѕС‚С‹</Link>
-              <Link href="/projects"><span>в†—</span> РџСЂРѕРµРєС‚С‹</Link>
-              <Link href="/popular"><span>вњ¦</span> РџРѕРїСѓР»СЏСЂРЅРѕРµ</Link>
+            <nav className="sidebar__workspace-nav" aria-label="Рабочее пространство">
+              <Link href="/works"><span>▦</span> Мои работы</Link>
+              <Link href="/projects"><span>↗</span> Проекты</Link>
+              <Link href="/popular"><span>✦</span> Популярное</Link>
             </nav>
           )}
 
@@ -200,17 +210,17 @@ export default function Sidebar({
               if ((event.currentTarget as HTMLDetailsElement).open) void recordProductEvent({ event_name: 'progress_viewed' });
             }}>
               <summary>
-                <span><b>{progress.level}</b><small>{progress.xp} XP В· СЃРµСЂРёСЏ {progress.streak_days} РґРЅ.</small></span>
-                <span>{progress.monthly_bonus_credits}/{progress.monthly_bonus_cap} Р±РѕРЅСѓСЃРѕРІ</span>
+                <span><b>{progress.level}</b><small>{progress.xp} XP · серия {progress.streak_days} дн.</small></span>
+                <span>{progress.monthly_bonus_credits}/{progress.monthly_bonus_cap} бонусов</span>
               </summary>
               <div className="sidebar__progress-missions">
                 {progress.missions.filter(item => !item.completed).slice(0, 3).map(item => (
                   <div className="sidebar__progress-mission" tabIndex={0} role="group" aria-label={`${item.title}: ${item.description}`} key={`mission-${item.id}`}>
-                  <div key={item.id}><b>{item.title}</b><span>{Math.min(item.current, item.target)}/{item.target} В· +{item.reward_credits} РєСЂ.</span></div>
+                  <div key={item.id}><b>{item.title}</b><span>{Math.min(item.current, item.target)}/{item.target} · +{item.reward_credits} кр.</span></div>
                     <span className="sidebar__progress-mission-tooltip" role="tooltip">{item.description}</span>
                   </div>
                 ))}
-                {!progress.missions.some(item => !item.completed) && <p>Р’СЃРµ С‚РµРєСѓС‰РёРµ РјРёСЃСЃРёРё РІС‹РїРѕР»РЅРµРЅС‹</p>}
+                {!progress.missions.some(item => !item.completed) && <p>Все текущие миссии выполнены</p>}
               </div>
             </details>
           )}
@@ -225,7 +235,7 @@ export default function Sidebar({
               <input
                 className="sidebar__search-input"
                 type="text"
-                placeholder="РџРѕРёСЃРє"
+                placeholder="Поиск"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
               />
@@ -236,7 +246,7 @@ export default function Sidebar({
           <div className="sidebar__chats">
             {Object.keys(grouped).length === 0 ? (
               <div className="sidebar__empty">
-                {searchQuery ? 'РќРёС‡РµРіРѕ РЅРµ РЅР°Р№РґРµРЅРѕ' : 'РСЃС‚РѕСЂРёСЏ РїСѓСЃС‚Р°'}
+                {searchQuery ? 'Ничего не найдено' : 'История пуста'}
               </div>
             ) : (
               <div className="sidebar__chat-list">
@@ -270,7 +280,7 @@ export default function Sidebar({
                               <path d="M14 8a6 6 0 0 1-7.74 5.67L2 15l1.33-4.26A6 6 0 1 1 14 8z" />
                             </svg>
                             <div className="sidebar__chat-text">
-                              <span className="sidebar__chat-title">{session.title || 'РќРѕРІС‹Р№ С‡Р°С‚'}</span>
+                              <span className="sidebar__chat-title">{session.title || 'Новый чат'}</span>
                             </div>
                             <div
                               className={`sidebar__chat-hover-actions ${(hoveredId === session.id || session.id === currentSessionId || isMobile) ? 'sidebar__chat-hover-actions--visible' : ''}`}
@@ -278,7 +288,7 @@ export default function Sidebar({
                               <button
                                 className="sidebar__chat-action-btn"
                                 onClick={e => { e.stopPropagation(); startRename(session.id, session.title); }}
-                                title="РџРµСЂРµРёРјРµРЅРѕРІР°С‚СЊ"
+                                title="Переименовать"
                               >
                                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                                   <path d="M10.5 1.5a1.41 1.41 0 0 1 2 2L4 12l-2.5.5L2 10l8.5-8.5z" />
@@ -287,7 +297,7 @@ export default function Sidebar({
                               <button
                                 className="sidebar__chat-action-btn sidebar__chat-action-btn--danger"
                                 onClick={e => { e.stopPropagation(); onDeleteSession?.(session.id); }}
-                                title="РЈРґР°Р»РёС‚СЊ"
+                                title="Удалить"
                               >
                                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                                   <path d="M2 3.5h10" />
@@ -310,7 +320,7 @@ export default function Sidebar({
           <div className="sidebar__footer">
             {isLoggedIn && (
               <button className="sidebar__topup-btn" onClick={onOpenPricing}>
-                <span>пј‹</span> РџРѕРїРѕР»РЅРёС‚СЊ Р±Р°Р»Р°РЅСЃ
+                <span>＋</span> Пополнить баланс
               </button>
             )}
             {!isLoggedIn ? (
@@ -320,7 +330,7 @@ export default function Sidebar({
                   <path d="M10 9H2" />
                   <path d="M6 5l-4 4 4 4" />
                 </svg>
-                Р’РѕР№С‚Рё
+                Войти
               </button>
             ) : (
               <div className="sidebar__user-row" ref={rowRef} onClick={() => setUserMenuOpen(prev => !prev)}>
@@ -333,10 +343,10 @@ export default function Sidebar({
                   )}
                 </div>
                 <div className="sidebar__user-info">
-                  <span className="sidebar__user-name">{userName || 'РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ'}</span>
+                  <span className="sidebar__user-name">{userName || 'Пользователь'}</span>
                   {userCredits !== undefined && (
                     <span className="sidebar__user-credits">
-                      {userCredits.toLocaleString('ru-RU')} РєСЂРµРґРёС‚РѕРІ
+                      {userCredits.toLocaleString('ru-RU')} кредитов
                     </span>
                   )}
                 </div>
@@ -348,7 +358,7 @@ export default function Sidebar({
                         <path d="M8 4.5v3" />
                         <path d="M8 11v.01" />
                       </svg>
-                      РўР°СЂРёС„С‹
+                      Тарифы
                     </button>
                     <button className="sidebar__user-menu-item" onClick={(e) => { e.stopPropagation(); onOpenPromo(); setUserMenuOpen(false); }}>
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -357,14 +367,14 @@ export default function Sidebar({
                         <path d="M8 9v3" />
                         <path d="M6.5 10.5h3" />
                       </svg>
-                      РџСЂРѕРјРѕРєРѕРґ
+                      Промокод
                     </button>
                     <button className="sidebar__user-menu-item" onClick={(e) => { e.stopPropagation(); onOpenSupport(); setUserMenuOpen(false); }}>
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="8" cy="8" r="6" />
                         <path d="M8 11V8M8 5.5v.01" />
                       </svg>
-                      РўРµС…РїРѕРґРґРµСЂР¶РєР°
+                      Техподдержка
                     </button>
                     <button className="sidebar__user-menu-item sidebar__user-menu-item--danger" onClick={(e) => { e.stopPropagation(); onLogout(); setUserMenuOpen(false); }}>
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -372,7 +382,7 @@ export default function Sidebar({
                         <path d="M11 10l3-3-3-3" />
                         <path d="M14 7H6" />
                       </svg>
-                      Р’С‹Р№С‚Рё
+                      Выйти
                     </button>
                   </div>
                 )}
@@ -383,14 +393,14 @@ export default function Sidebar({
       ) : (
         /* Collapsed sidebar */
         <div className="sidebar__collapsed">
-          <button className="sidebar__collapsed-icon" onClick={onToggle} aria-label="РћС‚РєСЂС‹С‚СЊ РјРµРЅСЋ" title="РњРµРЅСЋ">
+          <button className="sidebar__collapsed-icon" onClick={onToggle} aria-label="Открыть меню" title="Меню">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
               <line x1="3" y1="6" x2="21" y2="6" />
               <line x1="3" y1="12" x2="21" y2="12" />
               <line x1="3" y1="18" x2="21" y2="18" />
             </svg>
           </button>
-          <button className="sidebar__collapsed-icon" onClick={onNewChat} aria-label="РќРѕРІС‹Р№ С‡Р°С‚" title="РќРѕРІС‹Р№ С‡Р°С‚">
+          <button className="sidebar__collapsed-icon" onClick={onNewChat} aria-label="Новый чат" title="Новый чат">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
@@ -398,12 +408,15 @@ export default function Sidebar({
           </button>
           <div className="sidebar__collapsed-spacer" />
           {isLoggedIn && (
-            <button className="sidebar__collapsed-icon sidebar__collapsed-icon--topup" onClick={onOpenPricing} aria-label="РџРѕРїРѕР»РЅРёС‚СЊ Р±Р°Р»Р°РЅСЃ" title="РџРѕРїРѕР»РЅРёС‚СЊ Р±Р°Р»Р°РЅСЃ">
-              <span>пј‹</span>
+            <button className="sidebar__collapsed-icon sidebar__collapsed-icon--topup" onClick={onOpenPricing} aria-label="Пополнить баланс" title="Пополнить баланс">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="8.5" />
+                <path d="M12 8v8M8 12h8" />
+              </svg>
             </button>
           )}
           {!isLoggedIn && (
-            <button className="sidebar__collapsed-icon" onClick={onOpenAuth} aria-label="Р’РѕР№С‚Рё" title="Р’РѕР№С‚Рё">
+            <button className="sidebar__collapsed-icon" onClick={onOpenAuth} aria-label="Войти" title="Войти">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
                 <polyline points="10 17 15 12 10 7" />
@@ -416,4 +429,3 @@ export default function Sidebar({
     </aside>
   );
 }
-

@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# RAP: новый метод сжатия KV-кэша для LLM с сохранением точности
+
 
 **Кратко:** Исследователи представили RoPE-Aligned Pruning (RAP) — метод сжатия ключ-значение (KV) кэша в больших языковых моделях (LLM), который сохраняет точность даже при 30% сжатии. RAP удаляет не отдельные каналы, а целые пары размерностей, что учитывает особенности позиционного кодирования RoPE.
 

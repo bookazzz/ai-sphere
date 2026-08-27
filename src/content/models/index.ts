@@ -236,3 +236,7 @@ export function getModelHub(slug: string): ModelHubData | null {
 export function getAllModelHubSlugs(): string[] {
   return Object.keys(models);
 }
+
+export function getAllModelHubs(): ModelHubData[] {
+  return Object.values(models);
+}

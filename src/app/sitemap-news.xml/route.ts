@@ -5,7 +5,7 @@ import { site } from '@/config/site';
 export const dynamic = 'force-static';
 
 export async function GET() {
-  const articles = getAllNews('ready');
+  const articles = getAllNews('ready').filter(a => a.index !== false);
   const now = new Date();
   const cutoff = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
 
@@ -17,7 +17,7 @@ export async function GET() {
 
   const urls = recentArticles.map(a => `
   <url>
-    <loc>${site.url}${a.url}</loc>
+    <loc>${site.url}${a.url}/</loc>
     <news:news>
       <news:publication>
         <news:name>AI-Sphere</news:name>

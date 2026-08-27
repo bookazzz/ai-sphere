@@ -20,7 +20,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# LayerRAG-Bench: Новый бенчмарк для оценки надёжности агентных RAG-систем
+
 
 **Кратко:** Исследователи представили LayerRAG-Bench — контролируемый бенчмарк для оценки надёжности агентных систем с дополненной генерацией (RAG) на восьми корпоративных доменах. Тесты на девяти моделях от OpenAI, Anthropic и Gemini показали, что нормализация схем эффективно устраняет дрейф схем, но не решает проблемы устаревших данных, отсутствующих результатов инструментов, запрещённых разрешений и неверного контекста сессии.
 

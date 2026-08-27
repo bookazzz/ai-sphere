@@ -11,8 +11,8 @@ relatedCompanies: ["meta", "deepseek", "mistral-ai"]
 relatedPages: ["sravneniya-nejrosetej", "ceny-na-nejroseti"]
 sourceUrls: ["https://the-decoder.com/open-source-vs-closed-source-ai-economy/", "https://venturebeat.com/ai/open-source-ai-economics/"]
 primarySourceUrl: "https://the-decoder.com/open-source-vs-closed-source-ai-economy/"
-status: "ready"
-index: true
+status: "blocked"
+index: false
 ---
 Китайская DeepSeek выпустила открытую модель, которая по ключевым метрикам сопоставима с лучшими закрытыми аналогами. Это ставит вопрос: что выгоднее — платить за API или разворачивать open-source модель самостоятельно?
 

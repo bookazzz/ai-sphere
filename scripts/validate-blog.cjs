@@ -11,7 +11,7 @@ const fs = require('fs');
 const path = require('path');
 
 const BLOG_DIR = path.join(__dirname, '..', 'src', 'content', 'blog');
-const CATEGORIES = ['news', 'guides', 'reviews', 'analysis', 'cases'];
+const CATEGORIES = ['guides', 'reviews', 'analysis', 'cases'];
 const REQUIRED_FIELDS = ['title', 'slug', 'category', 'description', 'date', 'author', 'status'];
 const VALID_STATUSES = ['draft', 'review', 'ready'];
 
@@ -36,6 +36,7 @@ function validateMdFile(filePath) {
   }
 
   const fm = fmMatch[1];
+  const body = content.slice(fmMatch[0].length);
   const data = {};
 
   for (const field of REQUIRED_FIELDS) {
@@ -62,6 +63,22 @@ function validateMdFile(filePath) {
   const index = extractField(fm, 'index');
   if (index && index !== 'true' && index !== 'false') {
     console.error(`❌ ${filePath}: "index" должен быть true или false`);
+    errors++;
+  }
+
+  const date = extractField(fm, 'date');
+  if (date && Number.isNaN(Date.parse(date))) {
+    console.error(`❌ ${filePath}: date must be ISO-8601`);
+    errors++;
+  }
+
+  const filename = path.basename(filePath, '.md');
+  if (data.slug && filename !== data.slug) {
+    console.error(`❌ ${filePath}: filename must match slug "${data.slug}"`);
+    errors++;
+  }
+  if (/^#\s+/m.test(body)) {
+    console.error(`❌ ${filePath}: Markdown H1 is forbidden; the page template renders H1`);
     errors++;
   }
 

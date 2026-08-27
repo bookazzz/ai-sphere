@@ -36,4 +36,3 @@ class GenerationJob(Base):
     is_public: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
     allow_prompt: Mapped[bool] = mapped_column(Boolean, default=False)
     share_slug: Mapped[str | None] = mapped_column(String(64), unique=True, index=True, default=None)
-

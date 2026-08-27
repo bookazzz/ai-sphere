@@ -20,7 +20,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# ScoreShield: как защитить similarity scores от утечки данных с помощью дифференциальной приватности
+
 
 **Кратко:** Исследователи предложили механизм ScoreShield, который добавляет калиброванный гауссов шум к similarity scores, а затем проецирует результат на множество допустимых косинусных объектов. Это позволяет сохранять приватность при минимальных потерях полезности, что критично для RAG, биометрии и других систем, использующих косинусное сходство.
 

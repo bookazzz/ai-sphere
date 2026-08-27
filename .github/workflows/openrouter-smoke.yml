@@ -1,0 +1,26 @@
+name: OpenRouter staging smoke
+
+on:
+  workflow_dispatch:
+
+jobs:
+  paid-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      AISPHERE_OPENROUTER_SMOKE: "true"
+      AISPHERE_OPENROUTER_API_KEY: ${{ secrets.AISPHERE_OPENROUTER_API_KEY }}
+      AISPHERE_OPENROUTER_SMOKE_MAX_USD: "2"
+      AISPHERE_ENVIRONMENT: development
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Run one budget-checked text, image and video request
+        run: python -m app.cli.openrouter_smoke

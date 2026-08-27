@@ -20,7 +20,7 @@ export default function DocumentsSection({ onSelect }: Props) {
       <div className="documents__grid anim-stagger">
         {cards.map((card, i) => (
           <button key={i} className="documents__card" onClick={() => onSelect(card.prompt)}>
-            <span className="documents__card-icon">{card.icon}</span>
+            <span className="documents__card-icon" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
             <div className="documents__card-title">{card.title}</div>
             <div className="documents__card-desc">{card.desc}</div>
           </button>

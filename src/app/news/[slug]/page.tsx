@@ -5,9 +5,10 @@ import Footer from '@/components/Footer';
 import { getNewsArticle, getAllNewsSlugs } from '@/lib/news/get-news';
 import { site } from '@/config/site';
 import { NEWS_CATEGORY_LABELS } from '@/types/news';
-import { getModelLink, getCompanyLink, getPageLink, getNewsCategoryLink } from '@/lib/entity-links';
+import { getModelLink, getCompanyLink, getPageLink } from '@/lib/entity-links';
 import Link from 'next/link';
 import MarkdownRenderer from '@/components/blog/MarkdownRenderer';
+import { absoluteUrl, schemaAuthor, seoDescription, seoTitle } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -22,25 +23,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = getNewsArticle(slug);
   if (!article || article.status !== 'ready') return {};
 
-  const canonical = article.canonical || `${site.url}${article.url}`;
+  const canonical = absoluteUrl(article.canonical || article.url);
+  const description = seoDescription(article.description);
 
   return {
-    title: `${article.title} | AI-Sphere`,
-    description: article.description,
+    title: seoTitle(article.seoTitle || article.title),
+    description,
     robots: {
       index: article.index,
       follow: true,
       'max-image-preview': 'large' as const,
     },
-    alternates: { canonical: canonical.endsWith('/') ? canonical : `${canonical}/` },
+    alternates: { canonical },
     openGraph: {
       title: article.title,
-      description: article.description,
+      description,
       url: canonical,
       siteName: 'AI-Sphere',
       locale: 'ru_RU',
       type: 'article',
-      ...(article.image && { images: [{ url: article.image }] }),
+      images: [{ url: article.image || site.ogImage, alt: article.imageAlt || article.title }],
       ...(article.datePublished && {
         article: {
           publishedTime: new Date(article.datePublished).toISOString(),
@@ -69,9 +71,8 @@ export default async function NewsArticlePage({ params }: Props) {
   const article = getNewsArticle(slug);
   if (!article || article.status !== 'ready') notFound();
 
-  const canonical = article.canonical || `${site.url}${article.url}`;
-  const articleUrl = canonical.endsWith('/') ? canonical : `${canonical}/`;
-  const images = article.image ? [article.image] : [`${site.url}/og-image.png`];
+  const articleUrl = absoluteUrl(article.canonical || article.url);
+  const images = article.image ? [article.image] : [site.ogImage];
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
@@ -87,13 +88,10 @@ export default async function NewsArticlePage({ params }: Props) {
     ...(article.dateModified && {
       dateModified: new Date(article.dateModified).toISOString(),
     }),
-    author: {
-      '@type': 'Person',
-      name: article.author,
-      url: `${site.url}/authors/${article.author.toLowerCase().replace(/\s+/g, '-')}/`,
-    },
+    author: schemaAuthor(article.author),
     publisher: {
       '@type': 'Organization',
+      '@id': `${site.url}/#organization`,
       name: 'AI-Sphere',
       logo: {
         '@type': 'ImageObject',

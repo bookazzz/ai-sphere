@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# AgentMemBench: Новый бенчмарк для оценки долговременной памяти AI-агентов
+
 
 **Кратко:** Исследователи представили AgentMemBench — единый воспроизводимый бенчмарк для оценки пяти стратегий управления долговременной памятью в диалоговых AI-агентах. Тестирование показало, что внешнее ключ-значение хранилище (EKV) превосходит все остальные подходы по всем показателям качества.
 

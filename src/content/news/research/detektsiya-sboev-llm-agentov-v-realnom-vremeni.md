@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Детекция сбоев LLM-агентов в реальном времени: метод на основе телеметрии шагов
+
 
 **Кратко:** LLM-агенты часто дают сбои — зацикливаются, ошибаются в инструментах, уходят от цели или фабрикуют результаты. Стандартное решение (проверка каждого шага вторым LLM) дорого. Исследователи показали, что дешевые мониторы, анализирующие только телеметрию шагов, могут обнаруживать 71% сбоев при 5% ложных тревог.
 

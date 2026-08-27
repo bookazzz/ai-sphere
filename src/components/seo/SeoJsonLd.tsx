@@ -1,5 +1,6 @@
 import { SeoPageContent } from '@/types/seo-page';
 import { site } from '@/config/site';
+import { absoluteUrl, schemaAuthor } from '@/lib/seo';
 
 interface Props {
   content: SeoPageContent;
@@ -13,7 +14,15 @@ interface Props {
 function getPageType(content: SeoPageContent): string {
   // Явное переопределение на уровне страницы
   if (content.schemaType) {
-    return content.schemaType;
+    const aliases: Record<string, string> = {
+      webPage: 'WebPage',
+      article: 'Article',
+      softwareApplication: 'SoftwareApplication',
+      product: 'Product',
+      report: 'Report',
+      howTo: 'HowTo',
+    };
+    return aliases[content.schemaType] || content.schemaType;
   }
 
   // Fallback по типу страницы
@@ -33,55 +42,60 @@ function getPageType(content: SeoPageContent): string {
 }
 
 export default function SeoJsonLd({ content }: Props) {
-  const url = `${site.url}/${content.slug}`;
+  const url = absoluteUrl(content.canonical || `/${content.slug}`);
   const graph: Record<string, any>[] = [];
 
   // Основной тип страницы
   const pageType = getPageType(content);
+  const headline = content.h1 || content.hero?.title || content.title;
   const mainEntity: Record<string, any> = {
     '@type': pageType,
-    headline: content.h1 || content.hero?.title || content.title,
-    description: content.description,
+    '@id': `${url}#main`,
+    name: headline,
+    description: content.metaDescription || content.description,
     url,
-    publisher: { '@type': 'Organization', name: 'AI-Sphere' },
+    inLanguage: 'ru-RU',
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
   };
 
-  // if pageType is Article — добавляем author
-  if (pageType === 'Article') {
-    mainEntity.author = { '@type': 'Organization', name: 'AI-Sphere' };
+  if (['Article', 'Report'].includes(pageType)) {
+    mainEntity.headline = headline;
+    mainEntity.author = schemaAuthor(content.author);
+    mainEntity.publisher = { '@id': `${site.url}/#organization` };
+    mainEntity.image = content.image || site.ogImage;
   }
 
   // Даты
-  if (content.updatedAt) {
-    mainEntity.datePublished = content.updatedAt;
-    mainEntity.dateModified = content.updatedAt;
-  } else if (content.datePublished) {
+  if (content.datePublished) {
     mainEntity.datePublished = content.datePublished;
     mainEntity.dateModified = content.dateModified || content.datePublished;
   }
+  if (content.updatedAt) mainEntity.dateModified = content.updatedAt;
 
-  // For softwareApplication — добавляем offers, applicationCategory, operatingSystem
   if (pageType === 'SoftwareApplication') {
-    mainEntity.applicationCategory = 'AIApplication';
-    mainEntity.operatingSystem = 'All';
-    mainEntity.offers = {
-      '@type': 'Offer',
-      price: '99',
-      priceCurrency: 'RUB',
-      availability: 'https://schema.org/InStock',
-    };
+    mainEntity.applicationCategory = 'BusinessApplication';
+    mainEntity.operatingSystem = 'Any';
+    mainEntity.publisher = { '@id': `${site.url}/#organization` };
   }
 
   graph.push(mainEntity);
 
   // BreadcrumbList
+  const breadcrumbItems = content.breadcrumbs?.length
+    ? content.breadcrumbs.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.title,
+        item: absoluteUrl(item.url),
+      }))
+    : [
+        { '@type': 'ListItem', position: 1, name: 'Главная', item: `${site.url}/` },
+        { '@type': 'ListItem', position: 2, name: headline, item: url },
+      ];
+
   graph.push({
     '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Главная', item: site.url },
-      { '@type': 'ListItem', position: 2, name: content.hero?.title || content.title, item: url },
-    ],
+    itemListElement: breadcrumbItems,
   });
 
   // FAQPage — только если есть вопросы

@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# NINJA: Новый метод jailbreak-атак на длинноконтекстные языковые модели
+
 
 **Кратко:** Исследователи представили метод NINJA (Needle-in-haystack jailbreak attack), который использует длинный контекст для обхода защиты языковых моделей. Атака показала высокую эффективность на HarmBench, обходя защиту LLaMA, Qwen, Mistral и Gemini.
 

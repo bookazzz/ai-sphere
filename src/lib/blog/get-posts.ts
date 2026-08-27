@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import type { BlogCategory, BlogPost, BlogPostMeta } from '@/types/blog-post';
+import { stripMarkdownH1 } from '@/lib/seo';
 
 const BLOG_DIR = path.join(process.cwd(), 'src', 'content', 'blog');
 
@@ -12,6 +13,12 @@ function estimateReadingTime(content: string): number {
   const chars = content.replace(/\s+/g, ' ').trim().length;
   // Russian: ~10 chars/second, ~600 chars/min reading
   return Math.max(1, Math.round(chars / 600));
+}
+
+function normalizeDate(value: unknown): string {
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value !== 'string' || !value.trim()) return '';
+  return Number.isNaN(new Date(value).getTime()) ? '' : value;
 }
 
 /** Parse one .md file into a BlogPost */
@@ -27,10 +34,12 @@ function parseMdFile(filePath: string, category: BlogCategory): BlogPost | null 
 
   return {
     title: meta.title || slug,
+    seoTitle: meta.seoTitle,
+    h1: meta.h1,
     slug,
     category,
     description: meta.description || '',
-    date: meta.date || '',
+    date: normalizeDate(data.date),
     updatedAt: meta.updatedAt,
     verifiedAt: meta.verifiedAt,
     author: meta.author || 'AI-Sphere',
@@ -42,8 +51,12 @@ function parseMdFile(filePath: string, category: BlogCategory): BlogPost | null 
     relatedSeoPages: meta.relatedSeoPages || [],
     relatedPosts: meta.relatedPosts || [],
     sourceUrls: meta.sourceUrls || [],
+    primaryKeyword: meta.primaryKeyword,
+    secondaryKeywords: meta.secondaryKeywords || [],
+    searchIntent: meta.searchIntent,
+    imageAlt: meta.imageAlt,
     url: `/blog/${category}/${slug}`,
-    content,
+    content: stripMarkdownH1(content),
     readingTime: estimateReadingTime(content),
   };
 }
@@ -85,17 +98,17 @@ export function getBlogPost(category: string, slug: string): BlogPost | null {
 
 /** Get posts by category */
 export function getBlogPostsByCategory(category: BlogCategory | string): BlogPost[] {
-  return getAllBlogPosts().filter(p => p.category === category);
+  return getAllBlogPosts('ready').filter(p => p.category === category);
 }
 
 /** Get all slugs for generateStaticParams */
 export function getAllBlogSlugs(): { category: string; slug: string }[] {
-  return getAllBlogPosts().map(p => ({ category: p.category, slug: p.slug }));
+  return getAllBlogPosts('ready').map(p => ({ category: p.category, slug: p.slug }));
 }
 
 /** Get all categories that have published posts */
 export function getActiveCategories(): BlogCategory[] {
-  const posts = getAllBlogPosts();
+  const posts = getAllBlogPosts('ready');
   return CATEGORIES.filter(c => posts.some(p => p.category === c));
 }
 

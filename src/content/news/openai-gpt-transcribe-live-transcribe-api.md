@@ -17,7 +17,6 @@ schema_version: "3.2"
 status: "draft"
 index: true
 ---
-# OpenAI выпустила GPT Transcribe и GPT Live Transcribe через API
 
 **Кратко:** OpenAI выпустила GPT Transcribe и GPT Live Transcribe — две новые модели распознавания речи. Они доступны через API компании.
 

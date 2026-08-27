@@ -3,3 +3,4 @@ Allow: /
 Disallow: /api/
 
 Sitemap: https://ai-sphere.ru/sitemap.xml
+Sitemap: https://ai-sphere.ru/sitemap-news.xml

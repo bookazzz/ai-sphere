@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Исследователи выявили наследуемость правдивости в модельных семействах LLM и MLLM
+
 
 **Кратко:** Ученые обнаружили, что способность больших языковых моделей (LLM) и мультимодальных LLM (MLLM) давать контекстно-правдивые ответы сохраняется внутри модельных семейств, даже после дообучения. На основе этого открытия разработан метод TruthProbe, который выборочно усиливает работу «правдивых» голов внимания.
 

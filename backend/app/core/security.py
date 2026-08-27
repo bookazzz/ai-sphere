@@ -3,20 +3,36 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
+import bcrypt
 from jose import jwt, JWTError
-from passlib.context import CryptContext
+from pwdlib import PasswordHash
 
 from app.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+password_hash = PasswordHash.recommended()
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return password_hash.hash(password)
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return pwd_context.verify(plain, hashed)
+    if hashed.startswith(("$2a$", "$2b$", "$2y$")):
+        try:
+            return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
+        except (ValueError, TypeError):
+            return False
+    try:
+        return password_hash.verify(plain, hashed)
+    except Exception:
+        return False
+
+
+def password_needs_rehash(hashed: str) -> bool:
+    # pwdlib 0.2 exposes verify_and_update rather than needs_rehash. Existing
+    # Argon2id hashes already use the configured hasher; bcrypt and unknown
+    # legacy formats are upgraded after a successful login.
+    return not hashed.startswith("$argon2")
 
 
 def create_access_token(user_id: int, email: str) -> str:
@@ -26,11 +42,11 @@ def create_access_token(user_id: int, email: str) -> str:
         "email": email,
         "exp": expire,
     }
-    return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
+    return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
 def decode_access_token(token: str) -> Optional[dict]:
     try:
-        return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+        return jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
     except JWTError:
         return None

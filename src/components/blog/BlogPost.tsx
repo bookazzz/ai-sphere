@@ -8,7 +8,8 @@ interface Props {
 }
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00');
+  const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(dateStr) ? `${dateStr}T00:00:00` : dateStr);
+  if (Number.isNaN(d.getTime())) return 'Дата уточняется';
   return d.toLocaleDateString('ru-RU', {
     year: 'numeric',
     month: 'long',
@@ -74,7 +75,7 @@ export default function BlogPost({ post }: Props) {
           color: '#000',
         }}
       >
-        {post.title}
+        {post.h1 || post.title}
       </h1>
 
       {/* Метаинформация */}

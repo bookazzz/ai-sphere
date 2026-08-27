@@ -7,7 +7,7 @@ author: "AI-Sphere"
 category: "guides"
 tags: ["chatgpt-openai", "chatgpt", "gpt-4o", "openai"]
 status: "ready"
-index: true
+index: false
 ---
 
 ## Что такое ChatGPT и какие модели OpenAI доступны в 2026 году

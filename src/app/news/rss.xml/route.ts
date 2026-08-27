@@ -5,13 +5,13 @@ import { site } from '@/config/site';
 export const dynamic = 'force-static';
 
 export async function GET() {
-  const articles = getAllNews('ready');
+  const articles = getAllNews('ready').filter(a => a.index !== false);
 
   const items = articles.map(a => `
     <item>
       <title><![CDATA[${a.title}]]></title>
-      <link>${site.url}/news/${a.slug}</link>
-      <guid isPermaLink="true">${site.url}/news/${a.slug}</guid>
+      <link>${site.url}/news/${a.slug}/</link>
+      <guid isPermaLink="true">${site.url}/news/${a.slug}/</guid>
       <pubDate>${new Date(a.datePublished).toUTCString()}</pubDate>
       <description><![CDATA[${a.description}]]></description>
       <category>${a.category}</category>

@@ -9,6 +9,7 @@
 @import 'blocks/footer.css';
 @import 'blocks/chat.css';
 @import 'blocks/sidebar.css';
+@import 'blocks/growth.css';
 @import 'blocks/auth-modal.css';
 @import 'blocks/pricing-modal.css';
 @import 'blocks/file-support.css';
@@ -23,6 +24,8 @@
 @import 'blocks/pricing.css';
 @import 'blocks/models.css';
 @import 'blocks/models-grid.css';
+@import 'blocks/task-hub.css';
+@import 'blocks/workspace.css';
 @import 'blocks/model.css';
 @import 'blocks/faq.css';
 @import 'blocks/security.css';
@@ -32,3 +35,6 @@
 @import 'blocks/seo.css';
 @import 'blocks/admin.css';
 @import 'blocks/animations.css';
+/* Final hybrid studio visual layer. Keep this import last so legacy blocks
+   remain behaviour-compatible while the new token system wins visually. */
+@import 'blocks/redesign.css';

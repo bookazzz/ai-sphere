@@ -9,7 +9,7 @@
   --color-border-light: #f0f1f5;
   --color-text-primary: #1a1d29;
   --color-text-secondary: #6b7085;
-  --color-text-tertiary: #9ca0ae;
+  --color-text-tertiary: #5f657a;
   --color-text-inverse: #ffffff;
   --color-accent: #7c3aed;
   --color-accent-hover: #6d28d9;
@@ -41,7 +41,7 @@
 
   /* Admin dark theme override */
   /* .admin-layout / .admin — тёмная тема для панели управления */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family: var(--font-manrope), 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --sidebar-width: 300px;
   --transition-fast: 0.15s ease;
   --transition-base: 0.25s ease;
@@ -58,7 +58,7 @@
   --bg-secondary: #1a1a25;
   --text-primary: #e8e8ed;
   --text-secondary: #8e8e9a;
-  --text-tertiary: #6b7085;
+  --text-tertiary: #a4a7b2;
   --border-color: #2a2a35;
   --accent: #6c5ce7;
   --accent-hover: #5a4bd1;

@@ -7,6 +7,7 @@ import BlogCategoryTabs from '@/components/blog/BlogCategoryTabs';
 import { getBlogPostsByCategory, getActiveCategories } from '@/lib/blog/get-posts';
 import { type BlogCategory, CATEGORY_LABELS, CATEGORY_DESCRIPTIONS } from '@/types/blog-post';
 import { site } from '@/config/site';
+import { seoDescription, seoTitle } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ category: string }>;
@@ -25,13 +26,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = CATEGORY_DESCRIPTIONS[category as BlogCategory];
 
   return {
-    title: `${label} — блог AI-Sphere | Новости, гайды, обзоры нейросетей`,
-    description,
-    robots: { index: true, follow: true },
-    alternates: { canonical: `${site.url}/blog/${category}` },
+    title: seoTitle(`${label}: статьи о нейросетях`),
+    description: seoDescription(description),
+    robots: { index: true, follow: true, 'max-image-preview': 'large' },
+    alternates: { canonical: `${site.url}/blog/${category}/` },
     openGraph: {
       title: `${label} — блог AI-Sphere`,
-      description,
+      description: seoDescription(description),
+      url: `${site.url}/blog/${category}/`,
+      siteName: site.name,
+      locale: site.locale,
+      type: 'website',
     },
   };
 }

@@ -18,8 +18,6 @@ status: "ready"
 index: true
 ---
 
-# Amazon Bedrock AgentCore Payments стал общедоступен 18 августа 2026 года
-
 **Кратко:** 18 августа 2026 года Amazon сделал сервис Bedrock AgentCore Payments общедоступным (GA). Сервис предназначен для AI-платежей и теперь доступен для всех пользователей AWS.
 
 ## Что произошло

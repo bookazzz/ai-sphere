@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Latent Space Refusal Anchoring: механическое восстановление безопасности моделей без дообучения
+
 
 **Кратко:** Модели, обученные с инструкциями, часто отказывают на вредоносные запросы на английском, но выполняют те же запросы на йоруба, игбо, игала и хауса. Исследователи разработали Latent Space Refusal Anchoring (LSR-Anchoring) — метод, который извлекает направление отказа из английских промптов и закрепляет его в остаточном потоке на этапе инференса, не требуя дообучения или размеченных данных.
 

@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Новый бенчмарк ARB: как детекторы AI-текста проваливаются на переписанных текстах
+
 
 **Кратко:** Стандартные тесты детекторов AI-текста сравнивают человеческий текст с прямыми генерациями LLM. Новый бенчмарк ARB (Authorship-Rewriting Benchmark) показывает, что детекторы работают хуже, когда текст переписан нейросетью, и предлагает более реалистичный сценарий оценки.
 

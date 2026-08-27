@@ -44,7 +44,7 @@ def _set_oauth_state(response: Response, provider: str, state: str) -> None:
 def _check_oauth_state(request: Request, provider: str, state: str | None) -> None:
     expected = request.cookies.get(_state_cookie(provider))
     if not state or not expected or not secrets.compare_digest(state, expected):
-        raise HTTPException(400, "РќРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕРµ СЃРѕСЃС‚РѕСЏРЅРёРµ OAuth")
+        raise HTTPException(400, "Недействительное состояние OAuth")
 
 
 async def _existing_by_verified_email(db: AsyncSession, email: str) -> User | None:
@@ -74,7 +74,7 @@ async def get_me(user: User = Depends(get_current_user)):
 @router.get("/oauth/yandex")
 async def oauth_yandex():
     if not settings.yandex_client_id:
-        raise HTTPException(503, "РђРІС‚РѕСЂРёР·Р°С†РёСЏ РЇРЅРґРµРєСЃ РЅРµ РЅР°СЃС‚СЂРѕРµРЅР°")
+        raise HTTPException(503, "Авторизация Яндекс не настроена")
     state = secrets.token_urlsafe(32)
     url = "https://oauth.yandex.ru/authorize?" + urlencode({
         "response_type": "code", "client_id": settings.yandex_client_id,
@@ -99,13 +99,13 @@ async def oauth_yandex_callback(
         })
         if token_response.status_code != 200:
             logger.warning("Yandex token exchange failed status=%s", token_response.status_code)
-            raise HTTPException(400, "РћС€РёР±РєР° Р°РІС‚РѕСЂРёР·Р°С†РёРё РЇРЅРґРµРєСЃ")
+            raise HTTPException(400, "Ошибка авторизации Яндекс")
         profile_response = await client.get(
             "https://login.yandex.ru/info",
             headers={"Authorization": f"OAuth {token_response.json().get('access_token')}"},
         )
         if profile_response.status_code != 200:
-            raise HTTPException(400, "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЇРЅРґРµРєСЃ")
+            raise HTTPException(400, "Не удалось получить данные пользователя Яндекс")
         profile = profile_response.json()
     yandex_id = str(profile["id"])
     email = profile.get("default_email") or f"yandex_{yandex_id}@placeholder.local"
@@ -113,7 +113,7 @@ async def oauth_yandex_callback(
     user = user or await _existing_by_verified_email(db, email)
     if user:
         if user.yandex_id and user.yandex_id != yandex_id:
-            raise HTTPException(409, "Email СѓР¶Рµ СЃРІСЏР·Р°РЅ СЃ РґСЂСѓРіРёРј РЇРЅРґРµРєСЃ ID")
+            raise HTTPException(409, "Email уже связан с другим Яндекс ID")
         user.yandex_id = yandex_id
         user.name = user.name or profile.get("display_name") or profile.get("real_name")
     else:
@@ -130,7 +130,7 @@ async def oauth_yandex_callback(
 @router.get("/oauth/vk")
 async def oauth_vk():
     if not settings.vk_client_id:
-        raise HTTPException(503, "РђРІС‚РѕСЂРёР·Р°С†РёСЏ VK РЅРµ РЅР°СЃС‚СЂРѕРµРЅР°")
+        raise HTTPException(503, "Авторизация VK не настроена")
     state = secrets.token_urlsafe(32)
     url = "https://oauth.vk.com/authorize?" + urlencode({
         "response_type": "code", "client_id": settings.vk_client_id,
@@ -148,7 +148,7 @@ async def oauth_vk_callback(
 ):
     _check_oauth_state(request, "vk", state)
     if not code:
-        raise HTTPException(400, "РљРѕРґ Р°РІС‚РѕСЂРёР·Р°С†РёРё РЅРµ РїРѕР»СѓС‡РµРЅ")
+        raise HTTPException(400, "Код авторизации не получен")
     async with httpx.AsyncClient(timeout=15) as client:
         token_response = await client.get("https://oauth.vk.com/access_token", params={
             "client_id": settings.vk_client_id, "client_secret": settings.vk_client_secret,
@@ -157,14 +157,14 @@ async def oauth_vk_callback(
         token_data = token_response.json()
         if token_response.status_code != 200 or not token_data.get("access_token") or not token_data.get("user_id"):
             logger.warning("VK token exchange failed status=%s", token_response.status_code)
-            raise HTTPException(400, "РћС€РёР±РєР° Р°РІС‚РѕСЂРёР·Р°С†РёРё VK")
+            raise HTTPException(400, "Ошибка авторизации VK")
         vk_id = str(token_data["user_id"])
         profile_response = await client.get("https://api.vk.com/method/users.get", params={
             "access_token": token_data["access_token"], "user_ids": vk_id, "v": "5.131",
         })
         profiles = profile_response.json().get("response", [])
         if not profiles:
-            raise HTTPException(400, "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ РґР°РЅРЅС‹Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ VK")
+            raise HTTPException(400, "Не удалось получить данные пользователя VK")
         profile = profiles[0]
     email = token_data.get("email") or f"vk_{vk_id}@placeholder.local"
     name = f"{profile.get('first_name', '')} {profile.get('last_name', '')}".strip() or None
@@ -172,7 +172,7 @@ async def oauth_vk_callback(
     user = user or await _existing_by_verified_email(db, email)
     if user:
         if user.vk_id and user.vk_id != vk_id:
-            raise HTTPException(409, "Email СѓР¶Рµ СЃРІСЏР·Р°РЅ СЃ РґСЂСѓРіРёРј VK ID")
+            raise HTTPException(409, "Email уже связан с другим VK ID")
         user.vk_id = vk_id
         user.name = user.name or name
     else:
@@ -184,4 +184,3 @@ async def oauth_vk_callback(
     response.delete_cookie(_state_cookie("vk"), path="/api/auth/oauth")
     _set_auth_cookie(response, create_access_token(user.id, user.email))
     return response
-

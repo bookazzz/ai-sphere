@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# StraightDP: новый подход к дифференциальной приватности для rectified-flow трансформеров
+
 
 **Кратко:** Исследователи предложили StraightDP — метод дифференциальной приватности, учитывающий геометрию rectified-flow. На MNIST при ε=1 достигается точность 81% (FID 56) по сравнению с 21% у uniform DP-SGD. Основная идея: разделить бюджет приватности на две части — для моментов на шумовом конце и для DP-SGD на стороне данных.
 

@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Исследование выявило уязвимость в оценке точности объяснений нейросетей
+
 
 **Кратко:** Стандартный тест на точность объяснений нейросетей (реконструкция активаций) не чувствителен к отдельным ложным утверждениям. Исследователи показали, что объяснения могут проходить тест, не будучи фактически точными, и предложили новые протоколы аудита.
 

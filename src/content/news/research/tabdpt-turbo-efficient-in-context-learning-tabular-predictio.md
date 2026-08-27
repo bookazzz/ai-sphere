@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# TabDPT-Turbo: новая версия foundation-модели для табличных данных с ускорением в разы
+
 
 **Кратко:** Исследователи представили TabDPT-Turbo — новую версию foundation-модели для табличного прогнозирования. Модель использует row-based attention и длинный контекст, что позволило отказаться от ретривера и добиться сопоставимой с TabDPT v1.1 точности при скорости, превосходящей все ведущие foundation-модели.
 

@@ -46,7 +46,7 @@ async def enforce_free_program_budget(db: AsyncSession, user: User) -> None:
         return
     if await free_program_cost_today(db) >= settings.free_daily_cost_budget_usd:
         from fastapi import HTTPException
-        raise HTTPException(429, "Р”РЅРµРІРЅРѕР№ Р»РёРјРёС‚ Р±РµСЃРїР»Р°С‚РЅС‹С… РіРµРЅРµСЂР°С†РёР№ РёСЃС‡РµСЂРїР°РЅ")
+        raise HTTPException(429, "Дневной лимит бесплатных генераций исчерпан")
 
 
 @dataclass(frozen=True)
@@ -89,7 +89,7 @@ async def pricing_context(db: AsyncSession) -> PricingContext:
         credit_rub, plan = min(priced, key=lambda item: item[0])
         plan_id, plan_name = plan.id, plan.name
     else:
-        credit_rub, plan_id, plan_name = FALLBACK_CREDIT_RUB, None, "СЂРµР·РµСЂРІРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ"
+        credit_rub, plan_id, plan_name = FALLBACK_CREDIT_RUB, None, "резервное значение"
     return PricingContext(
         credit_rub=credit_rub,
         plan_id=plan_id,
@@ -265,4 +265,3 @@ def provider_cost_from_snapshot(
     if not candidates:
         return None
     return max(candidates) if conservative else min(candidates)
-

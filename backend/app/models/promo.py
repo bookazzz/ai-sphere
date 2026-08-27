@@ -29,4 +29,3 @@ class PromoRedemption(Base, TimestampMixin):
     promo_id: Mapped[int] = mapped_column(ForeignKey("promo_codes.id", ondelete="CASCADE"), index=True, nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
     credits: Mapped[int] = mapped_column(Integer, nullable=False)
-

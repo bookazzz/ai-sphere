@@ -40,16 +40,6 @@ function getCtaLink(content: SeoPageContent): string {
   return content.ctaLink || (content.hero ? '/' : '/');
 }
 
-/** Извлечь список связанных страниц */
-function getRelatedPages(content: SeoPageContent): Record<string, string> {
-  if (content.relatedPages) {
-    // Новый формат: string[] — slug → заголовок не знаем, отдаём как есть
-    // SeoRelated должен уметь принимать string[]
-    return {};
-  }
-  return content.related || {};
-}
-
 function getRelatedSlugs(content: SeoPageContent): string[] {
   if (content.relatedPages) {
     return content.relatedPages;
@@ -58,16 +48,8 @@ function getRelatedSlugs(content: SeoPageContent): string[] {
 }
 
 export default function SeoPage({ content }: Props) {
-  // Валидация (только в dev)
-  if (process.env.NODE_ENV === 'development') {
-    const missing = validateSections(content);
-    if (missing.length > 0) {
-      console.warn(
-        `⚠️ [SeoPage] "${content.slug}" (${content.type}) missing required sections:`,
-        missing.join(', ')
-      );
-    }
-  }
+  // Keep validation deterministic and side-effect free in the browser.
+  validateSections(content);
 
   // Hero-данные
   const hero = getHero(content);

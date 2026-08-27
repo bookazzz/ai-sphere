@@ -7,7 +7,7 @@ author: "AI-Sphere"
 category: "guides"
 tags: ["coding", "ai для кода", "нейросеть для программирования", "coding ai"]
 status: "ready"
-index: true
+index: false
 ---
 
 ## Как нейросеть для программирования меняет индустрию в 2026 году

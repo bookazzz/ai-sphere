@@ -6,6 +6,7 @@ import BlogPost from '@/components/blog/BlogPost';
 import { getBlogPost, getAllBlogSlugs } from '@/lib/blog/get-posts';
 import { CATEGORY_LABELS, getSchemaType } from '@/types/blog-post';
 import { site } from '@/config/site';
+import { absoluteUrl, schemaAuthor, seoDescription, seoTitle } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ category: string; slug: string }>;
@@ -20,27 +21,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = getBlogPost(category, slug);
   if (!post || post.status !== 'ready') return {};
 
-  const canonical = post.canonical || `${site.url}/blog/${category}/${slug}`;
-  const h1 = post.title;
+  const canonical = absoluteUrl(post.canonical || `/blog/${category}/${slug}`);
+  const h1 = post.h1 || post.title;
+  const description = seoDescription(post.description);
 
   return {
-    title: `${h1} | AI-Sphere`,
-    description: post.description,
+    title: seoTitle(post.seoTitle || post.title),
+    description,
     robots: {
       index: post.index,
       follow: true,
     },
     alternates: {
-      canonical: canonical.endsWith('/') ? canonical : `${canonical}/`,
+      canonical,
     },
     openGraph: {
       title: h1,
-      description: post.description,
+      description,
       url: canonical,
       siteName: 'AI-Sphere',
       locale: 'ru_RU',
       type: 'article',
-      ...(post.image && { images: [{ url: post.image }] }),
+      images: [{ url: post.image || site.ogImage, alt: post.imageAlt || h1 }],
       ...(post.date && {
         article: {
           publishedTime: new Date(post.date).toISOString(),
@@ -49,9 +51,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           }),
         },
       }),
-    },
-    other: {
-      'og:image': post.image || 'https://ai-sphere.ru/og-image.png',
     },
   };
 }
@@ -64,23 +63,23 @@ export default async function BlogPostPage({ params }: Props) {
   const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': getSchemaType(post.category),
-    headline: post.title,
+    headline: post.h1 || post.title,
     description: post.description,
-    author: {
-      '@type': 'Person',
-      name: post.author,
-    },
+    author: schemaAuthor(post.author),
     datePublished: post.date,
     ...(post.updatedAt && { dateModified: post.updatedAt }),
     publisher: {
       '@type': 'Organization',
+      '@id': `${site.url}/#organization`,
       name: 'AI-Sphere',
       url: site.url,
+      logo: { '@type': 'ImageObject', url: `${site.url}/logo.png` },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': post.canonical || `${site.url}/blog/${category}/${slug}`,
+      '@id': absoluteUrl(post.canonical || `/blog/${category}/${slug}`),
     },
+    image: post.image || site.ogImage,
   };
 
   const breadcrumbJsonLd = {

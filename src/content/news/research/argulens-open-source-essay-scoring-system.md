@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# ArguLens: открытая система для автоматической оценки эссе с обратной связью
+
 
 **Кратко:** Исследователи представили ArguLens — открытую, локально развертываемую систему для автоматической оценки эссе (AES). Система разбивает задачу на три независимых компонента: классификатор дискурсивных ходов, оценщик на основе LightGBM и генератор обратной связи с учетом меток, что обеспечивает интерпретируемость и снижает зависимость от закрытых API.
 

@@ -1,0 +1,21 @@
+{
+  "baselineDate": "2026-08-25",
+  "market": "ru-RU",
+  "clusters": [
+    { "query": "все нейросети в одном месте", "ws": 657, "wsk": 356, "url": "/", "intent": "commercial", "cta": "Выбрать задачу" },
+    { "query": "чат с нейросетью", "ws": 8522, "wsk": 711, "url": "/", "intent": "commercial", "cta": "Начать чат" },
+    { "query": "нейросеть онлайн", "ws": 409554, "wsk": 11440, "url": "/nejroset-online/", "intent": "commercial", "cta": "Попробовать нейросеть" },
+    { "query": "ии онлайн бесплатно", "ws": 231309, "wsk": 12706, "url": "/nejroset-online/", "intent": "commercial", "cta": "Проверить доступный лимит" },
+    { "query": "генерация изображений", "ws": 117054, "wsk": 40638, "url": "/generaciya-izobrazhenij/", "intent": "transactional", "cta": "Создать изображение" },
+    { "query": "нейросеть для текста", "ws": 117368, "wsk": 1834, "url": "/nejroset-dlya-teksta/", "intent": "commercial", "cta": "Создать текст" },
+    { "query": "нейросеть для видео", "ws": 51875, "wsk": 1488, "url": "/nejroset-video/", "intent": "transactional", "cta": "Создать видео" },
+    { "query": "нейросеть для презентаций", "ws": 125944, "wsk": 1686, "url": "/prezentaciya-nejroset/", "intent": "commercial", "cta": "Составить презентацию" },
+    { "query": "нейросеть переводчик", "ws": 3362, "wsk": 243, "url": "/nejroset-perevodchik/", "intent": "transactional", "cta": "Перевести текст" },
+    { "query": "нейросеть для кода", "ws": 4618, "wsk": 165, "url": "/nejroset-dlya-koda/", "intent": "commercial", "cta": "Решить задачу с кодом" },
+    { "query": "нейросеть для документов", "ws": 3550, "wsk": 106, "url": "/nejroset-dlya-dokumentov/", "intent": "commercial", "cta": "Разобрать документ" },
+    { "query": "chatgpt онлайн", "ws": 1697633, "wsk": 1251484, "url": "/chat-gpt-online/", "intent": "brand-commercial", "cta": "Открыть ChatGPT" }
+  ],
+  "exclusions": [
+    "вакансии", "работа", "скачать взлом", "реферат", "ответы на тест", "сфера деятельности", "онлайн онлайн"
+  ]
+}

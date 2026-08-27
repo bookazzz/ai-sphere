@@ -23,6 +23,7 @@ from app.api.generations import (
     _json,
     _quoted_credits,
     _supports,
+    _supports_preferences,
     _video_parameters,
 )
 from app.core.config import settings
@@ -60,10 +61,10 @@ TASK_TOKEN_PROFILES: dict[str, tuple[int, int]] = {
     "plan": (1000, 1200), "analyze_image": (1200, 900),
 }
 RECIPE_CATALOGUE = [
-    {"slug": "idea-to-image", "title": "РРґРµСЏ в†’ С‚РµРєСЃС‚ в†’ РёР·РѕР±СЂР°Р¶РµРЅРёРµ", "steps": ["brief", "text", "image"]},
-    {"slug": "document-to-slides", "title": "Р”РѕРєСѓРјРµРЅС‚ в†’ РІС‹Р¶РёРјРєР° в†’ РїР»Р°РЅ РїСЂРµР·РµРЅС‚Р°С†РёРё", "steps": ["document", "summary", "slides"]},
-    {"slug": "product-content-kit", "title": "РўРѕРІР°СЂ в†’ РѕРїРёСЃР°РЅРёРµ в†’ РїРѕСЃС‚ в†’ РёР·РѕР±СЂР°Р¶РµРЅРёРµ", "steps": ["product", "description", "post", "image"]},
-    {"slug": "image-to-video", "title": "РР·РѕР±СЂР°Р¶РµРЅРёРµ в†’ СЃС†РµРЅР°СЂРёР№ в†’ РІРёРґРµРѕ", "steps": ["image", "script", "video"]},
+    {"slug": "idea-to-image", "title": "Идея → текст → изображение", "steps": ["brief", "text", "image"]},
+    {"slug": "document-to-slides", "title": "Документ → выжимка → план презентации", "steps": ["document", "summary", "slides"]},
+    {"slug": "product-content-kit", "title": "Товар → описание → пост → изображение", "steps": ["product", "description", "post", "image"]},
+    {"slug": "image-to-video", "title": "Изображение → сценарий → видео", "steps": ["image", "script", "video"]},
 ]
 
 
@@ -124,7 +125,7 @@ class TemplatePayload(BaseModel):
     prompt_template: str = Field(min_length=1, max_length=20_000)
     example_input: str = Field(default="", max_length=2000)
     example_output: str = Field(default="", max_length=2000)
-    required_input: str = Field(default="РўРµРєСЃС‚ Р·Р°РїСЂРѕСЃР°", max_length=255)
+    required_input: str = Field(default="Текст запроса", max_length=255)
     preview_url: str = Field(default="", max_length=500)
     default_parameters: dict[str, Any] = {}
     preferred_model: str = Field(default="", max_length=200)
@@ -168,24 +169,34 @@ async def _text_model(db: AsyncSession, requested: str, template: TaskTemplate |
         if _supports(m, "text") and (not needs_image_input or "image" in _json(m.input_modalities, []))
     ]
     if not candidates:
-        raise HTTPException(503, "РЎРµР№С‡Р°СЃ РЅРµС‚ РґРѕСЃС‚СѓРїРЅРѕР№ С‚РµРєСЃС‚РѕРІРѕР№ РјРѕРґРµР»Рё")
+        raise HTTPException(503, "Сейчас нет доступной текстовой модели")
     by_id = {model.or_model_id: model for model in candidates}
     preferred = []
     if requested and requested != "auto":
         preferred.append(requested)
+    elif template and template.preferred_model:
+        preferred.append(template.preferred_model)
     input_tokens, output_tokens = TASK_TOKEN_PROFILES.get(
         template.task_type if template else "", (6000, 1000) if template and template.category == "document" else (1000, 1000),
     )
     candidates = [model for model in candidates if model.availability_status != "unavailable"]
+    # Auto-routing must never treat missing catalog prices as a free model.
+    # Explicit user selections may still be honored, but a scenario's
+    # preferred model is subject to the same pricing guardrail as auto mode.
+    if requested == "auto":
+        candidates = [model for model in candidates if (model.or_input_cost or 0) > 0 or (model.or_output_cost or 0) > 0 or (model.fixed_price or 0) > 0]
     candidates.sort(key=lambda model: (
         (input_tokens * max(0.0, model.or_input_cost or 0.0) + output_tokens * max(0.0, model.or_output_cost or 0.0)) / 1_000_000,
         model.sort_order, model.name,
     ))
     if not candidates:
-        raise HTTPException(503, "РЎРµР№С‡Р°СЃ РЅРµС‚ РґРѕСЃС‚СѓРїРЅРѕР№ С‚РµРєСЃС‚РѕРІРѕР№ РјРѕРґРµР»Рё")
+        raise HTTPException(503, "Сейчас нет доступной текстовой модели")
     by_id = {model.or_model_id: model for model in candidates}
     chosen = next((by_id[item] for item in preferred if item in by_id), candidates[0])
-    fallback = [model.or_model_id for model in candidates if model.id != chosen.id][:3]
+    configured_fallbacks = _json(template.fallback_models, []) if template else []
+    ordered = [by_id[item] for item in configured_fallbacks if item in by_id and by_id[item].id != chosen.id]
+    ordered.extend(model for model in candidates if model.id != chosen.id and model.id not in {item.id for item in ordered})
+    fallback = [model.or_model_id for model in ordered][:3]
     return chosen, fallback
 
 
@@ -194,10 +205,14 @@ async def resolve_task_model(db: AsyncSession, requested: str, task_type: str, t
     if kind == "text":
         model, fallback = await _text_model(db, requested, template)
         return model, fallback, kind
-    selected = requested if requested != "auto" else ""
+    selected = requested if requested != "auto" else (template.preferred_model if template and template.preferred_model else "")
     model = await _choose_model(db, selected, kind, preferences, allow_explicit_route=True)
     others = (await db.execute(select(AiModel).where(AiModel.is_active == True, AiModel.is_visible == True))).scalars().all()
-    fallback = [m.or_model_id for m in others if m.id != model.id and _supports(m, kind)][:3]
+    by_id = {m.or_model_id: m for m in others}
+    configured_fallbacks = _json(template.fallback_models, []) if template else []
+    fallback_models = [by_id[item] for item in configured_fallbacks if item in by_id and by_id[item].id != model.id and _supports(by_id[item], kind) and _supports_preferences(by_id[item], kind, preferences)]
+    fallback_models.extend(m for m in others if m.id != model.id and m.or_model_id not in {item.or_model_id for item in fallback_models} and _supports(m, kind) and _supports_preferences(m, kind, preferences))
+    fallback = [m.or_model_id for m in fallback_models][:3]
     return model, fallback, kind
 
 
@@ -223,7 +238,7 @@ async def popular_templates(limit: int = Query(12, ge=1, le=50), db: AsyncSessio
 async def estimate_task(payload: EstimateRequest, db: AsyncSession = Depends(get_db)):
     template = await db.get(TaskTemplate, payload.template_id) if payload.template_id else None
     if payload.template_id and (not template or not template.is_active):
-        raise HTTPException(404, "РЎС†РµРЅР°СЂРёР№ РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Сценарий не найден")
     preferences = {**(_json(template.default_parameters, {}) if template else {}), **payload.media_preferences}
     task_type = template.task_type if template else payload.task_type
     model, fallback, kind = await resolve_task_model(db, payload.model, task_type, template, preferences)
@@ -248,7 +263,7 @@ async def estimate_task(payload: EstimateRequest, db: AsyncSession = Depends(get
 
 async def _store_event(payload: EventRequest, user: User | None, db: AsyncSession) -> bool:
     if payload.event_name not in EVENT_NAMES:
-        raise HTTPException(400, "РќРµРёР·РІРµСЃС‚РЅРѕРµ СЃРѕР±С‹С‚РёРµ")
+        raise HTTPException(400, "Неизвестное событие")
     exists = (await db.execute(select(ProductEvent.id).where(ProductEvent.event_id == payload.event_id))).scalar_one_or_none()
     if exists:
         return False
@@ -327,7 +342,7 @@ async def library(kind: str = "all", favorite: bool = False, user: User = Depend
 async def update_library_item(job_id: str, payload: LibraryUpdate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     job = (await db.execute(select(GenerationJob).where(GenerationJob.id == job_id, GenerationJob.user_id == user.id))).scalar_one_or_none()
     if not job:
-        raise HTTPException(404, "Р Р°Р±РѕС‚Р° РЅРµ РЅР°Р№РґРµРЅР°")
+        raise HTTPException(404, "Работа не найдена")
     if payload.is_favorite is not None:
         job.is_favorite = payload.is_favorite
     if payload.is_public is not None:
@@ -344,7 +359,7 @@ async def reuse_library_item(item_id: str, user: User = Depends(get_current_user
     job = (await db.execute(select(GenerationJob).where(GenerationJob.id == item_id, GenerationJob.user_id == user.id))).scalar_one_or_none()
     session = None if job else (await db.execute(select(ChatSession).where(ChatSession.id == item_id, ChatSession.user_id == user.id))).scalar_one_or_none()
     if not job and not session:
-        raise HTTPException(404, "Р Р°Р±РѕС‚Р° РЅРµ РЅР°Р№РґРµРЅР°")
+        raise HTTPException(404, "Работа не найдена")
     from app.core.product_events import record_server_event
     await record_server_event(
         db, user, "result_reused", template_id=job.template_id if job else None,
@@ -359,7 +374,7 @@ async def reuse_library_item(item_id: str, user: User = Depends(get_current_user
 async def delete_library_item(job_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     job = (await db.execute(select(GenerationJob).where(GenerationJob.id == job_id, GenerationJob.user_id == user.id))).scalar_one_or_none()
     if not job:
-        raise HTTPException(404, "Р Р°Р±РѕС‚Р° РЅРµ РЅР°Р№РґРµРЅР°")
+        raise HTTPException(404, "Работа не найдена")
     root = settings.generations_dir.resolve()
     target = (root / job.id).resolve()
     if root in target.parents and target.exists():
@@ -391,12 +406,12 @@ async def public_gallery_asset(share_slug: str, asset_id: str, db: AsyncSession 
         GenerationJob.share_slug == share_slug, GenerationJob.is_public == True,
     ))).scalar_one_or_none()
     if not job:
-        raise HTTPException(404, "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Файл не найден")
     asset = next((item for item in _json(job.assets, []) if str(item.get("id")) == asset_id), None)
     root = settings.generations_dir.resolve()
     candidates = list((root / job.id).resolve().glob(f"{asset_id}.*"))
     if not asset or not candidates or root not in candidates[0].resolve().parents:
-        raise HTTPException(404, "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Файл не найден")
     return FileResponse(candidates[0], media_type=asset.get("media_type"))
 
 
@@ -439,7 +454,7 @@ async def public_projects(limit: int = Query(24, ge=1, le=100), db: AsyncSession
 @router.post("/projects")
 async def create_project(payload: ProjectCreate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if payload.recipe_slug not in {recipe["slug"] for recipe in RECIPE_CATALOGUE}:
-        raise HTTPException(400, "РќРµРёР·РІРµСЃС‚РЅС‹Р№ СЂРµС†РµРїС‚")
+        raise HTTPException(400, "Неизвестный рецепт")
     project = Project(id=str(uuid.uuid4()), user_id=user.id, name=payload.name, recipe_slug=payload.recipe_slug)
     db.add(project)
     await db.commit()
@@ -451,7 +466,7 @@ async def create_project(payload: ProjectCreate, user: User = Depends(get_curren
 async def update_project(project_id: str, payload: ProjectUpdate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     project = (await db.execute(select(Project).where(Project.id == project_id, Project.user_id == user.id))).scalar_one_or_none()
     if not project:
-        raise HTTPException(404, "РџСЂРѕРµРєС‚ РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Проект не найден")
     was_completed = project.status == "completed"
     changes = payload.model_dump(exclude_none=True)
     data = changes.pop("data", None)
@@ -478,7 +493,7 @@ async def update_project(project_id: str, payload: ProjectUpdate, user: User = D
 async def delete_project(project_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     project = (await db.execute(select(Project).where(Project.id == project_id, Project.user_id == user.id))).scalar_one_or_none()
     if not project:
-        raise HTTPException(404, "РџСЂРѕРµРєС‚ РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Проект не найден")
     await db.delete(project)
     await db.commit()
 
@@ -504,7 +519,7 @@ async def admin_templates(_=Depends(require_admin), db: AsyncSession = Depends(g
 @router.post("/admin/task-templates")
 async def create_template(payload: TemplatePayload, _=Depends(require_admin), db: AsyncSession = Depends(get_db)):
     if (await db.execute(select(TaskTemplate.id).where(TaskTemplate.slug == payload.slug))).scalar_one_or_none():
-        raise HTTPException(409, "РўР°РєРѕР№ slug СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚")
+        raise HTTPException(409, "Такой slug уже существует")
     data = payload.model_dump()
     data["default_parameters"] = json.dumps(data["default_parameters"], ensure_ascii=False)
     data["fallback_models"] = json.dumps(data["fallback_models"], ensure_ascii=False)
@@ -519,7 +534,7 @@ async def create_template(payload: TemplatePayload, _=Depends(require_admin), db
 async def update_template(template_id: int, payload: TemplatePayload, _=Depends(require_admin), db: AsyncSession = Depends(get_db)):
     template = await db.get(TaskTemplate, template_id)
     if not template:
-        raise HTTPException(404, "РЎС†РµРЅР°СЂРёР№ РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Сценарий не найден")
     data = payload.model_dump()
     data["default_parameters"] = json.dumps(data["default_parameters"], ensure_ascii=False)
     data["fallback_models"] = json.dumps(data["fallback_models"], ensure_ascii=False)
@@ -533,7 +548,7 @@ async def update_template(template_id: int, payload: TemplatePayload, _=Depends(
 async def delete_template(template_id: int, _=Depends(require_admin), db: AsyncSession = Depends(get_db)):
     template = await db.get(TaskTemplate, template_id)
     if not template:
-        raise HTTPException(404, "РЎС†РµРЅР°СЂРёР№ РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Сценарий не найден")
     template.is_active = False
     await db.commit()
 
@@ -556,4 +571,3 @@ async def integration_status(_=Depends(require_admin), db: AsyncSession = Depend
         "analytics": {"baseline": baseline.value if baseline else None, "enabled": settings.analytics_v2_enabled},
         "features": {"campaigns": settings.campaigns_enabled, "gamification": settings.gamification_enabled, "experiments": settings.experiments_enabled},
     }
-

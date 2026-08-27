@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Дрейф показателей доверия в открытых LLM: аудит Yi, Qwen, Mistral и Gemma
+
 
 **Кратко:** Исследователи провели аудит четырёх открытых линий чат-LLM (Yi, Qwen, Mistral, Gemma) и обнаружили, что показатели доверия (trust-benchmark scores) существенно различаются между последовательными чекпоинтами одной и той же линейки. Средний абсолютный дрейф показателей между соседними поколениями в несколько раз превышает нулевую гипотезу, основанную на независимости. Результат устойчив при различных проверках.
 

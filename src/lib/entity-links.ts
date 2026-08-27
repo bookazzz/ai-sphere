@@ -17,6 +17,8 @@ const COMPANY_LINKS: Record<string, EntityLink> = {
   'meta-ai': { label: 'Meta AI', href: '/company/meta-ai/', description: 'Meta AI — модели, продукты и новости' },
   mistral: { label: 'Mistral AI', href: '/company/mistral-ai/', description: 'Mistral AI — модели, продукты и новости' },
   xai: { label: 'xAI', href: '/company/xai/', description: 'xAI (Grok) — модели, продукты и новости' },
+  deepseek: { label: 'DeepSeek', href: '/company/deepseek/', description: 'DeepSeek — модели, возможности и новости' },
+  'mistral-ai': { label: 'Mistral AI', href: '/company/mistral-ai/', description: 'Mistral AI — модели, продукты и новости' },
   amazon: { label: 'Amazon', href: '/prices/#amazon', description: 'Модели Amazon Bedrock' },
   microsoft: { label: 'Microsoft', href: '/prices/#microsoft', description: 'Модели Microsoft Azure' },
   nvidia: { label: 'Nvidia', href: '/prices/#nvidia', description: 'Модели Nvidia' },
@@ -44,7 +46,7 @@ const MODEL_LINKS: Record<string, EntityLink> = {
 
 /** Категории для связанных страниц (ссылки на разные типы контента) */
 const PAGE_LINKS: Record<string, EntityLink> = {
-  'sravneniya-nejrosetej': { label: 'Сравнения нейросетей', href: '/comparisons/', description: 'Сравнение AI-моделей' },
+  'sravneniya-nejrosetej': { label: 'Сравнения нейросетей', href: '/rossijskie-nejroseti/', description: 'Сравнение AI-моделей' },
   'chat-nejroset': { label: 'Чат с нейросетью', href: '/', description: 'Задать вопрос любой нейросети' },
   'ceny-na-nejroseti': { label: 'Цены на нейросети', href: '/prices/', description: 'Стоимость API моделей' },
   'instrukcii-nejroseti': { label: 'Инструкции по нейросетям', href: '/blog/', description: 'Гайды и инструкции' },

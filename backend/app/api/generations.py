@@ -38,18 +38,18 @@ logger = logging.getLogger("ai-sphere.generations")
 router = APIRouter(tags=["generations"])
 
 IMAGE_COMMAND = re.compile(
-    r"(?:^|\b)(?:/image|СЃРіРµРЅРµСЂРёСЂ(?:СѓР№|РѕРІР°С‚СЊ)|СЃРѕР·РґР°(?:Р№|С‚СЊ)|РЅР°СЂРёСЃСѓ(?:Р№|Р№С‚Рµ)|generate|create|draw)"
-    r".{0,60}\b(?:РёР·РѕР±СЂР°Р¶РµРЅРё[РµСЏР№]?|РєР°СЂС‚РёРЅ(?:РєСѓ|РєРё|РєР°)|С„РѕС‚Рѕ|image|picture|photo)\b",
+    r"(?:^|\b)(?:/image|сгенерир(?:уй|овать)|созда(?:й|ть)|нарису(?:й|йте)|generate|create|draw)"
+    r".{0,60}\b(?:изображени[еяй]?|картин(?:ку|ки|ка)|фото|image|picture|photo)\b",
     re.IGNORECASE | re.DOTALL,
 )
 VIDEO_COMMAND = re.compile(
-    r"(?:^|\b)(?:/video|СЃРіРµРЅРµСЂРёСЂ(?:СѓР№|РѕРІР°С‚СЊ)|СЃРѕР·РґР°(?:Р№|С‚СЊ)|СЃРґРµР»Р°(?:Р№|С‚СЊ)|generate|create|make)"
-    r".{0,60}\b(?:РІРёРґРµРѕ|СЂРѕР»РёРє|РєР»РёРї|video|clip)\b",
+    r"(?:^|\b)(?:/video|сгенерир(?:уй|овать)|созда(?:й|ть)|сдела(?:й|ть)|generate|create|make)"
+    r".{0,60}\b(?:видео|ролик|клип|video|clip)\b",
     re.IGNORECASE | re.DOTALL,
 )
 EDUCATIONAL_QUERY = re.compile(
-    r"(?:СЂР°СЃСЃРєР°Р¶Рё|РѕР±СЉСЏСЃРЅРё|РєР°Рє\s+(?:РјРѕР¶РЅРѕ\s+)?(?:СЃРѕР·РґР°РІР°С‚СЊ|РіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ)|what\s+is|how\s+to)"
-    r".{0,80}(?:РёР·РѕР±СЂР°Р¶РµРЅРё|РєР°СЂС‚РёРЅ|РІРёРґРµРѕ|image|video)",
+    r"(?:расскажи|объясни|как\s+(?:можно\s+)?(?:создавать|генерировать)|what\s+is|how\s+to)"
+    r".{0,80}(?:изображени|картин|видео|image|video)",
     re.IGNORECASE | re.DOTALL,
 )
 
@@ -147,11 +147,11 @@ async def _choose_model(
     )).scalar_one_or_none()
     if selected and _supports(selected, kind):
         if not _supports_preferences(selected, kind, preferences):
-            raise HTTPException(400, "Р’С‹Р±СЂР°РЅРЅР°СЏ РІСЂСѓС‡РЅСѓСЋ РјРѕРґРµР»СЊ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ СѓРєР°Р·Р°РЅРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹")
+            raise HTTPException(400, "Выбранная вручную модель не поддерживает указанные параметры")
         return selected
 
     if not settings.auto_routing_enabled and not allow_explicit_route:
-        raise HTTPException(503, "РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРёР№ РІС‹Р±РѕСЂ media-РјРѕРґРµР»Рё РІСЂРµРјРµРЅРЅРѕ РѕС‚РєР»СЋС‡С‘РЅ")
+        raise HTTPException(503, "Автоматический выбор media-модели временно отключён")
 
     models = (await db.execute(
         select(AiModel).where(
@@ -170,7 +170,7 @@ async def _choose_model(
         if cost is not None:
             compatible.append((cost, model))
     if not compatible:
-        raise HTTPException(503, f"РќРµС‚ РґРѕСЃС‚СѓРїРЅРѕР№ РјРѕРґРµР»Рё РґР»СЏ РіРµРЅРµСЂР°С†РёРё {kind}")
+        raise HTTPException(503, f"Нет доступной модели для генерации {kind}")
     compatible.sort(key=lambda item: (item[0], item[1].sort_order, item[1].name))
     return compatible[0][1]
 
@@ -199,7 +199,7 @@ def _video_parameters(model: AiModel, preferences: dict) -> dict:
     resolution = str(preferences.get("resolution", "720p" if "720p" in resolutions else resolutions[0]))
     ratio = str(preferences.get("aspect_ratio", "16:9" if "16:9" in ratios else ratios[0]))
     if duration not in durations or resolution not in resolutions or ratio not in ratios:
-        raise HTTPException(400, "Р’С‹Р±СЂР°РЅРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ РІРёРґРµРѕ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°СЋС‚СЃСЏ РјРѕРґРµР»СЊСЋ")
+        raise HTTPException(400, "Выбранные параметры видео не поддерживаются моделью")
     return {
         "duration": duration,
         "resolution": resolution,
@@ -213,7 +213,7 @@ async def _quoted_credits(db: AsyncSession, model: AiModel, kind: str, parameter
         return max(1, math.ceil(model.fixed_price))
     provider_cost = _provider_cost(model, kind, parameters)
     if provider_cost is None:
-        raise HTTPException(503, "Р”Р»СЏ РјРѕРґРµР»Рё РЅРµ РЅР°СЃС‚СЂРѕРµРЅР° Р°РєС‚СѓР°Р»СЊРЅР°СЏ С†РµРЅР°")
+        raise HTTPException(503, "Для модели не настроена актуальная цена")
     units = int(parameters.get("n", 1)) if kind == "image" else 1
     context = await pricing_context(db)
     return max(1, int(credits_for_provider_cost(provider_cost * units, context, whole=True)))
@@ -223,7 +223,7 @@ async def _reserve_credits(db: AsyncSession, user: User, amount: int, job_id: st
     try:
         allocation = allocate_buckets(bucket_snapshot(user), amount)
     except ValueError:
-        raise HTTPException(402, "РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РєСЂРµРґРёС‚РѕРІ")
+        raise HTTPException(402, "Недостаточно кредитов")
     after_free = case((amount > User.credits_free, amount - User.credits_free), else_=0)
     after_bonus = case((after_free > User.credits_bonus, after_free - User.credits_bonus), else_=0)
     after_paid = case((after_bonus > User.credits_paid, after_bonus - User.credits_paid), else_=0)
@@ -241,16 +241,16 @@ async def _reserve_credits(db: AsyncSession, user: User, amount: int, job_id: st
     )
     if result.rowcount != 1:
         await db.rollback()
-        raise HTTPException(402, "РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РєСЂРµРґРёС‚РѕРІ")
+        raise HTTPException(402, "Недостаточно кредитов")
     before = user.credits
     for bucket, spent in allocation.items():
         if spent:
             db.add(CreditOperation(
                 user_id=user.id, op_type="spend", credit_type=bucket, amount=-spent,
                 balance_before=before, balance_after=before - amount,
-                source="generation", related_id=job_id, comment=f"Р РµР·РµСЂРІ РіРµРЅРµСЂР°С†РёРё {job_id}",
+                source="generation", related_id=job_id, comment=f"Резерв генерации {job_id}",
             ))
-    db.add(Transaction(user_id=user.id, amount=-amount, type="spend", description=f"Р РµР·РµСЂРІ РіРµРЅРµСЂР°С†РёРё {job_id}"))
+    db.add(Transaction(user_id=user.id, amount=-amount, type="spend", description=f"Резерв генерации {job_id}"))
     return allocation
 
 
@@ -285,10 +285,10 @@ async def _settle(db: AsyncSession, job: GenerationJob, model: AiModel, provider
         await db.execute(update(User).where(User.id == job.user_id).values(
             total_spent_credits=case((User.total_spent_credits >= refund, User.total_spent_credits - refund), else_=0),
         ))
-        db.add(Transaction(user_id=job.user_id, amount=refund, type="refund", description=f"РЎРІРµСЂРєР° СЃС‚РѕРёРјРѕСЃС‚Рё РіРµРЅРµСЂР°С†РёРё {job.id}"))
+        db.add(Transaction(user_id=job.user_id, amount=refund, type="refund", description=f"Сверка стоимости генерации {job.id}"))
         for bucket, value in restored.items():
             if value:
-                db.add(CreditOperation(user_id=job.user_id, op_type="refund", credit_type=bucket, amount=value, source="generation", related_id=job.id, comment="РЎРІРµСЂРєР° СЃС‚РѕРёРјРѕСЃС‚Рё РіРµРЅРµСЂР°С†РёРё"))
+                db.add(CreditOperation(user_id=job.user_id, op_type="refund", credit_type=bucket, amount=value, source="generation", related_id=job.id, comment="Сверка стоимости генерации"))
     job.charged_credits = actual
 
 
@@ -382,7 +382,7 @@ async def _generate_image(db: AsyncSession, user: User, req: DispatchRequest, mo
         payload = response.json()
         data = payload.get("data")
         if not isinstance(data, list) or not data:
-            raise ValueError("OpenRouter РЅРµ РІРµСЂРЅСѓР» РёР·РѕР±СЂР°Р¶РµРЅРёРµ")
+            raise ValueError("OpenRouter не вернул изображение")
         target_dir = settings.generations_dir / job.id
         target_dir.mkdir(parents=True, exist_ok=True)
         assets = []
@@ -396,7 +396,7 @@ async def _generate_image(db: AsyncSession, user: User, req: DispatchRequest, mo
             (target_dir / filename).write_bytes(base64.b64decode(encoded, validate=True))
             assets.append({"id": str(index), "type": "image", "media_type": media_type, "url": f"/api/generations/{job.id}/assets/{index}"})
         if not assets:
-            raise ValueError("OpenRouter РІРµСЂРЅСѓР» РїСѓСЃС‚РѕР№ СЂРµР·СѓР»СЊС‚Р°С‚")
+            raise ValueError("OpenRouter вернул пустой результат")
         usage = payload.get("usage") or {}
         provider_cost = usage.get("cost")
         job.provider_cost_usd = str(provider_cost) if provider_cost is not None else None
@@ -418,7 +418,7 @@ async def _generate_image(db: AsyncSession, user: User, req: DispatchRequest, mo
         logger.warning("Image generation failed job=%s: %s", job.id, exc)
         job.status = "failed"
         job.error = str(exc)[:1000]
-        await _refund(db, job, f"Р’РѕР·РІСЂР°С‚ Р·Р° РЅРµСѓСЃРїРµС€РЅСѓСЋ РіРµРЅРµСЂР°С†РёСЋ {job.id}")
+        await _refund(db, job, f"Возврат за неуспешную генерацию {job.id}")
         await record_server_event(
             db, user, "generation_failed", template_id=req.template_id,
             task_type=req.task_type or "image", model=model.or_model_id,
@@ -444,7 +444,7 @@ async def _submit_video(db: AsyncSession, user: User, req: DispatchRequest, mode
         payload = response.json()
         provider_id = payload.get("id")
         if not provider_id:
-            raise ValueError("OpenRouter РЅРµ РІРµСЂРЅСѓР» ID РІРёРґРµРѕ-Р·Р°РґР°РЅРёСЏ")
+            raise ValueError("OpenRouter не вернул ID видео-задания")
         job.provider_job_id = str(provider_id)
         upstream_status = str(payload.get("status") or "pending")
         job.status = "processing" if upstream_status in {"processing", "in_progress"} else upstream_status
@@ -456,7 +456,7 @@ async def _submit_video(db: AsyncSession, user: User, req: DispatchRequest, mode
         logger.warning("Video submission failed job=%s: %s", job.id, exc)
         job.status = "failed"
         job.error = str(exc)[:1000]
-        await _refund(db, job, f"Р’РѕР·РІСЂР°С‚ Р·Р° РЅРµСѓСЃРїРµС€РЅСѓСЋ РіРµРЅРµСЂР°С†РёСЋ {job.id}")
+        await _refund(db, job, f"Возврат за неуспешную генерацию {job.id}")
         await record_server_event(
             db, user, "generation_failed", template_id=req.template_id,
             task_type=req.task_type or "video", model=model.or_model_id,
@@ -474,10 +474,10 @@ async def dispatch(
 ):
     prompt = _latest_prompt(req)
     if not prompt:
-        raise HTTPException(400, "Р’РІРµРґРёС‚Рµ Р·Р°РїСЂРѕСЃ")
+        raise HTTPException(400, "Введите запрос")
     template = await db.get(TaskTemplate, req.template_id) if req.template_id else None
     if req.template_id and (not template or not template.is_active):
-        raise HTTPException(404, "РЎС†РµРЅР°СЂРёР№ РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Сценарий не найден")
     if template:
         req.task_type = template.task_type
         req.media_preferences = {**_json(template.default_parameters, {}), **req.media_preferences}
@@ -519,9 +519,9 @@ async def dispatch(
         await db.commit()
         return response
     if not settings.media_generation_enabled:
-        raise HTTPException(503, "Р“РµРЅРµСЂР°С†РёСЏ РјРµРґРёР° РІСЂРµРјРµРЅРЅРѕ РѕС‚РєР»СЋС‡РµРЅР°")
+        raise HTTPException(503, "Генерация медиа временно отключена")
     if intent == "video" and not settings.video_generation_enabled:
-        raise HTTPException(503, "Р“РµРЅРµСЂР°С†РёСЏ РІРёРґРµРѕ РІСЂРµРјРµРЅРЅРѕ РѕС‚РєР»СЋС‡РµРЅР°")
+        raise HTTPException(503, "Генерация видео временно отключена")
 
     model = await _choose_model(
         db,
@@ -536,7 +536,7 @@ async def dispatch(
         yield f"data: {json.dumps({'type': 'route', 'intent': intent, 'requested_model': requested_model, 'effective_model': model.or_model_id, 'effective_model_name': model.name}, ensure_ascii=False)}\n\n"
         yield f"data: {json.dumps({'type': 'generation', 'generation': _job_payload(job, model.name)}, ensure_ascii=False)}\n\n"
         if job.status == "failed":
-            yield f"data: {json.dumps({'type': 'error', 'content': job.error or 'РћС€РёР±РєР° РіРµРЅРµСЂР°С†РёРё'}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'content': job.error or 'Ошибка генерации'}, ensure_ascii=False)}\n\n"
         yield f"data: {json.dumps({'type': 'done', 'credits_spent': job.charged_credits}, ensure_ascii=False)}\n\n"
         yield "data: [DONE]\n\n"
 
@@ -554,8 +554,8 @@ async def _refresh_video(db: AsyncSession, job: GenerationJob) -> None:
         upstream_status = str(payload.get("status") or job.status)
         if upstream_status in {"failed", "error", "cancelled", "canceled"}:
             job.status = "failed"
-            job.error = str(payload.get("error") or "OpenRouter РЅРµ СЃРјРѕРі СЃРѕР·РґР°С‚СЊ РІРёРґРµРѕ")[:1000]
-            await _refund(db, job, f"Р’РѕР·РІСЂР°С‚ Р·Р° РЅРµСѓСЃРїРµС€РЅСѓСЋ РіРµРЅРµСЂР°С†РёСЋ {job.id}")
+            job.error = str(payload.get("error") or "OpenRouter не смог создать видео")[:1000]
+            await _refund(db, job, f"Возврат за неуспешную генерацию {job.id}")
             event_user = await db.get(User, job.user_id)
             await record_server_event(
                 db, event_user, "generation_failed", template_id=job.template_id,
@@ -602,7 +602,7 @@ async def _refresh_video(db: AsyncSession, job: GenerationJob) -> None:
 async def generation_status(job_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     job = (await db.execute(select(GenerationJob).where(GenerationJob.id == job_id, GenerationJob.user_id == user.id))).scalar_one_or_none()
     if not job:
-        raise HTTPException(404, "Р—Р°РґР°РЅРёРµ РЅРµ РЅР°Р№РґРµРЅРѕ")
+        raise HTTPException(404, "Задание не найдено")
     now = datetime.now(timezone.utc)
     expires_at = job.expires_at if job.expires_at.tzinfo else job.expires_at.replace(tzinfo=timezone.utc)
     if expires_at <= now and job.status == "completed":
@@ -617,20 +617,19 @@ async def generation_status(job_id: str, user: User = Depends(get_current_user),
 async def generation_asset(job_id: str, asset_id: str, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     job = (await db.execute(select(GenerationJob).where(GenerationJob.id == job_id, GenerationJob.user_id == user.id))).scalar_one_or_none()
     if not job:
-        raise HTTPException(404, "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Файл не найден")
     now = datetime.now(timezone.utc)
     expires_at = job.expires_at if job.expires_at.tzinfo else job.expires_at.replace(tzinfo=timezone.utc)
     if expires_at <= now and job.status == "completed":
         job.status = "expired"
         await db.commit()
     if job.status == "expired":
-        raise HTTPException(410, "РЎСЂРѕРє С…СЂР°РЅРµРЅРёСЏ С„Р°Р№Р»Р° РёСЃС‚С‘Рє")
+        raise HTTPException(410, "Срок хранения файла истёк")
     asset = next((item for item in _json(job.assets, []) if str(item.get("id")) == asset_id), None)
     if not asset:
-        raise HTTPException(404, "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Файл не найден")
     target_dir = (settings.generations_dir / job.id).resolve()
     candidates = list(target_dir.glob(f"{asset_id}.*"))
     if not candidates or target_dir not in candidates[0].resolve().parents:
-        raise HTTPException(404, "Р¤Р°Р№Р» РЅРµ РЅР°Р№РґРµРЅ")
+        raise HTTPException(404, "Файл не найден")
     return FileResponse(candidates[0], media_type=asset.get("media_type"), filename=candidates[0].name)
-

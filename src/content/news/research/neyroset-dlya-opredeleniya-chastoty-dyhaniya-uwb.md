@@ -20,7 +20,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Нейросеть для определения частоты дыхания с помощью UWB-радара достигла MAE 1.73 BPM
+
 
 **Кратко:** Предложена сверточная нейросеть (CNN) для оценки частоты дыхания по сигналам дешёвого коммерческого UWB-радара, совместимого со стандартом IEEE 802.15.4z. В тестах на новых сценариях модель показала среднюю абсолютную ошибку 1,73 вдоха в минуту, что значительно лучше традиционных алгоритмов и модельных решений.
 

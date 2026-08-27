@@ -14,7 +14,7 @@ tags:
   - доступ
   - vpn
 status: ready
-index: true
+index: false
 canonical: /blog/guides/chatgpt-v-rossii-kak-polzovatsya
 relatedSeoPages:
   - chat-gpt-online

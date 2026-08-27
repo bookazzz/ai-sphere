@@ -32,6 +32,7 @@ import { nejroset_dlya_teksta } from './use-cases/nejroset-dlya-teksta';
 import { sochinenie_nejroset } from './use-cases/sochinenie-nejroset';
 import { nejroset_ucheba } from './use-cases/nejroset-ucheba';
 import { nejroset_dlya_koda } from './use-cases/nejroset-dlya-koda';
+import { nejroset_dlya_dokumentov } from './use-cases/nejroset-dlya-dokumentov';
 import { voprosy_nejroseti } from './use-cases/voprosy-nejroseti';
 import { nejroset_online } from './use-cases/nejroset-online';
 import { nejroset_kalkulyator } from './use-cases/nejroset-kalkulyator';
@@ -81,6 +82,7 @@ export const seoContentMap: Record<string, SeoPageContent> = {
   'sochinenie-nejroset': sochinenie_nejroset,
   'nejroset-ucheba': nejroset_ucheba,
   'nejroset-dlya-koda': nejroset_dlya_koda,
+  'nejroset-dlya-dokumentov': nejroset_dlya_dokumentov,
   'voprosy-nejroseti': voprosy_nejroseti,
   'nejroset-online': nejroset_online,
   'nejroset-kalkulyator': nejroset_kalkulyator,

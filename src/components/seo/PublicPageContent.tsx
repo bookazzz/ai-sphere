@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { apiCall } from '@/lib/api';
 
 interface PageData {
   slug: string;
@@ -28,8 +29,6 @@ interface Props {
   /** Показать автора и дату */
   showMeta?: boolean;
 }
-
-const API_BASE = '/api';
 
 function isJsonContent(str: string): boolean {
   const t = str.trim();
@@ -100,11 +99,7 @@ export default function PublicPageContent({ slug, showCta = true, fallback, show
     setLoading(true);
     setError(null);
 
-    fetch(`${API_BASE}/public/pages/${encodeURIComponent(slug)}`)
-      .then(res => {
-        if (!res.ok) throw new Error(res.status === 404 ? 'Страница не найдена' : 'Ошибка загрузки');
-        return res.json();
-      })
+    apiCall<PageData>(`/public/pages/${encodeURIComponent(slug)}`)
       .then(d => {
         if (!cancelled) { setData(d); setLoading(false); }
       })

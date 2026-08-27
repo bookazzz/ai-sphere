@@ -22,7 +22,7 @@ export default function FeaturesSection() {
             { icon: '📝', title: 'Улучшает резюме', desc: 'Адаптирует под вакансию, усиливает релевантный опыт.' },
           ].map((item, i) => (
             <div key={i} className="features__card">
-              <span className="features__card-icon">{item.icon}</span>
+              <span className="features__card-icon" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
               <div className="features__card-title">{item.title}</div>
               <div className="features__card-desc">{item.desc}</div>
             </div>

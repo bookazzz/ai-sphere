@@ -33,6 +33,17 @@ interface ChatSession {
   updatedAt: number;
 }
 
+function dedupeSessions(items: ChatSession[]): ChatSession[] {
+  const byId = new Map<string, ChatSession>();
+  for (const item of items) {
+    const firstUser = item.messages.find(message => message.role === 'user') as (ChatMessage & { message_id?: string }) | undefined;
+    const key = firstUser?.message_id ? `message:${firstUser.message_id}` : `id:${item.id}`;
+    const previous = byId.get(key);
+    if (!previous || item.updatedAt >= previous.updatedAt) byId.set(key, item);
+  }
+  return Array.from(byId.values()).sort((a, b) => b.updatedAt - a.updatedAt);
+}
+
 function loadSessions(): ChatSession[] {
   try {
     const key = userStorageKey('sessions');
@@ -78,8 +89,9 @@ async function syncSessionsFromServer(): Promise<ChatSession[]> {
         }
       }
     }
-    saveSessions(merged);
-    return merged;
+    const unique = dedupeSessions(merged);
+    saveSessions(unique);
+    return unique;
   } catch {
     // fallback to localStorage
   }
@@ -230,7 +242,7 @@ export default function HomeClient() {
       const firstContent = msgs[0]?.content;
       const title = typeof firstContent === 'string'
         ? firstContent.slice(0, 60)
-        : 'РќРѕРІС‹Р№ С‡Р°С‚';
+        : 'Новый чат';
       setSessions(prev => prev.map(s =>
         s.id === sid ? { ...s, messages: msgs, title, updatedAt: Date.now() } : s
       ));
@@ -275,7 +287,7 @@ export default function HomeClient() {
         } else if (file.dataUrl?.startsWith('data:video/')) {
           parts.push({ type: 'video_url', video_url: { url: file.dataUrl } });
         } else if (file.extractedText) {
-          parts.push({ type: 'text', text: `\n\nР¤Р°Р№Р» В«${file.name}В»:\n${file.extractedText}` });
+          parts.push({ type: 'text', text: `\n\nФайл «${file.name}»:\n${file.extractedText}` });
         }
       }
       userContent = parts;
@@ -287,6 +299,7 @@ export default function HomeClient() {
     const updated = [...currentMessages, userMsg];
     setMessages(updated);
     setChatActive(true);
+    setThinkingText('Анализирую запрос…');
     setSending(true);
 
     try {
@@ -299,6 +312,7 @@ export default function HomeClient() {
         onRoute: (route) => {
           routedModel = route.effective_model;
           routedModelName = route.effective_model_name;
+          setThinkingText(`Подбираю модель: ${route.effective_model_name}`);
         },
         onToken: (token: string) => {
           if (!firstTokenTracked && token) {
@@ -308,7 +322,7 @@ export default function HomeClient() {
               task_type: context?.taskType || 'text', model: routedModel,
             });
           }
-          setThinkingText(''); // РѕС‡РёС‰Р°РµРј thinking РїСЂРё РїРµСЂРІРѕРј РєРѕРЅС‚РµРЅС‚Рµ
+          setThinkingText(''); // очищаем thinking при первом контенте
           setMessages(prev => {
             const copy = [...prev];
             const last = copy[copy.length - 1];
@@ -331,7 +345,7 @@ export default function HomeClient() {
             task_type: context?.taskType || 'text', model: routedModel,
             metadata: { result_kind: context?.taskType || 'chat' },
           }).catch(() => undefined);
-          setThinkingText(''); // РѕС‡РёС‰Р°РµРј РїСЂРё Р·Р°РІРµСЂС€РµРЅРёРё (РЅР° СЃР»СѓС‡Р°Р№ РµСЃР»Рё РєРѕРЅС‚РµРЅС‚Р° РЅРµ Р±С‹Р»Рѕ)
+          setThinkingText(''); // очищаем при завершении (на случай если контента не было)
         },
         onThinking: (text: string) => {
           setThinkingText(text);
@@ -355,7 +369,7 @@ export default function HomeClient() {
           }).catch(() => undefined);
           setMessages(prev => prev[prev.length - 1]?.generation?.status === 'failed' ? prev : [
             ...prev,
-            { role: 'assistant', content: `вќЊ РћС€РёР±РєР°: ${errorMessage}`, message_id: generateId(), effective_model: selectedModelIdRef.current },
+            { role: 'assistant', content: `❌ Ошибка: ${errorMessage}`, message_id: generateId(), effective_model: selectedModelIdRef.current },
           ]);
         },
       }, {
@@ -370,9 +384,9 @@ export default function HomeClient() {
         const copy = [...prev];
         const lastIdx = copy.length - 1;
         if (lastIdx >= 0 && copy[lastIdx].role === 'assistant' && copy[lastIdx].content === '') {
-          copy[lastIdx] = { role: 'assistant', content: `вќЊ РћС€РёР±РєР°: ${err.message}` };
+          copy[lastIdx] = { role: 'assistant', content: `❌ Ошибка: ${err.message}` };
         } else {
-          copy.push({ role: 'assistant', content: `вќЊ РћС€РёР±РєР°: ${err.message}` });
+          copy.push({ role: 'assistant', content: `❌ Ошибка: ${err.message}` });
         }
         return copy;
       });
@@ -419,7 +433,7 @@ export default function HomeClient() {
     // Consensus as the main assistant message
     newMessages.push({
       role: 'assistant',
-      content: `рџ§  **РљРѕРЅСЃРµРЅСЃСѓСЃ 3-С… РјРѕРґРµР»РµР№ (${result.credits_spent} РєСЂ.)**\n\n${result.consensus}`,
+      content: `🧠 **Консенсус 3-х моделей (${result.credits_spent} кр.)**\n\n${result.consensus}`,
     });
 
     // Each model response as a separate message
@@ -427,12 +441,12 @@ export default function HomeClient() {
       if (m.content) {
         newMessages.push({
           role: 'assistant',
-          content: `рџ¤– **${m.model_name}**\n\n${m.content}`,
+          content: `🤖 **${m.model_name}**\n\n${m.content}`,
         });
       } else {
         newMessages.push({
           role: 'assistant',
-          content: `вљ пёЏ **${m.model_name}** вЂ” РѕС€РёР±РєР°: ${m.error || 'РЅРµС‚ РѕС‚РІРµС‚Р°'}`,
+          content: `⚠️ **${m.model_name}** — ошибка: ${m.error || 'нет ответа'}`,
         });
       }
     }
@@ -446,6 +460,7 @@ export default function HomeClient() {
     if (current.length === 0) return;
     const msgs = prepareRegenerateMessages(current);
     setMessages(msgs);
+    setThinkingText('Проверяю запрос и готовлю новый ответ…');
     setSending(true);
 
     try {
@@ -483,11 +498,11 @@ export default function HomeClient() {
           }]);
         },
         onError: (message: string) => {
-          setMessages(prev => [...prev, { role: 'assistant', content: `вќЊ РћС€РёР±РєР°: ${message}` }]);
+          setMessages(prev => [...prev, { role: 'assistant', content: `❌ Ошибка: ${message}` }]);
         },
       }, { sessionId: currentSessionIdRef.current });
     } catch (err: any) {
-      setMessages(prev => [...prev, { role: 'assistant', content: `вќЊ РћС€РёР±РєР°: ${err?.message || 'РЅРµ СѓРґР°Р»РѕСЃСЊ РїРѕРІС‚РѕСЂРёС‚СЊ Р·Р°РїСЂРѕСЃ'}` }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: `❌ Ошибка: ${err?.message || 'не удалось повторить запрос'}` }]);
       setSending(false);
     }
   }, []);
@@ -508,7 +523,7 @@ export default function HomeClient() {
       setChatSectionKey(k => k + 1);
       }, [isMobile, isLoggedIn, toggleAuth, setSidebarOpen]);
 
-      // в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Session save logic (throttled, not debounced) в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+      // ─────── Session save logic (throttled, not debounced) ───────
   // During streaming tokens arrive every ~50-200ms.
   // A debounce would keep resetting and never fire until streaming stops.
   // Throttle saves at fixed intervals so partial responses persist on page reload.
@@ -517,33 +532,39 @@ export default function HomeClient() {
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const doSave = useCallback((msgs: ChatMessage[]) => {
-    const id = currentSessionIdRef.current;
     const now = Date.now();
     const firstContent = msgs[0]?.content;
     const title = typeof firstContent === 'string'
       ? firstContent.slice(0, 60)
       : (Array.isArray(firstContent)
-        ? (firstContent.find(p => p.type === 'text')?.text || 'РќРѕРІС‹Р№ С‡Р°С‚').slice(0, 60)
-        : 'РќРѕРІС‹Р№ С‡Р°С‚');
+        ? (firstContent.find(p => p.type === 'text')?.text || 'Новый чат').slice(0, 60)
+        : 'Новый чат');
+
+    const reservedId = currentSessionIdRef.current || generateId();
+    if (!currentSessionIdRef.current) {
+      currentSessionIdRef.current = reservedId;
+      saveCurrentSessionId(reservedId);
+    }
 
     setSessions(prev => {
       let updated: ChatSession[];
-      let sessionId = id;
+      // Read the ref inside the functional update. Multiple streamed message
+      // updates can queue saves in the same render; reading it outside here
+      // allowed each queued updater to see null and create a duplicate row.
+      const id = reservedId;
+      const sessionId = reservedId;
       if (id && prev.some(s => s.id === id)) {
         updated = prev.map(s =>
           s.id === id ? { ...s, messages: msgs, title, updatedAt: now } : s
         );
       } else {
         const newSession: ChatSession = {
-          id: generateId(),
+          id: reservedId,
           title,
           messages: msgs,
           createdAt: now,
           updatedAt: now,
         };
-        sessionId = newSession.id;
-        currentSessionIdRef.current = newSession.id;
-        saveCurrentSessionId(newSession.id);
         updated = [...prev, newSession];
       }
       saveSessions(updated);
@@ -580,7 +601,7 @@ export default function HomeClient() {
     };
   }, [messages, doSave]);
 
-  // Force save when streaming ends (sending transitions true в†’ false)
+  // Force save when streaming ends (sending transitions true → false)
   const prevSendingRef = useRef(sending);
   useEffect(() => {
     const wasSending = prevSendingRef.current;
@@ -609,7 +630,7 @@ export default function HomeClient() {
     return () => window.removeEventListener('beforeunload', onUnload);
   }, []);
 
-  // в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Cross-device session sync (polling every 3s) в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+  // ─────── Cross-device session sync (polling every 3s) ───────
   useEffect(() => {
     if (!isLoggedIn || typeof window === 'undefined') return;
 
@@ -636,7 +657,7 @@ export default function HomeClient() {
             });
           }
 
-          // Merge: for sessions on both вЂ” keep newest by updatedAt
+          // Merge: for sessions on both — keep newest by updatedAt
           const serverIds = new Set(serverMap.keys());
           sessionsToPush = [];
           const merged: ChatSession[] = [];
@@ -647,14 +668,14 @@ export default function HomeClient() {
           // Merge in local sessions
           for (const local of prev) {
             if (!serverIds.has(local.id)) {
-              // Local-only вЂ” keep and push to server
+              // Local-only — keep and push to server
               merged.push(local);
               sessionsToPush.push(local);
             } else {
-              // Exists on both вЂ” keep whichever is newer
+              // Exists on both — keep whichever is newer
               const srv = serverMap.get(local.id)!;
               if (local.updatedAt > srv.updatedAt) {
-                // Local is newer вЂ” replace server entry
+                // Local is newer — replace server entry
                 const idx = merged.findIndex(m => m.id === local.id);
                 if (idx !== -1) {
                   merged[idx] = local;
@@ -663,16 +684,15 @@ export default function HomeClient() {
               }
             }
           }
-          // Sort by updatedAt desc
-          merged.sort((a, b) => b.updatedAt - a.updatedAt);
+          const uniqueMerged = dedupeSessions(merged);
 
           // Skip re-render if nothing changed (by id + updatedAt)
-          if (merged.length === prev.length &&
-              merged.every((s, i) => s.id === prev[i].id && s.updatedAt === prev[i].updatedAt)) {
+          if (uniqueMerged.length === prev.length &&
+              uniqueMerged.every((s, i) => s.id === prev[i].id && s.updatedAt === prev[i].updatedAt)) {
             return prev;
           }
 
-          saveSessions(merged);
+          saveSessions(uniqueMerged);
 
           // If the currently viewed session has new messages from another device, update the view
           const curId = currentSessionIdRef.current;
@@ -689,18 +709,18 @@ export default function HomeClient() {
             }
           }
 
-          return merged;
+          return uniqueMerged;
         });
 
         // Push local/newer sessions to the server (catch save failures from previous sessions)
         for (const s of sessionsToPush) {
           const title = typeof s.messages[0]?.content === 'string'
             ? s.messages[0].content.slice(0, 60)
-            : 'РќРѕРІС‹Р№ С‡Р°С‚';
+            : 'Новый чат';
           saveSession(s.id, title, s.messages).catch(() => {});
         }
       } catch {
-        // Polling errors are non-critical вЂ” ignore silently
+        // Polling errors are non-critical — ignore silently
       }
     };
 
@@ -725,7 +745,7 @@ export default function HomeClient() {
   }, []);
 
   const handleShareChat = useCallback(() => {
-    const text = messagesRef.current.map(m => `${m.role === 'user' ? 'РЇ' : 'AI'}: ${m.content}`).join('\n\n');
+    const text = messagesRef.current.map(m => `${m.role === 'user' ? 'Я' : 'AI'}: ${m.content}`).join('\n\n');
     navigator.clipboard.writeText(text).catch(() => {});
   }, []);
 
@@ -865,4 +885,3 @@ export default function HomeClient() {
     </>
   );
 }
-

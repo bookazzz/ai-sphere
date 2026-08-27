@@ -128,11 +128,6 @@
   .why-us__card { padding: 18px; }
   .why-us__card-title { font-size: 14px; }
 
-  /* Models grid */
-  .models-grid { padding: 60px 16px; }
-  .models-grid__title { font-size: 24px; }
-  .models-grid__subtitle { font-size: 14px; }
-
   /* File support */
   /* File support */
   section.file-support .file-support__content { grid-template-columns: 1fr; gap: 32px; }

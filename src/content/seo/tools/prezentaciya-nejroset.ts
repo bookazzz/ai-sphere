@@ -4,8 +4,14 @@ export const prezentaciya_nejroset: SeoPageContent = {
   slug: 'prezentaciya-nejroset',
   type: 'tool',
   title: 'Создать презентацию нейросетью онлайн — AI-Sphere',
+  seoTitle: 'Подготовить презентацию нейросетью онлайн | AI-Sphere',
   description: 'Создайте презентацию с помощью нейросети онлайн. AI-Sphere поможет составить структуру, написать содержание слайдов и сценарий выступления. Без VPN.',
   h1: 'Создать презентацию нейросетью',
+  primaryKeyword: 'нейросеть для презентаций',
+  secondaryKeywords: ['создать презентацию нейросетью', 'ии для презентации'],
+  searchIntent: 'commercial',
+  image: '/og/text-documents.png',
+  imageAlt: 'Подготовка структуры презентации в AI-Sphere',
   index: true,
   contentStatus: 'ready',
   schemaType: 'webPage',
@@ -158,7 +164,7 @@ export const prezentaciya_nejroset: SeoPageContent = {
     },
     {
       question: 'Сколько слайдов может сделать нейросеть?',
-      answer: 'Ограничение зависит от контекста модели. GPT-4 Turbo и DeepSeek поддерживают до 128K токенов, Claude — до 200K. Этого достаточно для презентации на 20–30+ слайдов с подробным содержанием.',
+      answer: 'Объём зависит от контекстного окна выбранной модели и размера исходных материалов. Для большой презентации удобнее готовить и проверять разделы последовательно.',
     },
   ],
 

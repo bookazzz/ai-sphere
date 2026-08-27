@@ -21,6 +21,13 @@ import logging
 import requests
 import socket
 
+from proxy_utils import (
+    news_proxy_from_env,
+    proxy_is_required,
+    proxy_public_label,
+    redact_secrets,
+)
+
 socket.setdefaulttimeout(15)
 
 # Logging setup
@@ -66,6 +73,7 @@ def fetch_url(
     url: str,
     timeout=20,
     headers=None,
+    proxy=None,
 ):
     """Fetch URL with requests, proper timeout, retry, and redirect handling.
     
@@ -82,6 +90,7 @@ def fetch_url(
                 headers=request_headers,
                 timeout=timeout,
                 allow_redirects=True,
+                proxies={"http": proxy, "https": proxy} if proxy else None,
             )
 
             if response.status_code == 429:
@@ -126,7 +135,7 @@ def fetch_url(
             wait = BACKOFF_SECONDS[attempt - 1] if attempt - 1 < len(BACKOFF_SECONDS) else 15
             logger.warning(
                 "Connection error for %s (%s), attempt %d/%d, waiting %ds",
-                url[:60], str(e)[:50], attempt, MAX_RETRIES, wait,
+                url[:60], redact_secrets(e)[:80], attempt, MAX_RETRIES, wait,
             )
             if attempt < MAX_RETRIES:
                 time.sleep(wait)
@@ -134,10 +143,10 @@ def fetch_url(
 
         except requests.RequestException as e:
             last_exc = e
-            logger.error("HTTP error fetching %s: %s", url[:60], str(e)[:100])
+            logger.error("HTTP error fetching %s: %s", url[:60], redact_secrets(e)[:140])
             raise
 
-    logger.error("All %d retries exhausted for %s: %s", MAX_RETRIES, url[:60], last_exc)
+    logger.error("All %d retries exhausted for %s: %s", MAX_RETRIES, url[:60], redact_secrets(last_exc))
     raise last_exc or RuntimeError("fetch_url failed after %d retries" % MAX_RETRIES)
 
 
@@ -193,6 +202,7 @@ def extract_arxiv_article(feed_item):
 
 sys.path.insert(0, os.path.dirname(__file__))
 from generator_v31 import (
+    SCHEMA_VERSION,
     stage1_keyword_classification,
     stage2_semantic_clustering,
     stage3_seo_brief,
@@ -210,10 +220,12 @@ def load_config():
                 line = line.strip()
                 if not line or line.startswith('#'):
                     continue
-                if line.startswith('OPENROUTER_API_KEY='):
+                if line.startswith(('OPENROUTER_API_KEY=', 'AISPHERE_OPENROUTER_API_KEY=')):
                     cfg['key'] = line.split('=', 1)[1].strip().strip('"').strip("'")
-                elif line.startswith('OPENROUTER_PROXY='):
+                elif line.startswith(('OPENROUTER_PROXY=', 'AISPHERE_OPENROUTER_PROXY=')):
                     cfg['proxy'] = line.split('=', 1)[1].strip().strip('"').strip("'")
+    cfg['key'] = os.environ.get('AISPHERE_OPENROUTER_API_KEY') or os.environ.get('OPENROUTER_API_KEY') or cfg['key']
+    cfg['proxy'] = news_proxy_from_env(cfg['proxy'])
     return cfg
 
 
@@ -236,20 +248,14 @@ def save_seen(seen):
 
 def fetch_rss(url, proxy=None, timeout=15):
     try:
-        if proxy:
-            proxy_h = urllib.request.ProxyHandler({
-                'http': proxy,
-                'https': proxy,
-            })
-            opener = urllib.request.build_opener(proxy_h)
-            urllib.request.install_opener(opener)
-        req = urllib.request.Request(url, headers={
-            'User-Agent': 'Mozilla/5.0 (compatible; AI-Sphere/1.0; +https://ai-sphere.ru)'
-        })
-        resp = urllib.request.urlopen(req, timeout=timeout)
-        return resp.read()
+        return fetch_url(
+            url,
+            timeout=timeout,
+            proxy=proxy,
+            headers={'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml'},
+        )
     except Exception as e:
-        sys.stderr.write("    fetch error: %s\n" % str(e))
+        sys.stderr.write("    fetch error: %s\n" % redact_secrets(e))
         sys.stderr.flush()
         return None
 
@@ -308,11 +314,11 @@ def fetch_article_text(url, proxy=None, timeout=20):
     """Fetch article HTML and extract main text via trafilatura.
     Uses fetch_url() for HTTP (proper timeout support) then trafilatura for extraction.
     """
-    import trafilatura
     try:
+        import trafilatura
         logger.info("fetching article HTML: %s", url[:80])
         # Fetch via requests for reliable timeout
-        html = fetch_url(url, timeout=timeout)
+        html = fetch_url(url, timeout=timeout, proxy=proxy)
         if not html:
             logger.warning("fetch_url returned empty: %s", url[:80])
             return None
@@ -327,17 +333,20 @@ def fetch_article_text(url, proxy=None, timeout=20):
             logger.warning("trafilatura extract returned empty: %s", url[:80])
         return text
     except requests.RequestException as e:
-        logger.error("HTTP error fetching %s: %s", url[:80], str(e))
+        logger.error("HTTP error fetching %s: %s", url[:80], redact_secrets(e))
+        return None
+    except ImportError:
+        logger.info("trafilatura is unavailable; using proxy-aware HTML fallback")
         return None
     except Exception as e:
-        logger.error("article extraction error for %s: %s", url[:80], str(e))
+        logger.error("article extraction error for %s: %s", url[:80], redact_secrets(e))
         return None
 
 
 def fetch_article_text_fallback(url, proxy=None, timeout=20):
     """Fallback: basic HTML2text via requests + regex."""
     try:
-        html = fetch_url(url, timeout=timeout)
+        html = fetch_url(url, timeout=timeout, proxy=proxy)
         text = re.sub(r'<script[^>]*>.*?</script>', '', html, flags=re.DOTALL|re.IGNORECASE)
         text = re.sub(r'<style[^>]*>.*?</style>', '', text, flags=re.DOTALL|re.IGNORECASE)
         text = re.sub(r'<[^>]+>', ' ', text)
@@ -345,7 +354,7 @@ def fetch_article_text_fallback(url, proxy=None, timeout=20):
         logger.info("fallback extracted %d chars from %s", len(text), url[:80])
         return text[:10000]
     except Exception as e:
-        logger.error("fallback extraction error: %s", str(e))
+        logger.error("fallback extraction error: %s", redact_secrets(e))
         return None
 
 
@@ -420,7 +429,7 @@ def is_ai_related(title, desc):
     return any(kw in t for kw in kws)
 
 
-def write_article_file_draft(article_data, source_article, source_type='news_article'):
+def write_article_file_draft(article_data, source_article, source_type='news_article', review_status='pending'):
     """Write markdown file with status: draft.
     For primary_research_preprint, writes to news/research/ with disclaimer.
     """
@@ -446,6 +455,13 @@ def write_article_file_draft(article_data, source_article, source_type='news_art
     related_companies = article_data.get('relatedCompanies', [])
     content = article_data.get('content', '')
     source_link = source_article.get('link', '')
+    source_urls = [source_link] + source_article.get('additional_source_urls', [])
+    source_urls = list(dict.fromkeys(url for url in source_urls if url))
+    event_key = source_article.get('event_key', '')
+    image = article_data.get('image', '')
+    image_alt = article_data.get('imageAlt', title)
+    if not image:
+        image = '/og/image-video.png' if category in ('image-generation', 'video-generation') else '/og/text-documents.png'
 
     # Prepend research disclaimer for preprints
     if is_research:
@@ -459,56 +475,90 @@ def write_article_file_draft(article_data, source_article, source_type='news_art
 
     date_str = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S+03:00')
 
-    tags_str = ', '.join('"%s"' % t for t in tags) if tags else '[]'
-    models_str = ', '.join('"%s"' % m for m in related_models) if related_models else '[]'
-    companies_str = ', '.join('"%s"' % c for c in related_companies) if related_companies else '[]'
     is_research_str = 'true' if is_research else 'false'
 
 
     frontmatter = (
         '---\n'
-        'slug: "%s"\n'
-        'title: "%s"\n'
-        'h1: "%s"\n'
-        'description: "%s"\n'
-        'datePublished: "%s"\n'
-        'dateModified: "%s"\n'
+        'slug: %s\n'
+        'title: %s\n'
+        'seoTitle: %s\n'
+        'h1: %s\n'
+        'description: %s\n'
+        'datePublished: %s\n'
+        'dateModified: %s\n'
         'author: "AI-Sphere"\n'
-        'category: "%s"\n'
-        'tags: [%s]\n'
-        'relatedModels: [%s]\n'
-        'relatedCompanies: [%s]\n'
-        'sourceUrls: ["%s"]\n'
-        'primarySourceUrl: "%s"\n'
+        'category: %s\n'
+        'tags: %s\n'
+        'relatedModels: %s\n'
+        'relatedCompanies: %s\n'
+        'image: %s\n'
+        'imageAlt: %s\n'
+        'sourceUrls: %s\n'
+        'primarySourceUrl: %s\n'
+        'eventKey: %s\n'
+        'factCheckedAt: %s\n'
+        'reviewStatus: %s\n'
         'isResearch: %s\n'
-        'schema_version: "3.2"\n'
+        'schema_version: "%s"\n'
         'status: "draft"\n'
-        'index: true\n'
+        'index: false\n'
         '---\n'
         '\n'
         '%s\n'
-    ) % (slug, title, h1_final, description, date_str, date_str,
-         category, tags_str, models_str, companies_str,
-         source_link, source_link, is_research_str,
+    ) % (json.dumps(slug, ensure_ascii=False), json.dumps(title, ensure_ascii=False),
+         json.dumps(article_data.get('title_final', title), ensure_ascii=False),
+         json.dumps(h1_final, ensure_ascii=False), json.dumps(description, ensure_ascii=False),
+         json.dumps(date_str), json.dumps(date_str), json.dumps(category, ensure_ascii=False),
+         json.dumps(tags, ensure_ascii=False), json.dumps(related_models, ensure_ascii=False),
+         json.dumps(related_companies, ensure_ascii=False), json.dumps(image, ensure_ascii=False),
+         json.dumps(image_alt, ensure_ascii=False), json.dumps(source_urls, ensure_ascii=False),
+         json.dumps(source_link, ensure_ascii=False), json.dumps(event_key), json.dumps(date_str),
+         json.dumps(review_status), is_research_str, SCHEMA_VERSION,
          content)
 
-    with open(filepath, 'w') as f:
+    with open(filepath, 'w', encoding='utf-8') as f:
         f.write(frontmatter)
 
     return filepath, slug
+
+
+def load_published_event_keys():
+    """Load event fingerprints already present in news frontmatter."""
+    keys = set()
+    for base_dir in (OUTPUT_DIR, RESEARCH_DIR):
+        if not os.path.isdir(base_dir):
+            continue
+        for root_dir, _, filenames in os.walk(base_dir):
+            for filename in filenames:
+                if not filename.endswith('.md'):
+                    continue
+                try:
+                    with open(os.path.join(root_dir, filename), encoding='utf-8') as handle:
+                        head = handle.read(5000)
+                    match = re.search(r'^eventKey:\s*["\']?([^"\'\r\n]+)', head, re.MULTILINE)
+                    if match and match.group(1).strip():
+                        keys.add(match.group(1).strip())
+                except OSError:
+                    continue
+    return keys
+
 
 def set_file_status(filepath, new_status):
     """Set editorial status in file frontmatter.
     Replaces any existing status: "..." with the new one.
     Returns True if changed.
     """
-    with open(filepath, 'r') as f:
+    with open(filepath, 'r', encoding='utf-8') as f:
         data = f.read()
     new_line = 'status: "%s"' % new_status
     # Replace any existing status line
     if re.search(r'status:\s+"[^"]+"', data):
         data = re.sub(r'status:\s+"[^"]+"', new_line, data)
-        with open(filepath, 'w') as f:
+        index_value = 'true' if new_status == 'ready' else 'false'
+        if re.search(r'^index:\s*(?:true|false)', data, re.MULTILINE):
+            data = re.sub(r'^index:\s*(?:true|false)', 'index: %s' % index_value, data, flags=re.MULTILINE)
+        with open(filepath, 'w', encoding='utf-8') as f:
             f.write(data)
         return True
     return False
@@ -536,6 +586,25 @@ def run_v31_pipeline(article, proxy=None):
     print("  [v3.1] Stage 3b/6: article-extraction...", file=sys.stderr)
     full_text = extract_article(article, proxy)
     article['full_text'] = full_text or ''
+    article['source_fetch_ok'] = bool(article.get('arxiv_data')) or (
+        len(full_text or '') > 300
+        and (full_text or '').strip() != (article.get('description', '') or '').strip()
+    )
+    secondary_sources = []
+    for secondary_url in article.get('additional_source_urls', [])[:2]:
+        secondary_article = {
+            'link': secondary_url,
+            'source_name': urllib.parse.urlparse(secondary_url).netloc,
+            'description': '',
+        }
+        secondary_text = extract_article(secondary_article, proxy)
+        if secondary_text and len(secondary_text) > 200:
+            secondary_sources.append({
+                'url': secondary_url,
+                'source_name': secondary_article['source_name'],
+                'text': secondary_text[:10000],
+            })
+    article['secondary_sources'] = secondary_sources
     src_len = len(article.get('description', '') or '')
     ext_len = len(full_text or '')
     logger.info("article_text: source=%s/%d chars extracted=%s/%d chars",
@@ -597,20 +666,31 @@ def main():
     print("=" * 60)
     sys.stdout.flush()
 
-    cfg = load_config()
+    try:
+        cfg = load_config()
+    except ValueError as exc:
+        print("ERROR: Invalid news proxy configuration: %s" % redact_secrets(exc))
+        return
     sources_cfg = load_sources()
     sources = sources_cfg.get('sources', {})
     settings = sources_cfg.get('settings', {})
     max_articles = settings.get('max_articles_per_run', 3)
+    try:
+        max_age_hours = int(os.environ.get('NEWS_MAX_AGE_HOURS', settings.get('max_age_hours', 96)))
+    except (TypeError, ValueError):
+        max_age_hours = 96
 
     proxy = cfg.get('proxy')
     api_key = cfg.get('key')
 
+    if proxy_is_required() and not proxy:
+        print("ERROR: News proxy is required. Set AISPHERE_NEWS_PROXY or NEWS_PROXY_URL.")
+        return
     if not api_key:
         print("ERROR: No OpenRouter API key found in .env")
         return
 
-    print("Proxy: %s" % ('configured' if proxy else 'none'))
+    print("Proxy: %s" % proxy_public_label(proxy))
     print("Sources: %d" % len(sources))
     print("Max articles: %d" % max_articles)
     sys.stdout.flush()
@@ -648,7 +728,7 @@ def main():
                 continue
             if not is_ai_related(item.get('title', ''), item.get('description', '')):
                 continue
-            if not is_recent(item.get('published', ''), 48):
+            if not is_recent(item.get('published', ''), max_age_hours):
                 continue
 
             item['source_id'] = source_id
@@ -668,8 +748,14 @@ def main():
         return
 
     # ── Relevance scoring and quotas ──
-    MIN_GENERATION_SCORE = 0.50  # minimum total score to generate article
-    MIN_PRODUCT_RELEVANCE = 0.0  # all news pass pre-filter; scoring handles ranking
+    # Balanced defaults keep the stream alive while still rejecting unrelated
+    # material. Both thresholds can be tightened without changing code.
+    try:
+        MIN_GENERATION_SCORE = float(os.environ.get('NEWS_MIN_GENERATION_SCORE', '0.42'))
+        MIN_PRODUCT_RELEVANCE = float(os.environ.get('NEWS_MIN_PRODUCT_RELEVANCE', '0.05'))
+    except ValueError:
+        MIN_GENERATION_SCORE = 0.42
+        MIN_PRODUCT_RELEVANCE = 0.05
 
     # Boost keywords for product relevance (30% of score)
     # Each keyword is matched case-insensitively as substring
@@ -769,41 +855,53 @@ def main():
     # Group articles by event key (company + model/feature + event type + date)
     # Then keep only the best-scoring source per event, merge additional URLs
 
-    def extract_event_key(item):
-        """Extract event key for dedup grouping."""
-        title = (item.get('title', '') + ' ' + (item.get('description', '') or '')).lower()
-        # Normalize: lowercase, strip punctuation, remove common stopwords
-        key_text = re.sub(r'[^a-zа-яё0-9\s]', ' ', title)
-        key_text = re.sub(r'\s+', ' ', key_text).strip()
-        # Take first 80 chars of normalized description as event fingerprint
-        return key_text[:80]
-
     def make_event_key(item):
-        """Build event key from title + source."""
-        t = item.get('title', '')[:60].lower().strip()
-        # Remove trailing punctuation
-        t = re.sub(r'[\s,;:.!?]+$', '', t)
-        # Add source as tiebreaker
-        return t
+        """Build a source-independent event fingerprint."""
+        text = (item.get('title', '') + ' ' + (item.get('description', '') or '')).lower()
+        entities = [name for name in BOOST_KEYWORDS if name in text]
+        event_types = [name for name in (
+            'release', 'launch', 'announce', 'update', 'pricing', 'acquire',
+            'funding', 'research', 'security', 'partnership', 'benchmark',
+        ) if name in text]
+        tokens = re.findall(r'[a-zа-яё0-9]{4,}', text)
+        stop = {'with', 'from', 'that', 'this', 'their', 'about', 'after', 'before',
+                'который', 'новый', 'новая', 'после', 'перед', 'свой', 'стала'}
+        distinctive = sorted(set(token for token in tokens if token not in stop))[:12]
+        day = (item.get('published', '') or '')[:10]
+        payload = '|'.join(sorted(set(entities)) + event_types + distinctive + [day])
+        return hashlib.sha256(payload.encode('utf-8')).hexdigest()[:24] if payload else ''
 
     seen_events = {}  # event_key -> best article
+    published_event_keys = load_published_event_keys()
     deduped = []
     for a in all_new:
         ek = make_event_key(a)
+        a['event_key'] = ek
         if not ek:
             deduped.append(a)
             continue
+        if ek in published_event_keys:
+            logger.info("dedup: skipped already-published event %s for \"%s\"", ek, a.get('title', '')[:40])
+            continue
         if ek in seen_events:
             existing = seen_events[ek]
+            merged_urls = list(dict.fromkeys(
+                [existing.get('link', ''), a.get('link', '')]
+                + existing.get('additional_source_urls', [])
+                + a.get('additional_source_urls', [])
+            ))
+            merged_urls = [url for url in merged_urls if url]
             existing_score = existing.get('_score', 0)
             current_score = a.get('_score', 0)
             if current_score > existing_score:
                 deduped.remove(existing)
                 deduped.append(a)
+                a['additional_source_urls'] = [url for url in merged_urls if url != a.get('link', '')]
                 seen_events[ek] = a
                 logger.info("dedup: kept higher-score %.3f > %.3f for \"%s\"",
                             current_score, existing_score, a.get('title', '')[:40])
             else:
+                existing['additional_source_urls'] = [url for url in merged_urls if url != existing.get('link', '')]
                 logger.info("dedup: skipped \"%s\" (score %.3f < %.3f for same event)",
                             a.get('title', '')[:40], current_score, existing_score)
         else:
@@ -894,20 +992,18 @@ def main():
                 print("  SKIP: %s" % error, file=sys.stderr)
             else:
                 print("  ERROR: %s" % error, file=sys.stderr)
-            # Still mark as seen to avoid re-processing
-            link = article.get('link', '')
-            seen_updates[link] = {
-                'title': article.get('title', ''),
-                'source': article.get('source_id', ''),
-                'time': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-                'status': error[:50],
-            }
+            logger.warning("retryable_failure: source=%s error=%s", article.get('source_id', ''), error[:80])
             continue
 
-        # Write draft file
+        qa_status = qa_gate.get("qa_status", "unknown") if qa_gate else "unknown"
+
+        # Write a non-indexable draft; only a passed gate is promoted below.
         print("  Writing draft file...", file=sys.stderr)
         source_type = 'primary_research_preprint' if article.get('arxiv_data') else 'news_article'
-        filepath, slug = write_article_file_draft(article_data, article, source_type)
+        filepath, slug = write_article_file_draft(
+            article_data, article, source_type,
+            'passed' if qa_status == 'passed' else 'failed',
+        )
         print("  File: %s" % filepath, file=sys.stderr)
 
         link = article.get('link', '')
@@ -917,7 +1013,6 @@ def main():
             'time': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
         }
 
-        qa_status = qa_gate.get("qa_status", "unknown") if qa_gate else "unknown"
         print("  QA: %s" % qa_status, file=sys.stderr)
         if qa_gate and qa_gate.get("warnings"):
             for w in qa_gate["warnings"][:3]:

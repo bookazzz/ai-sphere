@@ -3,10 +3,11 @@ import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { getNewsByCategory, getActiveNewsCategories } from '@/lib/news/get-news';
-import { site } from '@/config/site';
 import { NEWS_CATEGORY_LABELS, NEWS_CATEGORIES } from '@/types/news';
 import type { NewsCategory } from '@/types/news';
 import Link from 'next/link';
+import { site } from '@/config/site';
+import { seoDescription, seoTitle } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -20,10 +21,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   if (!NEWS_CATEGORIES.includes(slug as NewsCategory)) return {};
   const label = NEWS_CATEGORY_LABELS[slug as NewsCategory];
+  const description = seoDescription(`Последние новости и обновления ${label}: релизы, исследования, тесты и важные события в сфере искусственного интеллекта.`);
   return {
-    title: `Новости ${label} | AI-Sphere`,
-    description: `Последние новости и обновления ${label}: релизы, обновления, тесты и события.`,
-    robots: { index: true, follow: true },
+    title: seoTitle(`Новости и обновления: ${label}`),
+    description,
+    robots: { index: true, follow: true, 'max-image-preview': 'large' },
+    alternates: { canonical: `${site.url}/news/category/${slug}/` },
+    openGraph: {
+      title: `Новости ${label} | AI-Sphere`,
+      description,
+      url: `${site.url}/news/category/${slug}/`,
+      siteName: site.name,
+      locale: site.locale,
+      type: 'website',
+    },
   };
 }
 

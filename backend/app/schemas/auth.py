@@ -23,14 +23,14 @@ class UserInfo(BaseModel):
     credits: int
     yandex_id: str | None = None
     vk_id: str | None = None
+    is_admin: bool = False
+    role_id: int | None = None
     created_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 
 
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+class AuthResponse(BaseModel):
     user: UserInfo
 
 

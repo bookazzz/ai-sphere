@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Исследование: LLM демонстрируют систематическую религиозную предвзятость в финансовых советах
+
 
 **Кратко:** Крупные языковые модели (LLM), включая ChatGPT, Gemini и Grok, систематически проявляют религиозную предвзятость при генерации финансовых советов. Исследование, основанное на 432 симулированных взаимодействиях, показало, что лишь 12-18% советов были непредвзятыми. Gemini оказалась более предвзятой, чем Grok, а результаты ChatGPT были статистически сопоставимы с Grok.
 

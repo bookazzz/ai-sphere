@@ -23,18 +23,17 @@ export default function AuthModal({ isOpen, onClose }: Props) {
     <div className="auth-modal auth-modal--open">
       <div className="auth-modal__overlay" onClick={onClose} />
       <div className="auth-modal__content" role="dialog" aria-modal="true" aria-labelledby="auth-title">
-        <button className="auth-modal__close" onClick={onClose} aria-label="Р—Р°РєСЂС‹С‚СЊ">Г—</button>
-        <h2 id="auth-title" className="auth-modal__title">Р’РѕР№С‚Рё РІ AIвЂ‘Sphere</h2>
-        <p className="auth-modal__subtitle">Р’С‹Р±РµСЂРёС‚Рµ СѓРґРѕР±РЅС‹Р№ СЃРµСЂРІРёСЃ. РќРѕРІС‹Р№ Р°РєРєР°СѓРЅС‚ СЃРѕР·РґР°СЃС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё.</p>
+        <button className="auth-modal__close" onClick={onClose} aria-label="Закрыть">×</button>
+        <h2 id="auth-title" className="auth-modal__title">Войти в AI‑Sphere</h2>
+        <p className="auth-modal__subtitle">Выберите удобный сервис. Новый аккаунт создастся автоматически.</p>
         <div className="auth-modal__social">
-          <button type="button" onClick={() => start('yandex')} className="auth-modal__social-btn">РЇРЅРґРµРєСЃ</button>
+          <button type="button" onClick={() => start('yandex')} className="auth-modal__social-btn">Яндекс</button>
           <button type="button" onClick={() => start('vk')} className="auth-modal__social-btn auth-modal__social-btn--vk">VK</button>
         </div>
         <p className="auth-modal__subtitle">
-          РџСЂРѕРґРѕР»Р¶Р°СЏ, РІС‹ РїСЂРёРЅРёРјР°РµС‚Рµ <a href="/offer">РѕС„РµСЂС‚Сѓ</a> Рё <a href="/privacy">РїРѕР»РёС‚РёРєСѓ РєРѕРЅС„РёРґРµРЅС†РёР°Р»СЊРЅРѕСЃС‚Рё</a>.
+          Продолжая, вы принимаете <a href="/offer">оферту</a> и <a href="/privacy">политику конфиденциальности</a>.
         </p>
       </div>
     </div>
   );
 }
-

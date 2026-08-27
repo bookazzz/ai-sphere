@@ -30,6 +30,8 @@ export interface NewsArticleMeta {
   slug: string;
   /** Заголовок H1 */
   title: string;
+  /** Отдельный title для поискового сниппета. */
+  seoTitle?: string;
   /** Meta description */
   description: string;
   /** Дата публикации (ISO) */
@@ -44,6 +46,11 @@ export interface NewsArticleMeta {
   tags: string[];
   /** Ссылки на источники */
   sourceUrls: string[];
+  /** Стабильный идентификатор события для межисточниковой дедупликации. */
+  eventKey?: string;
+  factCheckedAt?: string;
+  reviewStatus?: 'pending' | 'passed' | 'failed';
+  primaryKeyword?: string;
   /** Основной источник (первый URL) */
   primarySourceUrl?: string;
   /** Связанные модели */

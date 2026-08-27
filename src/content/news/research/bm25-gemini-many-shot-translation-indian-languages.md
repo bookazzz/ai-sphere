@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# BM25 и Gemini 2.5 Flash для перевода индийских языков: новый подход от UF
+
 
 **Кратко:** Исследователи из Университета Флориды представили систему перевода для 11 языков северо-восточной Индии. На этапе инференса BM25 находит наиболее похожие параллельные примеры из языкового банка, а Gemini 2.5 Flash выполняет перевод с учётом этих примеров. Модель не дообучается.
 

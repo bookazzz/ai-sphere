@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Новые ИИ-модели галлюцинируют имена пакетов в 4-6% случаев, угроза сохраняется
+
 
 **Кратко:** Исследователи повторили методологию Spracklen et al. на пяти frontier-моделях, выпущенных с октября 2025 по март 2026 года. Уровень галлюцинаций (выдача несуществующих имён пакетов PyPI и npm) снизился до 4,62–6,10%, но не исчез. Обнаружено 127 новых имён пакетов, которые могут быть использованы для атак.
 

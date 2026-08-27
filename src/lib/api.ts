@@ -21,7 +21,7 @@ export async function apiCall<T = any>(
   return res.json();
 }
 
-// в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Auth в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+// ──────────────── Auth ────────────────
 
 export async function loginAdmin(email: string, password: string) {
   return apiCall<{ user: any }>('/admin/auth/login', {
@@ -38,7 +38,7 @@ export async function logoutUser(): Promise<void> {
   await apiCall('/auth/logout', { method: 'POST' });
 }
 
-// в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Chat в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+// ──────────────── Chat ────────────────
 
 export interface ContentPart {
   type: 'text' | 'image_url' | 'video_url' | 'file';
@@ -225,7 +225,7 @@ export async function streamChat(
     const error = await res.json().catch(() => ({ detail: res.statusText }));
     throw new Error(error.detail || `HTTP ${res.status}`);
   }
-  if (!res.body) throw new Error('РЎРµСЂРІРµСЂ РІРµСЂРЅСѓР» РїСѓСЃС‚РѕР№ РїРѕС‚РѕРє');
+  if (!res.body) throw new Error('Сервер вернул пустой поток');
 
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
@@ -247,7 +247,7 @@ export async function streamChat(
     } else if (data.type === 'generation') {
       callbacks.onGeneration?.(data.generation);
     } else if (data.type === 'error') {
-      const message = String(data.content || 'РћС€РёР±РєР° РіРµРЅРµСЂР°С†РёРё');
+      const message = String(data.content || 'Ошибка генерации');
       if (callbacks.onError) {
         callbacks.onError(message);
         if (!doneCalled) {
@@ -271,13 +271,13 @@ export async function streamChat(
       try {
         handleEvent(event);
       } catch (error) {
-        if (error instanceof SyntaxError) throw new Error('РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РѕС‚РІРµС‚ СЃРµСЂРІРµСЂР°');
+        if (error instanceof SyntaxError) throw new Error('Некорректный ответ сервера');
         throw error;
       }
     }
   }
   if (buffer.trim()) handleEvent(buffer);
-  if (!doneCalled) throw new Error('РџРѕС‚РѕРє РѕС‚РІРµС‚Р° Р·Р°РІРµСЂС€РёР»СЃСЏ РїСЂРµР¶РґРµРІСЂРµРјРµРЅРЅРѕ');
+  if (!doneCalled) throw new Error('Поток ответа завершился преждевременно');
 }
 
 export async function fetchTaskTemplates(category = ''): Promise<TaskTemplate[]> {
@@ -497,7 +497,7 @@ export async function uploadFile(file: File, sessionId?: string | null): Promise
   return res.json();
 }
 
-// в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Fact Check в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+// ──────────────── Fact Check ────────────────
 
 export interface FactCheckClaim {
   claim: string;
@@ -519,7 +519,7 @@ export async function checkFacts(model: string, prompt: string, response: string
   });
 }
 
-// в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Session Sync (cross-device) в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+// ──────────────── Session Sync (cross-device) ────────────────
 
 export interface ServerSession {
   id: string;
@@ -561,7 +561,7 @@ export async function punctuateText(text: string): Promise<string> {
   }
 }
 
-// в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Ensemble в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+// ──────────────── Ensemble ────────────────
 
 export interface EnsembleModelResponse {
   model_name: string;
@@ -584,7 +584,7 @@ export async function ensembleChat(modelTier: string, messages: ChatMessage[], s
   });
 }
 
-// в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Message Feedback в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+// ──────────────── Message Feedback ────────────────
 
 export interface MessageFeedback {
   session_id: string;
@@ -600,7 +600,7 @@ export async function sendFeedback(feedback: MessageFeedback): Promise<void> {
   });
 }
 
-// в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ Regenerate в”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђв”Ђ
+// ──────────────── Regenerate ────────────────
 
 /**
  * Prepare messages for regeneration: remove the last assistant message
@@ -608,7 +608,7 @@ export async function sendFeedback(feedback: MessageFeedback): Promise<void> {
  */
 export function prepareRegenerateMessages(messages: ChatMessage[]): ChatMessage[] {
   const msgs = [...messages];
-  // Remove the last assistant message(s) вЂ” usually the last message
+  // Remove the last assistant message(s) — usually the last message
   for (let i = msgs.length - 1; i >= 0; i--) {
     if (msgs[i].role === 'assistant') {
       msgs.splice(i, 1);
@@ -617,4 +617,3 @@ export function prepareRegenerateMessages(messages: ChatMessage[]): ChatMessage[
   }
   return msgs;
 }
-

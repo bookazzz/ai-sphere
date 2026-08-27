@@ -4,6 +4,7 @@ import { useModels } from '@/hooks/useModels';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
+import { getAllModelHubs } from '@/content/models';
 
 // Ссылка на раздел цен по названию провайдера
 function getPriceAnchor(providerName: string): string {
@@ -44,7 +45,8 @@ const categoryIcons: Record<string, string> = {
 };
 
 export default function ModelsPage() {
-  const { categories, loading } = useModels();
+  const { categories } = useModels();
+  const modelHubs = getAllModelHubs();
 
   return (
     <>
@@ -55,6 +57,28 @@ export default function ModelsPage() {
           <p className="models-hero__subtitle">
             {categories.reduce((sum, cat) => sum + cat.models.length, 0)} нейросетей от ведущих мировых разработчиков в одном интерфейсе
           </p>
+        </div>
+      </section>
+      <section className="models-section" aria-labelledby="model-guides-title">
+        <div className="models-section__container">
+          <div className="models-category__header">
+            <h2 id="model-guides-title" className="models-category__name">Популярные модели</h2>
+          </div>
+          <div className="models-grid">
+            {modelHubs.map((model) => (
+              <Link
+                href={`/models/${model.slug}/`}
+                className="models-card"
+                key={model.slug}
+                style={{ textDecoration: 'none', display: 'block' }}
+              >
+                <span className="models-card__name" style={{ color: 'var(--color-accent, #667eea)' }}>
+                  {model.name}
+                </span>
+                <span className="models-card__description">{model.providerName} · {model.useCases[0]}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
       <section className="models-section">

@@ -21,7 +21,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Измерение токенизационной премии: как языки влияют на стоимость LLM
+
 
 **Кратко:** Исследователи представили бенчмарк Tokenization Equity Audit (TEA) для оценки токенизационных премий в техническом образовательном контенте. Анализ показал, что для Bengali требуется значительно больше токенов при одинаковом содержании, что ведет к росту затрат API и задержек.
 

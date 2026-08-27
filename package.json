@@ -4,12 +4,22 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "presitemap": "node scripts/validate-blog.cjs && node scripts/generate-sitemap.cjs",
-    "build": "npm run presitemap && node scripts/validate-seo.cjs && next build",
+    "prebuild": "node scripts/generate-build-info.cjs && node scripts/validate-blog.cjs && node scripts/validate-seo.cjs && node scripts/validate-news.cjs",
+    "build": "next build",
+    "postbuild": "node scripts/seo-audit.cjs",
     "start": "next start",
-    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "lint:css": "stylelint \"src/**/*.css\"",
+    "test": "node scripts/validate-routes.cjs",
+    "test:news": "python -m unittest discover -s scripts/news-monitor -p \"test_*.py\"",
+    "test:e2e": "playwright test",
+    "test:e2e:update": "playwright test --update-snapshots",
     "new-post": "node scripts/new-post.cjs",
-    "validate-blog": "node scripts/validate-blog.cjs"
+    "validate-blog": "node scripts/validate-blog.cjs",
+    "seo:audit": "node scripts/seo-audit.cjs",
+    "seo:check-live": "node scripts/seo-check-live.cjs",
+    "seo:keys": "node scripts/seo/keys-research.cjs"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
@@ -21,9 +31,15 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.5.20",
+    "stylelint": "^17.14.1",
+    "stylelint-config-standard": "^40.0.0",
     "typescript": "^5"
   }
 }

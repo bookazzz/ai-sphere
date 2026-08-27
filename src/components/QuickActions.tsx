@@ -16,7 +16,7 @@ export default function QuickActions({ onSelect }: QuickActionsProps) {
     <div className="quick-actions">
       {actions.map((action, i) => (
         <button key={i} className="quick-actions__btn" onClick={() => onSelect(action.prompt)}>
-          <span className="quick-actions__btn-icon">{action.icon}</span>
+          <span className="quick-actions__btn-icon" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
           {action.label}
         </button>
       ))}

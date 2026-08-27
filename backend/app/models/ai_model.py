@@ -1,6 +1,8 @@
 """AI Model model — managed via admin panel."""
 
-from sqlalchemy import Boolean, String, Text, Float, Integer
+from datetime import datetime
+
+from sqlalchemy import Boolean, String, Text, Float, Integer, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, TimestampMixin
@@ -69,3 +71,16 @@ class AiModel(Base, TimestampMixin):
 
     # Vision
     vision: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    # OpenRouter capability snapshot. JSON is stored as text so the same model
+    # works with the existing SQLite deployment and future SQL databases.
+    input_modalities: Mapped[str] = mapped_column(Text, default='["text"]', server_default='["text"]')
+    output_modalities: Mapped[str] = mapped_column(Text, default='["text"]', server_default='["text"]')
+    supported_parameters: Mapped[str] = mapped_column(Text, default="{}", server_default="{}")
+    openrouter_pricing: Mapped[str] = mapped_column(Text, default="{}", server_default="{}")
+    auto_route_enabled: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    or_last_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    catalog_miss_count: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    availability_status: Mapped[str] = mapped_column(String(20), default="unknown", server_default="unknown")
+    recommended_priority: Mapped[int] = mapped_column(Integer, default=100, server_default="100")
+    last_provider_error: Mapped[str] = mapped_column(Text, default="", server_default="")

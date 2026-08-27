@@ -20,7 +20,7 @@ index: true
 > **⚠️ Status: preprint
 > This article is based on a preprint published on arXiv. The work may not have undergone independent peer review. Conclusions reflect the authors' position.
 
-# Бенчмарк τ-Rec: надежность AI-агентов в рекомендациях резко падает
+
 
 **Кратко:** Представлен бенчмарк τ-Rec для оценки агентных рекомендательных систем. Он заменяет субъективное оценивание "LLM-as-a-judge" на верифицируемые награды и механизм reveal-tagged elicitation (RTE). Тестирование девяти конфигураций пяти моделей показало, что даже лучшая модель достигает лишь 57% успеха при однократной попытке и 35% при четырех.
 
