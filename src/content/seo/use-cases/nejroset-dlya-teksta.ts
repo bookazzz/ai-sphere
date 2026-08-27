@@ -59,6 +59,7 @@ export const nejroset_dlya_teksta: SeoPageContent = {
   ctaText: 'Попробуйте написание текстов нейросетью. 10 бесплатных запросов, без привязки карты.',
   relatedPages: [
     'sochinenie-nejroset',
+    'rerajt-nejrosetej',
     'gpt-besplatno',
     'chat-gpt-online',
     'voprosy-nejroseti',
