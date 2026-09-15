@@ -16,7 +16,7 @@ import FAQSection from '@/components/sections/FAQSection';
 import CTASection from '@/components/sections/CTASection';
 import Footer from '@/components/Footer';
 import { getMe, logoutUser, saveSession, deleteSessionApi, prepareRegenerateMessages, recordProductEvent } from '@/lib/api';
-import type { ChatMessage, ContentPart, EnsembleResponse, TaskRunContext } from '@/lib/api';
+import type { ChatMessage, ContentPart, TaskRunContext } from '@/lib/api';
 
 const PENDING_TASK_KEY = 'ai_sphere_pending_task';
 let activeStorageUserId: string | null = null;
@@ -409,52 +409,6 @@ export default function HomeClient() {
     setChatActive(true);
   }, []);
 
-  const handleEnsembleResult = useCallback((text: string, attachedFiles: any[] | undefined, result: EnsembleResponse) => {
-    // Build user message (same format as handleSendMessage)
-    let userContent: string | ContentPart[];
-    if (attachedFiles && attachedFiles.length > 0) {
-      const imageParts: ContentPart[] = attachedFiles
-        .filter((f: any) => f.dataUrl && f.dataUrl.startsWith('data:image/'))
-        .map((f: any) => ({
-          type: 'image_url',
-          image_url: { url: f.dataUrl },
-        }));
-      userContent = [
-        { type: 'text', text: text || '' },
-        ...imageParts,
-      ];
-    } else {
-      userContent = text;
-    }
-
-    const userMsg: ChatMessage = { role: 'user', content: userContent };
-    const newMessages: ChatMessage[] = [userMsg];
-
-    // Consensus as the main assistant message
-    newMessages.push({
-      role: 'assistant',
-      content: `🧠 **Консенсус 3-х моделей (${result.credits_spent} кр.)**\n\n${result.consensus}`,
-    });
-
-    // Each model response as a separate message
-    for (const m of result.models) {
-      if (m.content) {
-        newMessages.push({
-          role: 'assistant',
-          content: `🤖 **${m.model_name}**\n\n${m.content}`,
-        });
-      } else {
-        newMessages.push({
-          role: 'assistant',
-          content: `⚠️ **${m.model_name}** — ошибка: ${m.error || 'нет ответа'}`,
-        });
-      }
-    }
-
-    setMessages(prev => [...prev, ...newMessages]);
-    setChatActive(true);
-  }, []);
-
   const handleRegenerate = useCallback(async () => {
     const current = messagesRef.current;
     if (current.length === 0) return;
@@ -826,7 +780,6 @@ export default function HomeClient() {
           chatActive={chatActive}
           onDeleteChat={handleDeleteChat}
           onShareChat={handleShareChat}
-          onEnsembleResult={handleEnsembleResult}
           onActivateChat={handleActivateChat}
           onRegenerate={handleRegenerate}
           currentSessionId={currentSessionIdRef.current}

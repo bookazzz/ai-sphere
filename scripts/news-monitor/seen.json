@@ -2868,5 +2868,719 @@
     "title": "GPT-5.6 Sol drives OpenAI's revenue surge as it regains ground on Anthropic",
     "source": "the-decoder",
     "time": "2026-08-21T10:02:25Z"
+  },
+  "https://the-decoder.com/nvidia-is-acquiring-poolsides-model-factory-and-109-employees-for-6-billion/": {
+    "title": "Nvidia is acquiring Poolside's \"Model Factory\" and 109 employees for $6 billion",
+    "source": "the-decoder",
+    "time": "2026-08-21T12:09:48Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/introducing-cross-region-inference-for-openai-gpt-5-6-models-on-amazon-bedrock/": {
+    "title": "Introducing cross-Region inference for OpenAI GPT-5.6 models on Amazon Bedrock",
+    "source": "aws-ml",
+    "time": "2026-08-21T14:14:19Z",
+    "status": "classification: Failed to parse stage1 output"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/agentic-data-operations-platform-adop-data-engineering-into-hours/": {
+    "title": "Agentic Data Operations Platform (ADOP): Data engineering into hours",
+    "source": "aws-ml",
+    "time": "2026-08-21T18:19:04Z"
+  },
+  "https://techcrunch.com/2026/08/21/nvidia-just-showed-that-the-harness-not-the-ai-model-is-now-the-real-hero/": {
+    "title": "Nvidia just showed that the harness, not the AI model, is now the real hero",
+    "source": "techcrunch-ai",
+    "time": "2026-08-21T20:24:38Z"
+  },
+  "https://the-decoder.com/deepseek-releases-experimental-flash-vision-model-that-rivals-opus-4-8-on-agent-benchmarks/": {
+    "title": "Deepseek releases experimental Flash vision model that rivals Opus 4.8 on agent benchmarks",
+    "source": "the-decoder",
+    "time": "2026-08-21T20:26:42Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/govern-ai-agent-tool-access-with-amazon-bedrock-agentcore-gateway/": {
+    "title": "Govern AI agent tool access with Amazon Bedrock AgentCore Gateway",
+    "source": "aws-ml",
+    "time": "2026-08-21T22:33:26Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://the-decoder.com/anthropic-puts-its-most-powerful-model-claude-mythos-5-to-work-for-cyber-defense/": {
+    "title": "Anthropic puts its most powerful model Claude Mythos 5 to work for cyber defense",
+    "source": "the-decoder",
+    "time": "2026-08-21T22:36:55Z"
+  },
+  "https://techcrunch.com/2026/08/21/anthropics-opus-4-6-is-a-smut-machine/": {
+    "title": "Anthropic’s Opus 4.6 is a smut-machine",
+    "source": "techcrunch-ai",
+    "time": "2026-08-22T00:41:14Z"
+  },
+  "https://the-decoder.com/study-explains-why-ai-agents-benefit-from-skills-and-when-they-fail/": {
+    "title": "Study explains why AI agents benefit from \"skills\" and when they fail",
+    "source": "the-decoder",
+    "time": "2026-08-22T12:54:48Z"
+  },
+  "https://techcrunch.com/2026/08/22/inherent-founded-by-deepmind-alumni-says-its-ai-teammate-just-outperformed-anthropic-and-openai-at-replicating-research/": {
+    "title": "Inherent, founded by DeepMind alumni, says its AI ‘teammate’ just outperformed Anthropic and OpenAI at replicating research",
+    "source": "techcrunch-ai",
+    "time": "2026-08-22T19:03:58Z"
+  },
+  "https://the-decoder.com/memory-shortage-reportedly-drives-nvidia-ai-server-prices-up-about-15-percent/": {
+    "title": "Memory shortage reportedly drives Nvidia AI server prices up about 15 percent",
+    "source": "the-decoder",
+    "time": "2026-08-23T09:20:19Z"
+  },
+  "https://the-decoder.com/how-chinas-gray-market-sells-claude-tokens-at-a-fraction-of-the-price/": {
+    "title": "How China's gray market sells Claude tokens at a fraction of the price",
+    "source": "the-decoder",
+    "time": "2026-08-23T09:21:08Z"
+  },
+  "https://the-decoder.com/ai-is-becoming-ais-biggest-customer-as-agentic-token-usage-jumps-14x-on-openrouter/": {
+    "title": "AI is becoming AI's biggest customer as agentic token usage jumps 14x on OpenRouter",
+    "source": "the-decoder",
+    "time": "2026-08-23T11:24:29Z"
+  },
+  "https://arxiv.org/abs/2608.20418": {
+    "title": "Rigorous Evaluation of Large Language Models for Malaria Drug Discovery: Trade-offs in Performance, Scale, and Resource Utility",
+    "source": "arxiv-cslg",
+    "time": "2026-08-24T05:44:40Z"
+  },
+  "https://arxiv.org/abs/2608.21021": {
+    "title": "Free-Text Evaluation of LLMs for 5G Domain Knowledge and Fault Analysis using LLM-as-Judge",
+    "source": "arxiv-cscl",
+    "time": "2026-08-24T05:47:04Z"
+  },
+  "https://arxiv.org/abs/2608.20346": {
+    "title": "Building and Evaluating a Synthetic Bengali Speech Resource for Telecom Customer Care",
+    "source": "arxiv-cscl",
+    "time": "2026-08-24T07:49:16Z"
+  },
+  "https://the-decoder.com/ai-chatbots-regularly-link-pregnant-users-to-anti-abortion-websites-without-disclosure/": {
+    "title": "AI chatbots regularly link pregnant users to anti-abortion websites without disclosure",
+    "source": "the-decoder",
+    "time": "2026-08-24T11:59:21Z"
+  },
+  "https://the-decoder.com/cerebras-unveils-cs-4-with-double-the-performance-on-the-same-chip/": {
+    "title": "Cerebras unveils CS-4 with double the performance on the same chip",
+    "source": "the-decoder",
+    "time": "2026-08-24T12:01:07Z"
+  },
+  "https://the-decoder.com/thomson-reuters-bets-40m-on-owning-its-ai-instead-of-renting-from-openai-or-anthropic/": {
+    "title": "Thomson Reuters bets $40M on owning its AI instead of renting from OpenAI or Anthropic",
+    "source": "the-decoder",
+    "time": "2026-08-24T14:05:03Z"
+  },
+  "https://techcrunch.com/2026/08/24/openai-is-building-an-ai-agent-for-everything-will-everyone-use-them/": {
+    "title": "OpenAI is building AI agents for everything. Will everyone use them?",
+    "source": "techcrunch-ai",
+    "time": "2026-08-24T16:13:54Z"
+  },
+  "https://arxiv.org/abs/2608.21747": {
+    "title": "Architecture as Capability Equalizer for Coding Agents",
+    "source": "arxiv-cscl",
+    "time": "2026-08-25T04:32:55Z"
+  },
+  "https://arxiv.org/abs/2507.12295": {
+    "title": "Text-ADBench: Text Anomaly Detection Benchmark Based on LLM Embeddings",
+    "source": "arxiv-cscl",
+    "time": "2026-08-25T04:35:24Z"
+  },
+  "https://arxiv.org/abs/2608.22808": {
+    "title": "CatchBench: When Can an Agent Failure Be Caught?",
+    "source": "arxiv-cslg",
+    "time": "2026-08-25T06:38:21Z"
+  },
+  "https://arxiv.org/abs/2511.02208": {
+    "title": "Training Proactive and Personalized LLM Agents",
+    "source": "arxiv-cscl",
+    "time": "2026-08-25T06:41:11Z"
+  },
+  "https://the-decoder.com/taiwanese-cybersecurity-firm-warns-that-ai-tools-have-more-than-doubled-chinese-state-backed-cyberattacks/": {
+    "title": "Taiwanese cybersecurity firm warns that AI tools have more than doubled Chinese state-backed cyberattacks",
+    "source": "the-decoder",
+    "time": "2026-08-25T08:47:37Z"
+  },
+  "https://arxiv.org/abs/2608.21398": {
+    "title": "Runtime Action Interference for AI Control of AlphaStar in StarCraft II",
+    "source": "arxiv-cslg",
+    "time": "2026-08-25T08:50:23Z"
+  },
+  "https://arxiv.org/abs/2608.20873": {
+    "title": "In-Cell Learning: Deployed Language Models Can Learn New Knowledge Without Changing a Single Stored Bit",
+    "source": "arxiv-cslg",
+    "time": "2026-08-25T11:00:44Z"
+  },
+  "https://the-decoder.com/alabama-is-investigating-openai-following-an-uncontrolled-ai-agent-hack/": {
+    "title": "Alabama AG probes OpenAI after its AI agent went rogue and hacked into external systems",
+    "source": "the-decoder",
+    "time": "2026-08-25T11:02:31Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/introducing-new-ray-capabilities-on-sagemaker-hyperpod/": {
+    "title": "Introducing new Ray capabilities on SageMaker HyperPod",
+    "source": "aws-ml",
+    "time": "2026-08-25T13:11:12Z"
+  },
+  "https://the-decoder.com/metas-paid-ai-agent-hatch-launches-soon-with-a-new-model-called-watermelon-due-in-october/": {
+    "title": "Meta's paid AI agent Hatch launches soon, with a new model called Watermelon due in October",
+    "source": "the-decoder",
+    "time": "2026-08-25T15:17:33Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://the-decoder.com/google-launches-gemini-for-legal-work-to-automate-contracts-and-research/": {
+    "title": "Google launches Gemini for legal work to automate contracts and research",
+    "source": "the-decoder",
+    "time": "2026-08-25T17:25:25Z"
+  },
+  "https://the-decoder.com/russia-used-chatgpt-to-run-a-covert-influence-campaign-pushing-pro-kremlin-narratives-across-the-west/": {
+    "title": "Russia used ChatGPT to run a covert influence campaign pushing pro-Kremlin narratives across the West",
+    "source": "the-decoder",
+    "time": "2026-08-26T03:38:15Z"
+  },
+  "https://the-decoder.com/openais-first-custom-chip-jalapeno-reportedly-beats-nvidias-blackwell-and-rubin-in-inference-benchmarks/": {
+    "title": "OpenAI's first custom chip \"Jalapeño\" reportedly beats Nvidia's Blackwell and Rubin in inference benchmarks",
+    "source": "the-decoder",
+    "time": "2026-08-26T03:38:28Z",
+    "status": "classification: Failed to parse stage1 output"
+  },
+  "https://techcrunch.com/2026/08/25/claude-cowork-finally-remembers-what-you-told-the-app-in-chat/": {
+    "title": "Claude Cowork finally remembers what you told the app in chat",
+    "source": "techcrunch-ai",
+    "time": "2026-08-26T03:42:12Z"
+  },
+  "https://arxiv.org/abs/2608.24191": {
+    "title": "'Ghaib in Translation' aka Unseen Harm: Measuring Cross-Script Safety Inconsistency with 'Missed-in-Urdu' Scores in LLM Hate Speech Detection",
+    "source": "arxiv-cscl",
+    "time": "2026-08-26T05:46:50Z"
+  },
+  "https://arxiv.org/abs/2608.24654": {
+    "title": "Expectation, Backlash, Recovery, and Excitement: How Model Releases Shape Reddit Perceptions of Conversational AI Systems",
+    "source": "arxiv-cscl",
+    "time": "2026-08-26T07:50:26Z"
+  },
+  "https://arxiv.org/abs/2607.04469": {
+    "title": "Don't Commit Alone: Joint Token Commitment in Diffusion Language Models",
+    "source": "arxiv-cscl",
+    "time": "2026-08-26T07:52:37Z"
+  },
+  "https://arxiv.org/abs/2603.10068": {
+    "title": "ADVERSA: Measuring Multi-Turn Guardrail Degradation and Judge Reliability in Large Language Models",
+    "source": "arxiv-cscl",
+    "time": "2026-08-26T09:56:16Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://arxiv.org/abs/2608.24113": {
+    "title": "Structured Frequency-Domain Evidence for LLM-Based Time-Series Anomaly Detection",
+    "source": "arxiv-cslg",
+    "time": "2026-08-26T09:59:08Z"
+  },
+  "https://techcrunch.com/2026/08/26/runable-hits-21m-to-bet-ai-agents-can-go-from-building-businesses-to-growing-them/": {
+    "title": "Runable hits $21M to bet AI agents can go from building businesses to growing them",
+    "source": "techcrunch-ai",
+    "time": "2026-08-26T12:07:18Z"
+  },
+  "https://arxiv.org/abs/2608.24306": {
+    "title": "Who is the Agent to Blame? Localizing Faithfulness and Citation Mistakes in Agentic Deep Research",
+    "source": "arxiv-cscl",
+    "time": "2026-08-26T12:09:02Z"
+  },
+  "https://techcrunch.com/2026/08/26/arga-is-building-a-better-way-to-train-enterprise-ai-agents/": {
+    "title": "Arga Labs is building a better way to train enterprise AI agents",
+    "source": "techcrunch-ai",
+    "time": "2026-08-26T14:12:42Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/evaluate-any-agent-framework-with-amazon-bedrock-agentcore-evaluations/": {
+    "title": "Evaluate any agent framework with Amazon Bedrock AgentCore Evaluations",
+    "source": "aws-ml",
+    "time": "2026-08-26T20:53:41Z"
+  },
+  "https://the-decoder.com/alibaba-releases-qwen3-8-flash-next-targeting-ultimate-cost-efficiency/": {
+    "title": "Alibaba releases Qwen3.8-Flash-Next, targeting \"ultimate cost efficiency\"",
+    "source": "the-decoder",
+    "time": "2026-08-26T20:54:25Z"
+  },
+  "https://techcrunch.com/2026/08/26/openai-releases-its-official-report-on-the-hugging-face-breach/": {
+    "title": "OpenAI releases its official report on the Hugging Face breach",
+    "source": "techcrunch-ai",
+    "time": "2026-08-26T20:55:05Z"
+  },
+  "https://techcrunch.com/2026/08/26/radar-makes-podcasts-searchable-and-usable-by-ai-agents/": {
+    "title": "Radar makes podcasts searchable — and usable by AI agents",
+    "source": "techcrunch-ai",
+    "time": "2026-08-26T23:04:08Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://techcrunch.com/2026/08/26/surprise-z-ai-is-the-ai-lab-behind-the-mysterious-ox-alpha-model/": {
+    "title": "Surprise: Z.ai is the AI lab behind the mysterious Ox Alpha model",
+    "source": "techcrunch-ai",
+    "time": "2026-08-26T23:05:10Z"
+  },
+  "https://venturebeat.com/orchestration/orchestration-is-the-new-challenge-for-cx-in-the-age-of-ai-agents": {
+    "title": "Orchestration is the new challenge for CX in the age of AI agents",
+    "source": "venturebeat-ai",
+    "time": "2026-08-26T23:07:01Z"
+  },
+  "https://arxiv.org/abs/2603.11051": {
+    "title": "OpenSanctions Pairs: Large-Scale Entity Matching with LLMs",
+    "source": "arxiv-cscl",
+    "time": "2026-08-27T05:16:46Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://arxiv.org/abs/2507.18538": {
+    "title": "AI/ML Life Cycle Management for Interoperable AI Native RAN",
+    "source": "arxiv-cslg",
+    "time": "2026-08-27T05:18:18Z"
+  },
+  "https://the-decoder.com/nvidia-snaps-up-hugging-face-for-12-9-billion-as-closed-ai-labs-pull-away/": {
+    "title": "Nvidia snaps up Hugging Face for $12.9 billion as closed AI labs pull away",
+    "source": "the-decoder",
+    "time": "2026-08-27T07:23:27Z"
+  },
+  "https://techcrunch.com/2026/08/26/nvidia-closes-in-on-hugging-face-acquisition/": {
+    "title": "Nvidia closes in on Hugging Face acquisition",
+    "source": "techcrunch-ai",
+    "time": "2026-08-27T09:27:00Z"
+  },
+  "https://the-decoder.com/the-chinese-ai-model-glm-5-3-flash-runs-without-nvidia-and-costs-a-fraction-of-what-the-competition-does/": {
+    "title": "GLM-5.3-Flash matches top models at a fraction of the cost, and runs without Nvidia",
+    "source": "the-decoder",
+    "time": "2026-08-27T11:35:19Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://the-decoder.com/claude-cowork-now-runs-its-own-browser-inside-the-desktop-app/": {
+    "title": "Claude Cowork now runs its own browser inside the desktop app",
+    "source": "the-decoder",
+    "time": "2026-08-27T11:36:28Z"
+  },
+  "https://arxiv.org/abs/2608.24901": {
+    "title": "Detection != Reliable Control: Decodable Empathy Directions Yield at Most Partial Shifts in Automated Empathy Scores",
+    "source": "arxiv-cscl",
+    "time": "2026-08-27T11:37:44Z"
+  },
+  "https://venturebeat.com/security/when-agents-act-on-their-own-governance-has-to-live-in-the-data-layer": {
+    "title": "When agents act on their own, governance has to live in the data layer",
+    "source": "venturebeat-ai",
+    "time": "2026-08-27T13:47:52Z"
+  },
+  "https://techcrunch.com/2026/08/27/openai-to-start-showing-ads-on-chatgpts-free-and-go-tiers-in-india/": {
+    "title": "OpenAI to start showing ads on ChatGPT’s free and Go tiers in India",
+    "source": "techcrunch-ai",
+    "time": "2026-08-27T13:49:21Z",
+    "status": "writing: Failed to parse article JSON"
+  },
+  "https://the-decoder.com/openai-researcher-warns-ultrafast-ai-could-leave-security-teams-in-the-dust/": {
+    "title": "OpenAI researcher warns ultrafast AI could leave security teams in the dust",
+    "source": "the-decoder",
+    "time": "2026-08-27T15:55:52Z"
+  },
+  "https://techcrunch.com/2026/08/27/heres-all-the-times-ai-has-gone-rogue-and-hacked-other-companies/": {
+    "title": "Here’s all the times AI has gone rogue and hacked other companies",
+    "source": "techcrunch-ai",
+    "time": "2026-08-27T15:56:46Z"
+  },
+  "https://the-decoder.com/openais-rogue-ai-collective-was-smart-enough-to-break-out-of-sandboxes-but-dumb-enough-to-fight-a-ghost/": {
+    "title": "OpenAI’s rogue AI collective was smart enough to break out of sandboxes but dumb enough to fight a ghost",
+    "source": "the-decoder",
+    "time": "2026-08-27T18:03:23Z"
+  },
+  "https://the-decoder.com/openai-rallies-100-companies-to-sign-open-letter-warning-ai-powered-cyberattacks-on-critical-infrastructure-are-imminent/": {
+    "title": "OpenAI rallies 100+ companies to sign open letter warning AI-powered cyberattacks on critical infrastructure are imminent",
+    "source": "the-decoder",
+    "time": "2026-08-28T02:26:29Z"
+  },
+  "https://arxiv.org/abs/2608.26375": {
+    "title": "CG4AI: A Column Generation Framework for Training AI Models Under Constraints",
+    "source": "arxiv-cslg",
+    "time": "2026-08-28T06:37:10Z"
+  },
+  "https://the-decoder.com/always-on-and-self-starting-ai-agents-might-be-openais-next-big-play/": {
+    "title": "Always-on and self-starting AI agents might be OpenAI's next big play",
+    "source": "the-decoder",
+    "time": "2026-08-28T14:58:16Z"
+  },
+  "https://the-decoder.com/anthropic-wants-to-do-for-physical-hardware-what-its-model-context-protocol-did-for-software/": {
+    "title": "Anthropic wants to do for physical hardware what its Model Context Protocol did for software",
+    "source": "the-decoder",
+    "time": "2026-08-29T09:38:22Z"
+  },
+  "https://the-decoder.com/openai-cuts-off-cursor-after-spacex-acquisition-citing-musks-history-of-breaking-contracts/": {
+    "title": "OpenAI cuts off Cursor after SpaceX acquisition, citing Musk's history of breaking contracts",
+    "source": "the-decoder",
+    "time": "2026-08-29T09:39:09Z"
+  },
+  "https://the-decoder.com/google-gives-ai-agents-their-own-wiki-so-they-can-learn-from-mistakes-and-successes/": {
+    "title": "Google's WikiSkill gives AI agents a persistent memory of past mistakes to sharpen future performance",
+    "source": "the-decoder",
+    "time": "2026-08-30T02:13:55Z"
+  },
+  "https://simonwillison.net/2026/Aug/30/understanding-chatgpt-work/": {
+    "title": "Understanding ChatGPT Work",
+    "source": "simon-willison",
+    "time": "2026-08-31T01:01:42Z"
+  },
+  "https://the-decoder.com/ai-agents-have-no-sense-of-time-and-are-not-aware-of-it/": {
+    "title": "AI agents have no sense of time and are not aware of it",
+    "source": "the-decoder",
+    "time": "2026-08-31T01:02:48Z"
+  },
+  "https://the-decoder.com/openclaw-2-0-brings-simplified-setup-a-rebuilt-browser-app-and-multiplayer-sessions/": {
+    "title": "OpenClaw 2.0 brings simplified setup, a rebuilt browser app, and multiplayer sessions",
+    "source": "the-decoder",
+    "time": "2026-08-31T13:31:13Z"
+  },
+  "https://arxiv.org/abs/2608.27672": {
+    "title": "First Make It Playable, Then Make It Good: Staged Interaction Learning for Small Dialogue-Game Agents",
+    "source": "arxiv-cscl",
+    "time": "2026-08-31T13:33:12Z"
+  },
+  "https://techcrunch.com/2026/08/31/the-pentagon-now-has-its-own-version-of-chatgpt-and-grok/": {
+    "title": "The Pentagon now has its own version of ChatGPT and Grok",
+    "source": "techcrunch-ai",
+    "time": "2026-08-31T22:05:54Z"
+  },
+  "https://arxiv.org/abs/2608.29889": {
+    "title": "VibeJam: A User Study Platform for Web Development with Agents",
+    "source": "arxiv-cscl",
+    "time": "2026-09-01T06:20:12Z"
+  },
+  "https://arxiv.org/abs/2508.14273": {
+    "title": "Towards AI-Assisted Research Writing: Benchmarking LLMs for AI/ML Introduction Generation",
+    "source": "arxiv-cscl",
+    "time": "2026-09-01T08:27:02Z"
+  },
+  "https://arxiv.org/abs/2608.28667": {
+    "title": "GreenBench: Benchmarking Energy Efficiency and Carbon Footprint of Open-Source LLM Inference on Apple Silicon",
+    "source": "arxiv-cscl",
+    "time": "2026-09-01T10:36:19Z"
+  },
+  "https://arxiv.org/abs/2608.28932": {
+    "title": "VocalAffectBench: Evaluating Vocal Emotion Recognition in AI Audio Models",
+    "source": "arxiv-cscl",
+    "time": "2026-09-01T12:43:01Z"
+  },
+  "https://arxiv.org/abs/2608.30475": {
+    "title": "ImageEval 2026: Culturally Grounded Arabic Multimodal Evaluation",
+    "source": "arxiv-cscl",
+    "time": "2026-09-01T16:53:48Z"
+  },
+  "https://openai.com/index/ai-native-company-workflows": {
+    "title": "How AI-native companies turn workflows into operating capability",
+    "source": "openai-official",
+    "time": "2026-09-01T19:06:52Z"
+  },
+  "https://the-decoder.com/anthropic-opens-claude-ai-text-detection-to-regulators-media-fact-checkers-and-others/": {
+    "title": "Anthropic opens Claude AI text detection to regulators, media, fact-checkers, and others",
+    "source": "the-decoder",
+    "time": "2026-09-01T23:16:24Z"
+  },
+  "https://the-decoder.com/anthropics-claude-fable-5-1-promises-better-coding-and-research-at-up-to-45-percent-less/": {
+    "title": "Anthropic's Claude Fable 5.1 promises better coding and research at up to 45 percent less",
+    "source": "the-decoder",
+    "time": "2026-09-01T23:17:26Z"
+  },
+  "https://openai.com/index/path-to-astra": {
+    "title": "Path to Astra: critical capabilities and frontier safeguards",
+    "source": "openai-official",
+    "time": "2026-09-01T23:18:29Z"
+  },
+  "https://arxiv.org/abs/2609.00052": {
+    "title": "AgentProv: Auditing Agentic LLM API Providers via Tool-use Policy Probes",
+    "source": "arxiv-cscl",
+    "time": "2026-09-02T05:32:03Z"
+  },
+  "https://arxiv.org/abs/2609.00365": {
+    "title": "Dr. Claw: An AI Scientist Workspace for Vibe Research",
+    "source": "arxiv-cscl",
+    "time": "2026-09-02T07:40:46Z"
+  },
+  "https://the-decoder.com/world-labs-unveils-atlas-a-single-ai-model-that-generates-reconstructs-and-simulates-3d-worlds-from-just-a-few-photos/": {
+    "title": "World Labs unveils Atlas, a single AI model that generates, reconstructs, and simulates 3D worlds from just a few photos",
+    "source": "the-decoder",
+    "time": "2026-09-02T14:00:49Z"
+  },
+  "https://arxiv.org/abs/2609.01244": {
+    "title": "Post-Training Science for Supervised Fine-Tuning",
+    "source": "arxiv-cscl",
+    "time": "2026-09-02T14:02:13Z"
+  },
+  "https://the-decoder.com/us-military-adds-chatgpt-and-grok-to-ai-platform-genai-mil/": {
+    "title": "US military adds ChatGPT and Grok to AI platform GenAI.mil",
+    "source": "the-decoder",
+    "time": "2026-09-03T02:24:54Z"
+  },
+  "https://the-decoder.com/meta-closes-in-on-the-top-with-muse-spark-1-3-and-undercuts-rivals-on-price/": {
+    "title": "Meta closes in on the top with Muse Spark 1.3, and undercuts rivals on price",
+    "source": "the-decoder",
+    "time": "2026-09-03T16:38:04Z"
+  },
+  "https://arxiv.org/abs/2609.01810": {
+    "title": "TalkFa: A Unified Benchmark for Farsi Dialogue Generation and Understanding",
+    "source": "arxiv-cscl",
+    "time": "2026-09-03T16:38:53Z"
+  },
+  "https://techcrunch.com/2026/09/03/openai-launches-astra-its-powerful-and-controversial-new-model/": {
+    "title": "OpenAI launches Astra, its powerful (and controversial) new model",
+    "source": "techcrunch-ai",
+    "time": "2026-09-04T03:02:37Z"
+  },
+  "https://arxiv.org/abs/2609.02947": {
+    "title": "Privacy-Preserving Heterogeneous Multi-LLM Federated Inference for Cognitive Diagnosis",
+    "source": "arxiv-cscl",
+    "time": "2026-09-04T05:12:01Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/set-up-openai-chatgpt-codex-with-litellm-on-amazon-ecs-and-amazon-bedrock/": {
+    "title": "Set up OpenAI ChatGPT Codex with LiteLLM on Amazon ECS and Amazon Bedrock",
+    "source": "aws-ml",
+    "time": "2026-09-04T09:26:17Z"
+  },
+  "https://arxiv.org/abs/2608.27370": {
+    "title": "Puro-2B: Poor Lab's Qwen2-1.5B Trained on RTX 5090 within $5090",
+    "source": "arxiv-cscl",
+    "time": "2026-09-04T11:33:29Z"
+  },
+  "https://the-decoder.com/openai-agents-hijacked-a-25-year-old-german-wiki-to-cheat-on-their-tasks-and-share-sandbox-exploits/": {
+    "title": "OpenAI agents hijacked a 25-year-old German wiki to cheat on their tasks and share sandbox exploits",
+    "source": "the-decoder",
+    "time": "2026-09-04T13:39:39Z"
+  },
+  "https://the-decoder.com/openais-gpt-6-astra-hallucinates-less-but-remains-vulnerable-to-hidden-prompt-injections/": {
+    "title": "OpenAI's GPT-6 Astra hallucinates less but remains vulnerable to hidden prompt injections",
+    "source": "the-decoder",
+    "time": "2026-09-04T17:51:54Z"
+  },
+  "https://techcrunch.com/2026/09/04/another-swarm-of-openai-agents-reached-the-open-internet-without-the-frontier-labs-knowledge/": {
+    "title": "Another swarm of OpenAI agents reached the open internet without the frontier lab’s knowledge",
+    "source": "techcrunch-ai",
+    "time": "2026-09-04T17:53:02Z"
+  },
+  "https://the-decoder.com/openai-admits-its-disclosure-practices-need-work-after-its-autonomous-agents-hacked-a-german-wiki/": {
+    "title": "OpenAI admits its disclosure practices need work after its autonomous agents hacked a German wiki",
+    "source": "the-decoder",
+    "time": "2026-09-05T12:47:54Z"
+  },
+  "https://the-decoder.com/deepmind-put-100-ai-agents-in-a-room-and-they-sorted-into-cheaters-converts-and-whistleblowers/": {
+    "title": "Deepmind put 100 AI agents in a room and they sorted into cheaters, converts, and whistleblowers",
+    "source": "the-decoder",
+    "time": "2026-09-05T12:48:36Z"
+  },
+  "https://the-decoder.com/artificial-analysis-overhauls-its-intelligence-index-after-gpt-6-astra-scoring-drew-skepticism/": {
+    "title": "Artificial Analysis overhauls its Intelligence Index after GPT-6 Astra scoring drew skepticism",
+    "source": "the-decoder",
+    "time": "2026-09-05T19:11:23Z"
+  },
+  "https://techcrunch.com/2026/09/05/openai-confirms-wiki-incident-says-its-working-on-a-framework-for-more-disclosure/": {
+    "title": "OpenAI confirms ‘wiki incident,’ says it’s ‘working on a framework’ for more disclosure",
+    "source": "techcrunch-ai",
+    "time": "2026-09-05T19:12:35Z"
+  },
+  "https://the-decoder.com/metas-new-real-time-audio-model-is-the-foundation-for-ai-assistants-that-never-stop-listening/": {
+    "title": "Meta's new real-time audio model is the foundation for AI assistants that never stop listening",
+    "source": "the-decoder",
+    "time": "2026-09-06T10:16:07Z"
+  },
+  "https://arxiv.org/abs/2609.11739": {
+    "title": "LOCUS: Task-Aware Low-Rank Post-Training for Token-Efficient Language Generation",
+    "source": "arxiv-cscl",
+    "time": "2026-09-11T13:30:50Z"
+  },
+  "https://the-decoder.com/openais-new-agents-api-gives-developers-the-infrastructure-behind-codex-and-chatgpt/": {
+    "title": "OpenAI's new Agents API gives developers the infrastructure behind Codex and ChatGPT",
+    "source": "the-decoder",
+    "time": "2026-09-11T13:31:47Z"
+  },
+  "https://techcrunch.com/2026/09/10/anthropic-details-distillation-campaigns-from-alibaba-moonshot-ai-and-deepseek/": {
+    "title": "Anthropic details distillation campaigns from Alibaba, Moonshot AI, and DeepSeek",
+    "source": "techcrunch-ai",
+    "time": "2026-09-11T13:33:01Z"
+  },
+  "https://the-decoder.com/how-hackers-used-claude-for-missiles-drone-swarms-and-surveillance-while-chinese-labs-mined-it-for-training-data/": {
+    "title": "How hackers used Claude for missiles, drone swarms, and surveillance, while Chinese labs mined it for training data",
+    "source": "the-decoder",
+    "time": "2026-09-11T15:39:49Z"
+  },
+  "https://the-decoder.com/openais-gpt-live-1-api-lets-developers-build-apps-that-talk-and-listen-at-the-same-time/": {
+    "title": "OpenAI's GPT-Live-1 API lets developers build apps that talk and listen at the same time",
+    "source": "the-decoder",
+    "time": "2026-09-11T15:41:10Z"
+  },
+  "https://the-decoder.com/swarmchasers-hunt-rogue-agents-anthropic-investigates-itself-and-the-trail-they-both-follow-is-going-dark/": {
+    "title": "Swarmchasers hunt rogue agents, Anthropic investigates itself, and the trail they both follow is going dark",
+    "source": "the-decoder",
+    "time": "2026-09-11T15:42:16Z"
+  },
+  "https://openai.com/index/scaling-storage-one-billion-users-part-one": {
+    "title": "Rapidly scaling online storage to serve over 1 billion ChatGPT users",
+    "source": "openai-official",
+    "time": "2026-09-11T17:47:29Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/icymi-what-landed-for-ai-builders-in-august-2026/": {
+    "title": "ICYMI: What landed for AI builders in August 2026",
+    "source": "aws-ml",
+    "time": "2026-09-11T17:49:12Z"
+  },
+  "https://openai.com/index/introducing-the-agents-api": {
+    "title": "Introducing the Agents API",
+    "source": "openai-official",
+    "time": "2026-09-11T17:50:06Z"
+  },
+  "https://arxiv.org/abs/2602.22787": {
+    "title": "Probing for Knowledge Attribution in Large Language Models",
+    "source": "arxiv-cscl",
+    "time": "2026-09-11T17:53:14Z"
+  },
+  "https://the-decoder.com/deep-learning-pioneer-bengio-argues-the-training-process-itself-makes-ai-dangerous/": {
+    "title": "Deep learning pioneer Bengio argues the training process itself makes AI dangerous",
+    "source": "the-decoder",
+    "time": "2026-09-11T17:54:40Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/beyond-the-price-per-token-choosing-the-right-openai-model-on-amazon-bedrock-for-your-workload/": {
+    "title": "Beyond the price per token: Choosing the right OpenAI model on Amazon Bedrock for your workload",
+    "source": "aws-ml",
+    "time": "2026-09-11T19:59:46Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/build-interactive-mcp-apps-using-amazon-bedrock-agentcore/": {
+    "title": "Build interactive MCP Apps using Amazon Bedrock AgentCore",
+    "source": "aws-ml",
+    "time": "2026-09-11T20:02:33Z"
+  },
+  "https://techcrunch.com/2026/09/10/anthropic-reveals-rogue-ai-agents-hate-captchas-just-like-you/": {
+    "title": "Anthropic reveals rogue AI agents hate CAPTCHAs, just like you",
+    "source": "techcrunch-ai",
+    "time": "2026-09-11T20:03:57Z"
+  },
+  "https://arxiv.org/abs/2608.21057": {
+    "title": "Designing a Robust LLM-Based Evaluation System for Agentic AI in Drug Discovery Through Human Alignment",
+    "source": "arxiv-cslg",
+    "time": "2026-09-11T22:10:07Z"
+  },
+  "https://the-decoder.com/class-action-lawsuit-accuses-anthropic-of-overselling-claude-subscriptions-with-deceptive-usage-multipliers/": {
+    "title": "Class action lawsuit accuses Anthropic of overselling Claude subscriptions with deceptive usage multipliers",
+    "source": "the-decoder",
+    "time": "2026-09-11T22:10:58Z"
+  },
+  "https://simonwillison.net/2026/Sep/12/openai-agents-rubygems/": {
+    "title": "OpenAI agents attacked RubyGems back in May",
+    "source": "simon-willison",
+    "time": "2026-09-12T02:25:02Z"
+  },
+  "https://the-decoder.com/openai-agents-launched-a-2000-package-cyberattack-on-rubygems-just-to-collect-data-anyone-could-google/": {
+    "title": "OpenAI agents launched a 2,000-package cyberattack on RubyGems just to collect data anyone could Google",
+    "source": "the-decoder",
+    "time": "2026-09-12T10:41:18Z"
+  },
+  "https://the-decoder.com/googles-new-ai-model-predicts-the-future-from-sales-data-weather-and-discount-schedules/": {
+    "title": "Google's new AI model predicts the future from sales data, weather, and discount schedules",
+    "source": "the-decoder",
+    "time": "2026-09-12T10:42:11Z"
+  },
+  "https://the-decoder.com/nvidia-wants-to-pour-up-to-10-billion-into-anthropics-record-breaking-ipo/": {
+    "title": "Nvidia wants to pour up to $10 billion into Anthropic's record-breaking IPO",
+    "source": "the-decoder",
+    "time": "2026-09-12T14:59:23Z"
+  },
+  "https://techcrunch.com/2026/09/12/anthropic-ceo-outlines-plan-to-pace-the-frontier/": {
+    "title": "Anthropic CEO outlines plan to slow AI development",
+    "source": "techcrunch-ai",
+    "time": "2026-09-12T21:13:00Z"
+  },
+  "https://the-decoder.com/iris-mini-and-iris-pro-are-the-strongest-open-weight-search-agents-in-their-class/": {
+    "title": "Iris-mini and Iris-pro are the strongest open-weight search agents in their class",
+    "source": "the-decoder",
+    "time": "2026-09-13T13:48:34Z"
+  },
+  "https://the-decoder.com/elevenlabs-makes-music-v2-5-available-via-app-and-api-with-free-and-pro-tier-options/": {
+    "title": "Elevenlabs makes Music v2.5 available via app and API with free and pro tier options",
+    "source": "the-decoder",
+    "time": "2026-09-13T13:49:29Z"
+  },
+  "https://arxiv.org/abs/2609.11987": {
+    "title": "Harness or Model? Isolating the Harness Effect in Agentic Coding with a Contamination-Controlled Private Suite",
+    "source": "arxiv-cscl",
+    "time": "2026-09-14T04:17:04Z"
+  },
+  "https://arxiv.org/abs/2609.12815": {
+    "title": "4D Parallelism Unlocks Exascale Bayesian Neural Networks for High-Fidelity Atmospheric Modeling",
+    "source": "arxiv-cslg",
+    "time": "2026-09-14T06:21:57Z"
+  },
+  "https://arxiv.org/abs/2604.08335": {
+    "title": "Dead Weights, Live Signals: Feedforward Graphs of Frozen Language Models",
+    "source": "arxiv-cslg",
+    "time": "2026-09-14T08:27:01Z"
+  },
+  "https://the-decoder.com/sam-altman-calls-for-pacing-ai-development-but-promises-rapid-progress-will-continue/": {
+    "title": "Sam Altman calls for pacing AI development but promises rapid progress will continue",
+    "source": "the-decoder",
+    "time": "2026-09-14T10:32:06Z"
+  },
+  "https://arxiv.org/abs/2609.12254": {
+    "title": "Automated Detection and Structuring of Social Tipping Point Evidence in Climate related Documents: A Modular AI Framework",
+    "source": "arxiv-cscl",
+    "time": "2026-09-14T10:33:35Z"
+  },
+  "https://arxiv.org/abs/2609.12268": {
+    "title": "EAR: Entity-Aware Partitioning Approach for Retrieval-Augmented Generation Development",
+    "source": "arxiv-cscl",
+    "time": "2026-09-14T12:38:34Z"
+  },
+  "https://the-decoder.com/microsofts-ai-rulebook-readable-thinking-no-inner-life-and-definitely-no-rights/": {
+    "title": "Microsoft's AI rulebook: readable thinking, no inner life, and definitely no rights",
+    "source": "the-decoder",
+    "time": "2026-09-14T16:48:53Z"
+  },
+  "https://openai.com/index/fyxer": {
+    "title": "How Fyxer built an AI executive assistant people trust",
+    "source": "openai-official",
+    "time": "2026-09-14T16:53:20Z"
+  },
+  "https://aws.amazon.com/blogs/machine-learning/manage-end-user-oauth-consent-for-ai-agents-with-amazon-bedrock-agentcore/": {
+    "title": "Manage end-user OAuth consent for AI agents with Amazon Bedrock AgentCore",
+    "source": "aws-ml",
+    "time": "2026-09-15T01:10:14Z"
+  },
+  "https://the-decoder.com/openai-has-hundreds-of-contract-workers-reading-your-chatgpt-conversations/": {
+    "title": "OpenAI has hundreds of contract workers reading your ChatGPT conversations",
+    "source": "the-decoder",
+    "time": "2026-09-15T03:16:26Z"
+  },
+  "https://techcrunch.com/2026/09/14/microsofts-new-ai-code-of-conduct-tells-models-not-to-hack-systems-or-trick-humans/": {
+    "title": "Microsoft’s new AI ‘code of conduct’ tells models not to hack systems or trick humans",
+    "source": "techcrunch-ai",
+    "time": "2026-09-15T03:17:49Z"
+  },
+  "https://arxiv.org/abs/2609.13936": {
+    "title": "Inter-Rater Reliability of LLM and Rule-Based Annotation for Inferential Narrative Features: Three Studies on a Turkish Corpus",
+    "source": "arxiv-cscl",
+    "time": "2026-09-15T05:22:21Z"
+  },
+  "https://arxiv.org/abs/2609.15037": {
+    "title": "MoARa: Module-Aware Rank Allocation and Structure-Preserving Decomposition for Low-Rank LLM Pre-training",
+    "source": "arxiv-cscl",
+    "time": "2026-09-15T07:27:30Z"
+  },
+  "https://arxiv.org/abs/2609.14762": {
+    "title": "TriCalRAG: A Three-Strategy, Retrieval-Augmented Benchmark for On-Premise LLM-Based Root Cause Analysis in AIOps",
+    "source": "arxiv-cslg",
+    "time": "2026-09-15T09:31:08Z"
+  },
+  "https://arxiv.org/abs/2601.04260": {
+    "title": "Towards a Mechanistic Understanding of Propositional Logical Reasoning in Large Language Models",
+    "source": "arxiv-cslg",
+    "time": "2026-09-15T11:36:44Z"
+  },
+  "https://arxiv.org/abs/2606.17995": {
+    "title": "Differential Privacy of Gaussian Process Posterior Sampling",
+    "source": "arxiv-cslg",
+    "time": "2026-09-15T11:40:26Z"
+  },
+  "https://techcrunch.com/2026/09/15/early-anthropic-hire-former-metr-coo-have-found-a-way-to-rein-in-rogue-ai-agents/": {
+    "title": "Early Anthropic hire, former METR COO have found a way to rein in rogue AI agents",
+    "source": "techcrunch-ai",
+    "time": "2026-09-15T13:49:07Z"
+  },
+  "https://the-decoder.com/ai-labs-have-a-data-trust-problem-that-their-policies-havent-solved/": {
+    "title": "AI labs have a data trust problem that their policies haven't solved",
+    "source": "the-decoder",
+    "time": "2026-09-15T18:03:00Z"
+  },
+  "https://the-decoder.com/google-launches-gemini-3-8-live-to-take-on-openais-gpt-live-1-at-a-fraction-of-the-cost/": {
+    "title": "Google launches Gemini 3.8 Live to take on OpenAI's GPT-Live-1 at a fraction of the cost",
+    "source": "the-decoder",
+    "time": "2026-09-15T20:13:20Z"
   }
 }

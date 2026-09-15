@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import AuthModal from '@/components/AuthModal';
+
+// Референтная стоимость 1 картинки в кредитах (дешёвая модель = 15 ₽ ≈ 172.5 кр).
+const REFERENCE_IMAGE_CREDITS = 172.5;
 import { apiCall, getMe } from '@/lib/api';
 
 const faqItems = [
@@ -85,6 +88,9 @@ export default function PricesClient() {
                       +{plan.bonus} бонусных кредитов
                     </p>
                   )}
+                  <p className="plans__images">
+                    ≈ {Math.max(1, Math.floor((plan.credits + plan.bonus) / REFERENCE_IMAGE_CREDITS)).toLocaleString('ru-RU')} картинок
+                  </p>
                 </div>
                 <button className="plans__btn" onClick={()=>void startPayment(plan.id)}>Пополнить</button>
               </div>

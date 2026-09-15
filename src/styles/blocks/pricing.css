@@ -212,6 +212,12 @@
   margin: 0;
 }
 
+.plans__images {
+  font-size: 0.8125rem;
+  color: #555;
+  margin: 6px 0 0;
+}
+
 .plans__btn {
   width: 100%;
   padding: 10px;

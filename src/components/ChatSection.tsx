@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import TaskHub from './TaskHub';
-import { uploadFile, punctuateText, ensembleChat, sendFeedback, getGeneration, estimateTask, recordProductEvent, type GenerationInfo, type FactCheckResult, type ContentPart, type ChatMessage, type TaskEstimate, type TaskRunContext, type TaskTemplate } from '@/lib/api';
+import { uploadFile, punctuateText, sendFeedback, getGeneration, estimateTask, recordProductEvent, type GenerationInfo, type FactCheckResult, type ContentPart, type ChatMessage, type TaskEstimate, type TaskRunContext, type TaskTemplate } from '@/lib/api';
 import { categories, allModels, DEFAULT_MODEL_ID, isVisionCapable, filterVisionModels, loadModelsFromApi, subscribeToModelsUpdates, type ModelItem } from '@/lib/models-data';
 
 // Read a File as a base64 data URL
@@ -280,7 +280,6 @@ interface ChatSectionProps {
   chatActive?: boolean;
   onDeleteChat?: () => void;
   onShareChat?: () => void;
-  onEnsembleResult?: (text: string, files: FileItem[] | undefined, result: any) => void;
   onActivateChat?: () => void;
   onRegenerate?: () => void;
   currentSessionId?: string | null;
@@ -300,7 +299,7 @@ interface FileItem {
   error?: string;
 }
 
-export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLoggedIn, onSendMessage, onOpenAuth, onToggleSidebar, onUpdateModel, messages = [], sending = false, thinkingText = '', chatActive = false, onDeleteChat, onShareChat: _onShareChat, onEnsembleResult, onActivateChat, onRegenerate, currentSessionId, userCredits, onOpenPricing }: ChatSectionProps) {
+export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLoggedIn, onSendMessage, onOpenAuth, onToggleSidebar, onUpdateModel, messages = [], sending = false, thinkingText = '', chatActive = false, onDeleteChat, onShareChat: _onShareChat, onActivateChat, onRegenerate, currentSessionId, userCredits, onOpenPricing }: ChatSectionProps) {
   const [modelSelectOpen, setModelSelectOpen] = useState(false);
   const [modelSearch, setModelSearch] = useState('');
   const [capabilityFilter, setCapabilityFilter] = useState('all');
@@ -336,8 +335,6 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
   const [visionAlert, setVisionAlert] = useState<{ modelName: string; visionModels: typeof allModels } | null>(null);
   const factCheckResults: Record<number, FactCheckResult> = {};
   const factCheckLoading: number | null = null;
-  const [ensembleLoading, setEnsembleLoading] = useState(false);
-  const [ensembleError, setEnsembleError] = useState<string | null>(null);
   const [uiError, setUiError] = useState<string | null>(null);
   const [, forceUpdate] = useState(0);
 
@@ -655,51 +652,6 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
   // ──────────────── Fact Check ────────────────
 
   const handleFactCheck = async (_idx: number, _msg: { role: string; content: string | any[] }) => undefined;
-
-  const handleEnsemble = useCallback(async () => {
-    if (!message.trim() || ensembleLoading || !isLoggedIn) return;
-    if (!onEnsembleResult) return;
-
-    setEnsembleLoading(true);
-    setEnsembleError(null);
-
-    const text = message;
-    const currentFiles = [...files];
-
-    // Activate chat view immediately (show messages area instead of welcome)
-    onActivateChat?.();
-
-    setMessage('');
-    setFiles([]);
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000);
-
-      let userContent: ContentPart[] | string;
-      if (currentFiles.length > 0) {
-        const imageParts: ContentPart[] = currentFiles
-          .filter((f): f is FileItem & { dataUrl: string } => !!f.dataUrl?.startsWith('data:image/'))
-          .map(f => ({ type: 'image_url' as const, image_url: { url: f.dataUrl } }));
-        userContent = [{ type: 'text' as const, text } as ContentPart, ...imageParts];
-      } else {
-        userContent = text;
-      }
-
-      const messagesPayload: ChatMessage[] = [{ role: 'user', content: userContent }];
-      const result = await ensembleChat('budget', messagesPayload, controller.signal);
-      clearTimeout(timeoutId);
-      onEnsembleResult(text, currentFiles, result);
-    } catch (e: any) {
-      if (e.name === 'AbortError') {
-        setEnsembleError('Таймаут: модели не ответили за 60 секунд. Попробуйте ещё раз.');
-      } else {
-        setEnsembleError(e.message || 'Ошибка при запросе Ensemble');
-      }
-    } finally {
-      setEnsembleLoading(false);
-    }
-  }, [message, files, ensembleLoading, isLoggedIn, onEnsembleResult, onActivateChat]);
 
   if (!selectedModel) {
     return (
@@ -1210,29 +1162,6 @@ export default function ChatSection({ isMobile: _isMobile, sidebarOpen, isLogged
             {uiError}
             <button type="button" onClick={() => setUiError(null)} aria-label="Закрыть">×</button>
           </div>
-        )}
-
-        {isLoggedIn && message.trim() && (
-        <div className="chat__ensemble-row">
-          <button
-            className="chat__ensemble-btn"
-            onClick={handleEnsemble}
-            disabled={ensembleLoading || !message.trim()}
-          >
-            {ensembleLoading ? (
-              <><span className="chat__ensemble-spinner" /> Опрашиваем 3 модели...</>
-            ) : (
-              '🧠 Уточнить у 3 моделей'
-            )}
-          </button>
-        </div>
-        )}
-
-        {ensembleError && (
-        <div className="chat__ensemble-error">
-          ⚠️ {ensembleError}
-          <button className="chat__ensemble-error-close" onClick={() => setEnsembleError(null)}>✕</button>
-        </div>
         )}
 
         <div className="chat__cost-hint chat__cost-hint--live">

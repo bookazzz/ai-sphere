@@ -97,6 +97,9 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
 
   const fmtPrice = (p: number) => (p / 100).toLocaleString('ru-RU'); // kop → rub
 
+// Референтная стоимость 1 картинки в кредитах (дешёвая модель = 15 ₽ ≈ 172.5 кр).
+const REFERENCE_IMAGE_CREDITS = 172.5;
+
   if (!isOpen) return null;
 
   return (
@@ -131,10 +134,10 @@ export default function PricingModal({ isOpen, onClose, isLoggedIn, onTopUp, onS
               <div className="pricing-modal__card-body">
                 <p className="pricing-modal__benefit">
                   ≈ {Math.max(1, Math.floor((plan.credits + plan.bonus) / 3)).toLocaleString('ru-RU')} коротких ответов<br />
-                  или {Math.max(1, Math.floor((plan.credits + plan.bonus) / 20)).toLocaleString('ru-RU')} изображений
+                  или {Math.max(1, Math.floor((plan.credits + plan.bonus) / REFERENCE_IMAGE_CREDITS)).toLocaleString('ru-RU')} изображений
                 </p>
                 <p className="pricing-modal__credits">
-                  ~{(plan.credits + plan.bonus).toLocaleString('ru-RU')} кредитов
+                  {plan.credits.toLocaleString('ru-RU')} кредитов
                 </p>
                 {plan.bonus > 0 && (
                   <p className="pricing-modal__bonus-text">
